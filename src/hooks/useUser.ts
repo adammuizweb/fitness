@@ -17,11 +17,25 @@ export function useUser() {
         return
       }
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single()
+
+      if (error) {
+        setProfile({
+          id: user.id,
+          username: user.email?.split('@')[0] ?? 'user',
+          full_name: user.email ?? '',
+          role: 'user',
+          is_banned: false,
+          created_at: user.created_at ?? new Date().toISOString(),
+          updated_at: user.created_at ?? new Date().toISOString(),
+        } as Profile)
+        setLoading(false)
+        return
+      }
 
       setProfile(data)
       setLoading(false)

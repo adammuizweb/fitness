@@ -2,6 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  allowedDevOrigins: ['fitnes.lan', '127.0.0.1'],
   headers: async () => [
     {
       source: '/sw.js',
