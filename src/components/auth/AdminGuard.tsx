@@ -10,7 +10,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && (!profile || profile.role !== 'admin')) {
-      router.push('/dashboard')
+      router.push('/')
     }
   }, [loading, profile, router])
 
