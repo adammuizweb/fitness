@@ -14,12 +14,14 @@ export default function AdminUserEditPage() {
   const { data: users } = useAdminUsers()
   const updateMutation = useUpdateUser()
 
-  const user = users?.find((u) => u.id === id)
-  const [role, setRole] = useState(user?.role || 'user')
+  const found = users?.find((u) => u.id === id)
+  const [role, setRole] = useState<string>(found?.role || 'user')
 
-  if (!user) {
+  if (!found) {
     return <div className="text-center py-8 text-gray-500">User tidak ditemukan</div>
   }
+
+  const user = found
 
   async function handleToggleBan() {
     await updateMutation.mutateAsync({

@@ -1,5 +1,5 @@
 import { createClient as createServerClient } from './supabase/server'
-import { createClient as createAdminClient } from './supabase/admin'
+import { createAdminClient } from './supabase/admin'
 import { redirect } from 'next/navigation'
 import type { Profile } from '@/types'
 

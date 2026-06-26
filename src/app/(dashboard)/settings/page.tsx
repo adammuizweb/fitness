@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -11,9 +11,16 @@ import { createClient } from '@/lib/supabase/client'
 export default function SettingsPage() {
   const { profile, loading } = useUser()
   const [fullName, setFullName] = useState(profile?.full_name || '')
+  const [email, setEmail] = useState('')
   const [saving, setSaving] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email) setEmail(data.user.email)
+    })
+  }, [supabase])
 
   async function handleUpdateProfile(e: React.FormEvent) {
     e.preventDefault()
@@ -55,7 +62,7 @@ export default function SettingsPage() {
             <Input
               id="email"
               label="Email"
-              value={profile?.email || ''}
+              value={email}
               disabled
             />
             <Input
