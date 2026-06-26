@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,7 +14,6 @@ export function RegisterForm() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
   const supabase = createClient()
 
   function updateField(key: string, value: string) {
@@ -50,7 +48,7 @@ export function RegisterForm() {
       return
     }
 
-    router.push('/dashboard')
+    window.location.href = '/dashboard'
   }
 
   return (
@@ -66,6 +64,7 @@ export function RegisterForm() {
         label="Email"
         type="email"
         placeholder="nama@email.com"
+        autoComplete="username"
         value={form.email}
         onChange={(e) => updateField('email', e.target.value)}
         required
