@@ -17,12 +17,12 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/workouts', label: 'Workouts', icon: Dumbbell },
-  { href: '/log', label: 'Log Harian', icon: ClipboardList },
-  { href: '/streak', label: 'Streak', icon: Flame },
-  { href: '/log/history', label: 'Riwayat', icon: ClipboardList },
-  { href: '/settings', label: 'Pengaturan', icon: Settings },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/workouts', label: 'Workouts', icon: Dumbbell },
+  { href: '/dashboard/log', label: 'Log Harian', icon: ClipboardList },
+  { href: '/dashboard/streak', label: 'Streak', icon: Flame },
+  { href: '/dashboard/log/history', label: 'Riwayat', icon: ClipboardList },
+  { href: '/dashboard/settings', label: 'Pengaturan', icon: Settings },
 ]
 
 export function Sidebar() {
@@ -40,7 +40,7 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-white border-r border-gray-200 flex flex-col">
       <div className="p-6 border-b border-gray-100">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center">
             <Flame className="w-5 h-5 text-white" />
           </div>

@@ -28,7 +28,7 @@ export function DashboardClient({ logs, streak, totalExercises }: Props) {
               : `${logs.length} exercise telah dilog hari ini`}
           </p>
         </div>
-        <Link href="/log">
+        <Link href="/dashboard/log">
           <Button>
             <Plus className="w-4 h-4" />
             Log Workout

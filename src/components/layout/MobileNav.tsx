@@ -7,10 +7,10 @@ import { LayoutDashboard, Dumbbell, ClipboardList, Flame, Menu } from 'lucide-re
 import { useState } from 'react'
 
 const mobileItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/workouts', label: 'Workouts', icon: Dumbbell },
-  { href: '/log', label: 'Log', icon: ClipboardList },
-  { href: '/streak', label: 'Streak', icon: Flame },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/workouts', label: 'Workouts', icon: Dumbbell },
+  { href: '/dashboard/log', label: 'Log', icon: ClipboardList },
+  { href: '/dashboard/streak', label: 'Streak', icon: Flame },
 ]
 
 export function MobileNav() {

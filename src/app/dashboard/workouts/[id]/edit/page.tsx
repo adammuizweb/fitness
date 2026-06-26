@@ -15,7 +15,7 @@ export default function EditWorkoutPage() {
 
   async function handleSubmit(data: ExerciseInput) {
     await mutation.mutateAsync(data)
-    router.push('/workouts')
+    router.push('/dashboard/workouts')
     router.refresh()
   }
 
