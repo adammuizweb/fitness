@@ -9,12 +9,12 @@ import type { WorkoutLog, DailyStreak } from '@/types'
 interface Props {
   logs: WorkoutLog[]
   streak: DailyStreak | null
-  totalExercises: number
+  totalWorkouts: number
 }
 
-export function DashboardClient({ logs, streak, totalExercises }: Props) {
-  const totalSets = logs.reduce((sum, log) => sum + log.sets, 0)
-  const totalReps = logs.reduce((sum, log) => sum + log.reps, 0)
+export function DashboardClient({ logs, streak, totalWorkouts }: Props) {
+  const totalSets = logs.reduce((sum, log) => sum + (log.sets || 0), 0)
+  const totalReps = logs.reduce((sum, log) => sum + (log.reps || 0), 0)
   const currentStreak = streak?.current_streak || 0
 
   return (
@@ -25,7 +25,7 @@ export function DashboardClient({ logs, streak, totalExercises }: Props) {
           <p className="text-gray-500 text-sm mt-1">
             {logs.length === 0
               ? 'Belum ada workout hari ini. Ayo mulai!'
-              : `${logs.length} exercise telah dilog hari ini`}
+              : `${logs.length} workout telah dilog hari ini`}
           </p>
         </div>
         <Link href="/dashboard/log">
@@ -54,8 +54,8 @@ export function DashboardClient({ logs, streak, totalExercises }: Props) {
               <Dumbbell className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{totalExercises}</p>
-              <p className="text-xs text-gray-500">Exercises</p>
+              <p className="text-2xl font-bold">{totalWorkouts}</p>
+              <p className="text-xs text-gray-500">Workouts</p>
             </div>
           </CardContent>
         </Card>
@@ -93,10 +93,11 @@ export function DashboardClient({ logs, streak, totalExercises }: Props) {
               {logs.map((log) => (
                 <div key={log.id} className="py-3 flex items-center justify-between">
                   <div>
-                    <p className="font-medium">{log.exercise?.name}</p>
+                    <p className="font-medium">{log.workout?.name}</p>
                     <p className="text-sm text-gray-500">
-                      {log.sets} set x {log.reps} rep
-                      {log.weight ? ` • ${log.weight} kg` : ''}
+                      {log.workout?.type === 'lift'
+                        ? `${log.sets || '?'} set x ${log.reps || '?'} rep${log.weight ? ` • ${log.weight} kg` : ''}`
+                        : `${log.distance || '?'} m • ${log.duration || '?'} menit`}
                     </p>
                   </div>
                   {log.notes && (

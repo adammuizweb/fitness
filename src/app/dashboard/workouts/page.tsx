@@ -8,8 +8,8 @@ export default async function WorkoutsPage() {
   if (!user) redirect('/login')
   const supabase = await createClient()
 
-  const { data: exercises } = await supabase
-    .from('exercises')
+  const { data: workouts } = await supabase
+    .from('workouts')
     .select('*')
     .eq('user_id', user.id)
     .order('name')
@@ -20,12 +20,12 @@ export default async function WorkoutsPage() {
         <div>
           <h1 className="text-2xl font-bold">Workouts</h1>
           <p className="text-gray-500 text-sm mt-1">
-            Daftar exercise yang kamu miliki
+            Daftar workout template yang kamu miliki
           </p>
         </div>
       </div>
 
-      <WorkoutList exercises={exercises || []} />
+      <WorkoutList workouts={workouts || []} />
     </div>
   )
 }

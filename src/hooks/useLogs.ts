@@ -10,7 +10,7 @@ async function fetchTodayLogs(): Promise<WorkoutLog[]> {
   const today = new Date().toISOString().split('T')[0]
   const { data, error } = await supabase
     .from('workout_logs')
-    .select('*, exercise:exercises(*)')
+    .select('*, workout:workouts(*)')
     .eq('logged_date', today)
     .order('created_at')
 
@@ -21,7 +21,7 @@ async function fetchTodayLogs(): Promise<WorkoutLog[]> {
 async function fetchLogsByDate(date: string): Promise<WorkoutLog[]> {
   const { data, error } = await supabase
     .from('workout_logs')
-    .select('*, exercise:exercises(*)')
+    .select('*, workout:workouts(*)')
     .eq('logged_date', date)
     .order('created_at')
 
@@ -32,7 +32,7 @@ async function fetchLogsByDate(date: string): Promise<WorkoutLog[]> {
 async function fetchLogHistory(): Promise<WorkoutLog[]> {
   const { data, error } = await supabase
     .from('workout_logs')
-    .select('*, exercise:exercises(*)')
+    .select('*, workout:workouts(*)')
     .order('logged_date', { ascending: false })
     .limit(50)
 
@@ -40,27 +40,32 @@ async function fetchLogHistory(): Promise<WorkoutLog[]> {
   return data
 }
 
-async function upsertLog(input: WorkoutLogInput): Promise<WorkoutLog> {
+async function upsertLog(input: WorkoutLogInput & { logged_date?: string }): Promise<WorkoutLog> {
   const today = input.logged_date || new Date().toISOString().split('T')[0]
 
   const { data: existing } = await supabase
     .from('workout_logs')
     .select('id')
-    .eq('exercise_id', input.exercise_id)
+    .eq('workout_id', input.workout_id)
     .eq('logged_date', today)
     .maybeSingle()
+
+  const payload: Record<string, unknown> = {
+    sets: input.sets ?? null,
+    reps: input.reps ?? null,
+    weight: input.weight ?? null,
+    distance: input.distance ?? null,
+    duration: input.duration ?? null,
+    notes: input.notes || null,
+    is_done: input.is_done ?? true,
+  }
 
   if (existing) {
     const { data, error } = await supabase
       .from('workout_logs')
-      .update({
-        sets: input.sets,
-        reps: input.reps,
-        weight: input.weight || null,
-        notes: input.notes || null,
-      })
+      .update(payload)
       .eq('id', existing.id)
-      .select('*, exercise:exercises(*)')
+      .select('*, workout:workouts(*)')
       .single()
 
     if (error) throw error
@@ -70,14 +75,11 @@ async function upsertLog(input: WorkoutLogInput): Promise<WorkoutLog> {
   const { data, error } = await supabase
     .from('workout_logs')
     .insert({
-      exercise_id: input.exercise_id,
-      sets: input.sets,
-      reps: input.reps,
-      weight: input.weight || null,
-      notes: input.notes || null,
+      workout_id: input.workout_id,
+      ...payload,
       logged_date: today,
     })
-    .select('*, exercise:exercises(*)')
+    .select('*, workout:workouts(*)')
     .single()
 
   if (error) throw error
@@ -88,6 +90,15 @@ async function deleteLog(id: string): Promise<void> {
   const { error } = await supabase
     .from('workout_logs')
     .delete()
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+async function toggleLogDone(id: string, is_done: boolean): Promise<void> {
+  const { error } = await supabase
+    .from('workout_logs')
+    .update({ is_done })
     .eq('id', id)
 
   if (error) throw error
@@ -130,6 +141,17 @@ export function useDeleteLog() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: deleteLog,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['logs'] })
+      queryClient.invalidateQueries({ queryKey: ['streak'] })
+    },
+  })
+}
+
+export function useToggleLogDone() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, is_done }: { id: string; is_done: boolean }) => toggleLogDone(id, is_done),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['logs'] })
       queryClient.invalidateQueries({ queryKey: ['streak'] })

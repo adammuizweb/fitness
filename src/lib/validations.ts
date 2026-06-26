@@ -16,20 +16,28 @@ export const registerSchema = z.object({
   full_name: z.string().min(1, 'Nama lengkap wajib diisi'),
 })
 
-export const exerciseSchema = z.object({
-  name: z.string().min(1, 'Nama exercise wajib diisi'),
+export const workoutSchema = z.object({
+  name: z.string().min(1, 'Nama workout wajib diisi'),
   description: z.string().optional(),
+  type: z.enum(['lift', 'cardio']),
+  default_sets: z.coerce.number().int().positive().optional(),
+  default_reps: z.coerce.number().int().positive().optional(),
+  default_distance: z.coerce.number().min(0).optional(),
+  default_duration: z.coerce.number().int().positive().optional(),
 })
 
 export const workoutLogSchema = z.object({
-  exercise_id: z.string().uuid('Pilih exercise'),
-  sets: z.coerce.number().int().positive('Sets harus lebih dari 0'),
-  reps: z.coerce.number().int().positive('Reps harus lebih dari 0'),
+  workout_id: z.string().uuid('Pilih workout'),
+  sets: z.coerce.number().int().positive().optional(),
+  reps: z.coerce.number().int().positive().optional(),
   weight: z.coerce.number().min(0).optional(),
+  distance: z.coerce.number().min(0).optional(),
+  duration: z.coerce.number().int().positive().optional(),
+  is_done: z.boolean().optional(),
   notes: z.string().optional(),
 })
 
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
-export type ExerciseInput = z.infer<typeof exerciseSchema>
+export type WorkoutInput = z.infer<typeof workoutSchema>
 export type WorkoutLogInput = z.infer<typeof workoutLogSchema>

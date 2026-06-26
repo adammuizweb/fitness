@@ -13,7 +13,7 @@ export default async function DashboardPage() {
 
   const { data: logs } = await supabase
     .from('workout_logs')
-    .select('*, exercise:exercises(*)')
+    .select('*, workout:workouts(*)')
     .eq('user_id', user.id)
     .eq('logged_date', today)
 
@@ -23,8 +23,8 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .single()
 
-  const { count: totalExercises } = await supabase
-    .from('exercises')
+  const { count: totalWorkouts } = await supabase
+    .from('workouts')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id)
 
@@ -32,7 +32,7 @@ export default async function DashboardPage() {
     <DashboardClient
       logs={logs || []}
       streak={streak}
-      totalExercises={totalExercises || 0}
+      totalWorkouts={totalWorkouts || 0}
     />
   )
 }

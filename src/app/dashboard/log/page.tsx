@@ -8,22 +8,24 @@ export default async function LogPage() {
   if (!user) redirect('/login')
   const supabase = await createClient()
 
-  const { data: exercises } = await supabase
-    .from('exercises')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('name')
-
   const today = new Date().toISOString().split('T')[0]
+  const todayDayOfWeek = new Date().getDay()
+
+  const { data: schedules } = await supabase
+    .from('workout_schedules')
+    .select('*, workout:workouts(*)')
+    .eq('user_id', user.id)
+    .eq('day_of_week', todayDayOfWeek)
+
   const { data: todayLogs } = await supabase
     .from('workout_logs')
-    .select('*, exercise:exercises(*)')
+    .select('*, workout:workouts(*)')
     .eq('user_id', user.id)
     .eq('logged_date', today)
 
   return (
     <LogPageClient
-      exercises={exercises || []}
+      schedules={schedules || []}
       todayLogs={todayLogs || []}
     />
   )

@@ -25,7 +25,7 @@ export default function AdminStatsPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700">
               <p className="font-medium mb-1">Petunjuk:</p>
               <p>Jalankan SQL berikut di Supabase SQL Editor:</p>
-              <pre className="mt-2 bg-blue-100 p-3 rounded text-xs overflow-x-auto">
+                <pre className="mt-2 bg-blue-100 p-3 rounded text-xs overflow-x-auto">
 {`CREATE OR REPLACE FUNCTION public.get_admin_stats()
 RETURNS json AS $$
 DECLARE
@@ -33,20 +33,21 @@ DECLARE
 BEGIN
   SELECT json_build_object(
     'total_users', (SELECT COUNT(*) FROM public.profiles),
-    'total_logs_today', (SELECT COUNT(*) FROM public.workout_logs WHERE logged_date = CURRENT_DATE),
-    'total_logs_this_week', (SELECT COUNT(*) FROM public.workout_logs WHERE logged_date >= CURRENT_DATE - INTERVAL '7 days'),
-    'total_logs_this_month', (SELECT COUNT(*) FROM public.workout_logs WHERE logged_date >= DATE_TRUNC('month', CURRENT_DATE)),
-    'avg_logs_per_user', COALESCE((SELECT COUNT(*)::float / NULLIF(COUNT(DISTINCT user_id), 0) FROM public.workout_logs), 0),
+    'total_logs_today', (SELECT COUNT(*) FROM public.workout_logs WHERE logged_date = CURRENT_DATE AND is_done = TRUE),
+    'total_logs_this_week', (SELECT COUNT(*) FROM public.workout_logs WHERE logged_date >= CURRENT_DATE - INTERVAL '7 days' AND is_done = TRUE),
+    'total_logs_this_month', (SELECT COUNT(*) FROM public.workout_logs WHERE logged_date >= DATE_TRUNC('month', CURRENT_DATE) AND is_done = TRUE),
+    'avg_logs_per_user', COALESCE((SELECT COUNT(*)::float / NULLIF(COUNT(DISTINCT user_id), 0) FROM public.workout_logs WHERE is_done = TRUE), 0),
     'top_exercises', (
-      SELECT json_agg(json_build_object('name', e.name, 'count', cnt))
+      SELECT json_agg(json_build_object('name', w.name, 'count', cnt))
       FROM (
-        SELECT wl.exercise_id, COUNT(*) as cnt
+        SELECT wl.workout_id, COUNT(*) as cnt
         FROM public.workout_logs wl
-        GROUP BY wl.exercise_id
+        WHERE wl.is_done = TRUE
+        GROUP BY wl.workout_id
         ORDER BY cnt DESC
         LIMIT 5
       ) top
-      JOIN public.exercises e ON e.id = top.exercise_id
+      JOIN public.workouts w ON w.id = top.workout_id
     )
   ) INTO result;
   RETURN result;

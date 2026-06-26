@@ -11,27 +11,48 @@ export interface Profile {
   updated_at: string
 }
 
-export interface Exercise {
+export type WorkoutType = 'lift' | 'cardio'
+
+export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
+
+export interface Workout {
   id: string
   user_id: string
   name: string
   description: string | null
+  type: WorkoutType
+  default_sets: number | null
+  default_reps: number | null
+  default_distance: number | null
+  default_duration: number | null
   created_at: string
   updated_at: string
+}
+
+export interface WorkoutSchedule {
+  id: string
+  user_id: string
+  workout_id: string
+  day_of_week: DayOfWeek
+  created_at: string
+  workout?: Workout
 }
 
 export interface WorkoutLog {
   id: string
   user_id: string
-  exercise_id: string
-  sets: number
-  reps: number
+  workout_id: string
+  sets: number | null
+  reps: number | null
   weight: number | null
+  distance: number | null
+  duration: number | null
   notes: string | null
+  is_done: boolean
   logged_date: string
   created_at: string
   updated_at: string
-  exercise?: Exercise
+  workout?: Workout
 }
 
 export interface DailyStreak {
@@ -44,17 +65,25 @@ export interface DailyStreak {
 }
 
 export interface WorkoutLogInput {
-  exercise_id: string
-  sets: number
-  reps: number
+  workout_id: string
+  sets?: number
+  reps?: number
   weight?: number
+  distance?: number
+  duration?: number
   notes?: string
+  is_done?: boolean
   logged_date?: string
 }
 
-export interface ExerciseInput {
+export interface WorkoutInput {
   name: string
   description?: string
+  type: WorkoutType
+  default_sets?: number
+  default_reps?: number
+  default_distance?: number
+  default_duration?: number
 }
 
 export interface StatsOverview {
