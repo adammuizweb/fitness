@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth'
 import { StreakCalendar } from '@/components/streak/StreakCalendar'
@@ -5,12 +6,13 @@ import { StreakStats } from '@/components/streak/StreakStats'
 
 export default async function StreakPage() {
   const user = await getCurrentUser()
+  if (!user) redirect('/login')
   const supabase = await createClient()
 
   const { data: streak } = await supabase
     .from('daily_streaks')
     .select('*')
-    .eq('user_id', user!.id)
+    .eq('user_id', user.id)
     .single()
 
   const sixMonthsAgo = new Date()
@@ -20,7 +22,7 @@ export default async function StreakPage() {
   const { data: logs } = await supabase
     .from('workout_logs')
     .select('logged_date')
-    .eq('user_id', user!.id)
+    .eq('user_id', user.id)
     .gte('logged_date', since)
     .order('logged_date')
 

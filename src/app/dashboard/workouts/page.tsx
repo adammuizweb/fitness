@@ -1,15 +1,17 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth'
 import { WorkoutList } from '@/components/workouts/WorkoutList'
 
 export default async function WorkoutsPage() {
   const user = await getCurrentUser()
+  if (!user) redirect('/login')
   const supabase = await createClient()
 
   const { data: exercises } = await supabase
     .from('exercises')
     .select('*')
-    .eq('user_id', user!.id)
+    .eq('user_id', user.id)
     .order('name')
 
   return (
