@@ -51,7 +51,6 @@ export function RegisterForm() {
     }
 
     router.push('/dashboard')
-    router.refresh()
   }
 
   return (
@@ -97,6 +96,7 @@ export function RegisterForm() {
         label="Password"
         type="password"
         placeholder="Minimal 6 karakter"
+        autoComplete="new-password"
         value={form.password}
         onChange={(e) => updateField('password', e.target.value)}
         minLength={6}

@@ -35,7 +35,6 @@ export function LoginForm() {
     }
 
     router.push('/dashboard')
-    router.refresh()
   }
 
   return (
@@ -61,6 +60,7 @@ export function LoginForm() {
         label="Password"
         type="password"
         placeholder="••••••••"
+        autoComplete="current-password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
