@@ -4,7 +4,7 @@
 
 DO $$
 DECLARE
-  v_user_id UUID := '22426d7e-85c7-43b1-93ae-582b66273e40';
+  v_user_id UUID := '4fff3466-d2f6-409e-9cee-56ffdce40f84';
   today DATE := CURRENT_DATE;
   day1 DATE := CURRENT_DATE - 2;
   day2 DATE := CURRENT_DATE - 1;
