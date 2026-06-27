@@ -17,9 +17,13 @@ async function fetchWorkouts(): Promise<Workout[]> {
 }
 
 async function createWorkout(input: WorkoutInput): Promise<Workout> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
   const { data, error } = await supabase
     .from('workouts')
     .insert({
+      user_id: user.id,
       name: input.name,
       description: input.description || null,
       type: input.type,
@@ -35,16 +39,18 @@ async function createWorkout(input: WorkoutInput): Promise<Workout> {
   return data
 }
 
-const supabaseAdmin = createClient()
-
 async function createWorkoutWithSchedule(input: WorkoutInput & { schedule_days: number[] }): Promise<Workout> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
   const workout = await createWorkout(input)
 
   if (input.schedule_days.length > 0) {
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('workout_schedules')
       .insert(
         input.schedule_days.map((day) => ({
+          user_id: user.id,
           workout_id: workout.id,
           day_of_week: day,
         }))

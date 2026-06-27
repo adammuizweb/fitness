@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-import type { WorkoutLog, WorkoutLogInput } from '@/types'
+import type { WorkoutLog, WorkoutLogInput, Workout } from '@/types'
 
 const supabase = createClient()
 
@@ -43,6 +43,9 @@ async function fetchLogHistory(): Promise<WorkoutLog[]> {
 async function upsertLog(input: WorkoutLogInput & { logged_date?: string }): Promise<WorkoutLog> {
   const today = input.logged_date || new Date().toISOString().split('T')[0]
 
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
   const { data: existing } = await supabase
     .from('workout_logs')
     .select('id')
@@ -75,6 +78,7 @@ async function upsertLog(input: WorkoutLogInput & { logged_date?: string }): Pro
   const { data, error } = await supabase
     .from('workout_logs')
     .insert({
+      user_id: user.id,
       workout_id: input.workout_id,
       ...payload,
       logged_date: today,
@@ -102,6 +106,52 @@ async function toggleLogDone(id: string, is_done: boolean): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
+}
+
+async function toggleChecklistItem(
+  workoutId: string,
+  isCurrentlyDone: boolean,
+  workout: { default_sets?: number | null; default_reps?: number | null; default_distance?: number | null; default_duration?: number | null }
+): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const today = new Date().toISOString().split('T')[0]
+
+  if (isCurrentlyDone) {
+    await supabase
+      .from('workout_logs')
+      .update({ is_done: false })
+      .eq('workout_id', workoutId)
+      .eq('logged_date', today)
+  } else {
+    const { data: existing } = await supabase
+      .from('workout_logs')
+      .select('id')
+      .eq('workout_id', workoutId)
+      .eq('logged_date', today)
+      .maybeSingle()
+
+    if (existing) {
+      await supabase
+        .from('workout_logs')
+        .update({ is_done: true })
+        .eq('id', existing.id)
+    } else {
+      await supabase
+        .from('workout_logs')
+        .insert({
+          user_id: user.id,
+          workout_id: workoutId,
+          logged_date: today,
+          is_done: true,
+          sets: workout.default_sets ?? null,
+          reps: workout.default_reps ?? null,
+          distance: workout.default_distance ?? null,
+          duration: workout.default_duration ?? null,
+        })
+    }
+  }
 }
 
 export function useTodayLogs() {
@@ -152,6 +202,18 @@ export function useToggleLogDone() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, is_done }: { id: string; is_done: boolean }) => toggleLogDone(id, is_done),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['logs'] })
+      queryClient.invalidateQueries({ queryKey: ['streak'] })
+    },
+  })
+}
+
+export function useToggleChecklistItem() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ workoutId, isCurrentlyDone, workout }: { workoutId: string; isCurrentlyDone: boolean; workout: Workout }) =>
+      toggleChecklistItem(workoutId, isCurrentlyDone, workout),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['logs'] })
       queryClient.invalidateQueries({ queryKey: ['streak'] })
