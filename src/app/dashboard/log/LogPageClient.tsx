@@ -126,10 +126,16 @@ export function LogPageClient() {
       const { compressImage } = await import('@/lib/compressImage')
       const { fileToBase64 } = await import('@/lib/fileToBase64')
 
+      // Read files synchronously before any async
+      const fileCount = files.length
+      const fileInfos: { name: string; size: number; type: string }[] = []
+      for (let i = 0; i < fileCount; i++) {
+        fileInfos.push({ name: files[i].name, size: files[i].size, type: files[i].type })
+      }
+
       const filePayloads: { name: string; type: string; data: string }[] = []
-      for (let i = 0; i < files.length; i++) {
+      for (let i = 0; i < fileCount; i++) {
         const f = files[i]
-        // Try to compress (resize + WebP/JPEG), fall back to original on failure
         let blob: Blob
         try {
           blob = await compressImage(f)
@@ -144,7 +150,7 @@ export function LogPageClient() {
       const res = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ files: filePayloads }),
+        body: JSON.stringify({ files: filePayloads, _debug: { fileCount, fileInfos } }),
       })
       const data = await res.json()
 
