@@ -8,11 +8,17 @@ export default async function WorkoutsPage() {
   if (!user) redirect('/login')
   const supabase = await createClient()
 
-  const { data: workouts } = await supabase
-    .from('workouts')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('name')
+  const [{ data: workouts }, { data: schedules }] = await Promise.all([
+    supabase.from('workouts').select('*').eq('user_id', user.id).order('name'),
+    supabase.from('workout_schedules').select('*').eq('user_id', user.id),
+  ])
+
+  const scheduleDays = new Map<string, number[]>()
+  for (const s of schedules || []) {
+    const days = scheduleDays.get(s.workout_id) || []
+    days.push(s.day_of_week)
+    scheduleDays.set(s.workout_id, days)
+  }
 
   return (
     <div className="space-y-6">
@@ -25,7 +31,7 @@ export default async function WorkoutsPage() {
         </div>
       </div>
 
-      <WorkoutList workouts={workouts || []} />
+      <WorkoutList workouts={workouts || []} scheduleDays={scheduleDays} />
     </div>
   )
 }

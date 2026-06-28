@@ -6,17 +6,18 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogFooter } from '@/components/ui/dialog'
-import { Plus, Pencil, Trash2, Dumbbell, Heart } from 'lucide-react'
-import { useWorkouts, useDeleteWorkout } from '@/hooks/useWorkouts'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { useDeleteWorkout } from '@/hooks/useWorkouts'
 import type { Workout } from '@/types'
 
 interface Props {
   workouts: Workout[]
+  scheduleDays?: Map<string, number[]>
 }
 
 const DAY_NAMES = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
 
-export function WorkoutList({ workouts: initialWorkouts }: Props) {
+export function WorkoutList({ workouts: initialWorkouts, scheduleDays }: Props) {
   const [workouts, setWorkouts] = useState(initialWorkouts)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const router = useRouter()
@@ -57,46 +58,61 @@ export function WorkoutList({ workouts: initialWorkouts }: Props) {
       </Link>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {workouts.map((workout) => (
-          <Card key={workout.id}>
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium truncate">{workout.name}</h3>
-                    <span className={`shrink-0 text-xs px-1.5 py-0.5 rounded-full ${workout.type === 'lift' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
-                      {workout.type === 'lift' ? 'Beban' : 'Cardio'}
-                    </span>
+        {workouts.map((workout) => {
+          const days = scheduleDays?.get(workout.id)
+          return (
+            <Card key={workout.id}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium truncate">{workout.name}</h3>
+                      <span className={`shrink-0 text-xs px-1.5 py-0.5 rounded-full ${workout.type === 'lift' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                        {workout.type === 'lift' ? 'Beban' : 'Cardio'}
+                      </span>
+                    </div>
+                    {workout.description && (
+                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">{workout.description}</p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
+                      {workout.type === 'lift' && workout.default_sets && workout.default_reps && (
+                        <span>{workout.default_sets} × {workout.default_reps}</span>
+                      )}
+                      {workout.type === 'cardio' && workout.default_distance && (
+                        <span>{workout.default_distance}m</span>
+                      )}
+                      {workout.type === 'cardio' && workout.default_duration && (
+                        <span>{workout.default_duration}menit</span>
+                      )}
+                    </div>
+                    {days && days.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {DAY_NAMES.map((name, i) => (
+                          <span
+                            key={i}
+                            className={`text-xs px-1.5 py-0.5 rounded ${days.includes(i) ? 'bg-green-100 text-green-700 font-medium' : 'text-gray-300'}`}
+                          >
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  {workout.description && (
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{workout.description}</p>
-                  )}
-                  <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
-                    {workout.type === 'lift' && workout.default_sets && workout.default_reps && (
-                      <span>{workout.default_sets} × {workout.default_reps}</span>
-                    )}
-                    {workout.type === 'cardio' && workout.default_distance && (
-                      <span>{workout.default_distance}m</span>
-                    )}
-                    {workout.type === 'cardio' && workout.default_duration && (
-                      <span>{workout.default_duration}menit</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-1 ml-2 shrink-0">
-                  <Link href={`/dashboard/workouts/${workout.id}/edit`}>
-                    <Button variant="ghost" size="icon">
-                      <Pencil className="w-4 h-4" />
+                  <div className="flex gap-1 ml-2 shrink-0">
+                    <Link href={`/dashboard/workouts/${workout.id}/edit`}>
+                      <Button variant="ghost" size="icon">
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" size="icon" onClick={() => setDeleteId(workout.id)}>
+                      <Trash2 className="w-4 h-4 text-red-500" />
                     </Button>
-                  </Link>
-                  <Button variant="ghost" size="icon" onClick={() => setDeleteId(workout.id)}>
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
       <Dialog
