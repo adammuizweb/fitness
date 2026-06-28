@@ -117,17 +117,25 @@ export function MobileNav() {
                   {otherLang.flag} {otherLang.label}
                 </button>
               )}
-              <div className="flex items-center gap-3 px-3">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <span className="text-sm font-medium text-green-700">
-                    {profile?.username?.charAt(0).toUpperCase()}
-                  </span>
+              <Link
+                href="/dashboard/profile"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center overflow-hidden shrink-0">
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-sm font-medium text-green-700">
+                      {profile?.username?.charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{profile?.full_name}</p>
                   <p className="text-xs text-gray-500 truncate">@{profile?.username}</p>
                 </div>
-              </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-red-600 transition-colors"
