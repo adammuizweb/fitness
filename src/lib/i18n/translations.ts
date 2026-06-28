@@ -163,6 +163,11 @@ const en: TranslationSet = {
   'settings.logoutDesc': 'Sign out of Fitness Tracker',
   'settings.logoutBtn': 'Logout',
 
+  'restDays.title': 'Rest Days',
+  'restDays.desc': 'On rest days your checklist is auto-completed so you can focus on recovery. If you already logged a workout, rest day is skipped.',
+  'restDays.toggleOn': 'Rest',
+  'restDays.toggleOff': 'Set Rest',
+
   'profile.title': 'Profile',
   'profile.edit': 'Edit Profile',
   'profile.stats': 'Statistics',
@@ -472,6 +477,11 @@ const id: TranslationSet = {
   'settings.logout': 'Keluar',
   'settings.logoutDesc': 'Keluar dari aplikasi Fitness Tracker',
   'settings.logoutBtn': 'Keluar',
+
+  'restDays.title': 'Hari Istirahat',
+  'restDays.desc': 'Di hari istirahat checklist otomatis terpenuhi agar kamu fokus pemulihan. Jika sudah log workout, hari istirahat dilewati.',
+  'restDays.toggleOn': 'Istirahat',
+  'restDays.toggleOff': 'Atur Istirahat',
 
   'profile.title': 'Profil',
   'profile.edit': 'Edit Profil',

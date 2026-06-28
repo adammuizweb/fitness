@@ -164,9 +164,9 @@ export function WorkoutList() {
       <div className="border-t pt-4 mt-2">
         <div className="flex items-center gap-2 mb-2">
           <Moon className="w-4 h-4 text-indigo-500" />
-          <span className="text-sm font-medium text-gray-700">Rest Days</span>
-          <span className="text-xs text-gray-400">— auto-check on these days</span>
+          <span className="text-sm font-medium text-gray-700">{t('restDays.title')}</span>
         </div>
+        <p className="text-xs text-gray-400 mb-3 max-w-lg">{t('restDays.desc')}</p>
         <div className="flex flex-wrap gap-1.5">
           {days.short.map((name, i) => {
             const isRest = restDays.some(r => r.day_of_week === i)
@@ -181,6 +181,7 @@ export function WorkoutList() {
                 }`}
               >
                 {name}
+                {isRest && <span className="ml-1 text-[10px] opacity-70">({t('restDays.toggleOn')})</span>}
               </button>
             )
           })}
