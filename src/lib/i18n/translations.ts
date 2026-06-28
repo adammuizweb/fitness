@@ -221,8 +221,8 @@ const en: TranslationSet = {
 }
 
 const id: TranslationSet = {
-  'brand.name': 'Fitnes',
-  'brand.fullName': 'Fitnes Tracker',
+  'brand.name': 'Fitness',
+  'brand.fullName': 'Fitness Tracker',
   'brand.desc': 'Aplikasi fitness tracker dengan streak harian',
 
   'common.loading': 'Memuat...',
@@ -349,7 +349,7 @@ const id: TranslationSet = {
   'settings.fullName': 'Nama Lengkap',
   'settings.save': 'Simpan',
   'settings.logout': 'Keluar',
-  'settings.logoutDesc': 'Keluar dari aplikasi Fitnes Tracker',
+  'settings.logoutDesc': 'Keluar dari aplikasi Fitness Tracker',
   'settings.logoutBtn': 'Keluar',
 
   'streak.title': 'Streak',
@@ -363,7 +363,7 @@ const id: TranslationSet = {
   'streak.more': 'Banyak',
 
   'admin.title': 'Admin Dashboard',
-  'admin.subtitle': 'Panel administrasi Fitnes Tracker',
+  'admin.subtitle': 'Panel administrasi Fitness Tracker',
   'admin.users': 'Kelola Users',
   'admin.usersDesc': 'Lihat, edit, ban user',
   'admin.stats': 'Statistik',
@@ -404,13 +404,13 @@ const id: TranslationSet = {
   'adminStats.month': 'Bulan Ini',
   'adminStats.topExercises': 'Top Exercises',
 
-  'auth.loginTitle': 'Masuk ke Fitnes',
+  'auth.loginTitle': 'Masuk ke Fitness',
   'auth.loginSubtitle': 'Lacak streak olahragamu setiap hari',
   'auth.loginNoAccount': 'Belum punya akun?',
   'auth.loginRegister': 'Daftar',
   'auth.loginError': 'Email atau password salah',
 
-  'auth.registerTitle': 'Daftar Fitnes',
+  'auth.registerTitle': 'Daftar Fitness',
   'auth.registerSubtitle': 'Mulai lacak perjalanan fitnesmu',
   'auth.registerHasAccount': 'Sudah punya akun?',
   'auth.registerLogin': 'Masuk',

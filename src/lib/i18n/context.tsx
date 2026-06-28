@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 import { allTranslations, dayNames, monthNames, type Lang } from './translations'
 
-const STORAGE_KEY = 'fitnes_lang'
+const STORAGE_KEY = 'fitness_lang'
 
 function getInitialLang(): Lang {
   if (typeof window === 'undefined') return 'id'

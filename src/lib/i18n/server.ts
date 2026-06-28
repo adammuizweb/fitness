@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { allTranslations, type Lang } from './translations'
 
-const STORAGE_KEY = 'fitnes_lang'
+const STORAGE_KEY = 'fitness_lang'
 
 export async function I18nServer() {
   const cookieStore = await cookies()

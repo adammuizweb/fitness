@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['fitnes.lan', '127.0.0.1'],
+  allowedDevOrigins: ['fitness.lan', '127.0.0.1'],
   generateBuildId: async () => {
     const date = new Date().toISOString().replace(/[:.]/g, '-')
     return `build-${date}`

@@ -1,6 +1,6 @@
 {
-  "name": "Fitnes Tracker",
-  "short_name": "Fitnes",
+  "name": "Fitness Tracker",
+  "short_name": "Fitness",
   "description": "Aplikasi fitness tracker dengan streak harian",
   "start_url": "/",
   "display": "standalone",

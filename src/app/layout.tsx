@@ -3,13 +3,13 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
-  title: 'Fitnes Tracker',
+  title: 'Fitness Tracker',
   description: 'Aplikasi fitness tracker dengan streak harian',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Fitnes',
+    title: 'Fitness',
   },
 }
 
