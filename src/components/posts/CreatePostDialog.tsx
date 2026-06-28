@@ -113,22 +113,17 @@ export function CreatePostDialog({ open, onClose, logs }: Props) {
         {/* Privacy selector */}
         <div>
           <p className="text-xs font-medium text-gray-500 mb-2">Who can see this?</p>
-          <div className="flex gap-2">
+          <select
+            value={privacy}
+            onChange={(e) => setPrivacy(e.target.value as PostPrivacy)}
+            className="w-full rounded-lg border border-gray-200 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+          >
             {privacyOptions.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setPrivacy(opt.value)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                  privacy === opt.value
-                    ? 'bg-green-50 text-green-700 border border-green-200'
-                    : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-transparent'
-                }`}
-              >
-                {opt.icon}
+              <option key={opt.value} value={opt.value}>
                 {t(`settings.privacy${privacyKey[opt.value] || 'All'}`)}
-              </button>
+              </option>
             ))}
-          </div>
+          </select>
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
