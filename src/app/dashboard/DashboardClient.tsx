@@ -9,7 +9,7 @@ import { Dumbbell, ClipboardList, Flame, TrendingUp, Share2, Camera } from 'luci
 import { useTodayLogs } from '@/hooks/useLogs'
 import { useStreak } from '@/hooks/useStreak'
 import { useWorkouts } from '@/hooks/useWorkouts'
-import { useMyPosts } from '@/hooks/usePosts'
+import { useMyPosts, useMyPostsFull } from '@/hooks/usePosts'
 import { PostCard } from '@/components/posts/PostCard'
 import { CreatePostDialog } from '@/components/posts/CreatePostDialog'
 import { Skeleton, SkeletonStatCard } from '@/components/ui/Skeleton'
@@ -20,7 +20,7 @@ export function DashboardClient() {
   const { data: logs = [], isLoading: logsLoading } = useTodayLogs()
   const { data: streak, isLoading: streakLoading } = useStreak()
   const { data: workouts, isLoading: workoutsLoading } = useWorkouts()
-  const { data: posts = [], isLoading: postsLoading } = useMyPosts()
+  const { data: posts = [], isLoading: postsLoading } = useMyPosts(3)
 
   if (logsLoading || streakLoading || workoutsLoading) {
     return <DashboardSkeleton />
@@ -161,10 +161,15 @@ export function DashboardClient() {
       {/* My Posts */}
       {posts.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-bold">Your Posts</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold">Your Posts</h2>
+            <Link href="/dashboard/posts" className="text-sm text-green-600 hover:text-green-700 font-medium">
+              View All
+            </Link>
+          </div>
           <div className="space-y-3">
             {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
+              <PostCard key={post.id} post={post} showActions={false} />
             ))}
           </div>
         </div>

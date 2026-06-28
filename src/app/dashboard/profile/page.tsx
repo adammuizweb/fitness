@@ -11,7 +11,9 @@ import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/lib/supabase/client'
 import { useLogHistory } from '@/hooks/useLogs'
 import { useStreak } from '@/hooks/useStreak'
-import { Dumbbell, Flame, Camera, Pencil, X, Check, Loader2 } from 'lucide-react'
+import { useMyPosts } from '@/hooks/usePosts'
+import { PostCard } from '@/components/posts/PostCard'
+import { Dumbbell, Flame, Camera, Pencil, X, Check, Loader2, Share2 } from 'lucide-react'
 
 const supabase = createClient()
 
@@ -69,6 +71,7 @@ export default function ProfilePage() {
     refetchProfile()
   }
 
+  const { data: posts = [] } = useMyPosts(5)
   const allPhotos = history.flatMap(log => log.photos || [])
   const totalWorkouts = history.length
   const currentStreak = streak?.current_streak || 0
@@ -223,6 +226,21 @@ export default function ProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Posts */}
+      {posts.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Share2 className="w-5 h-5 text-gray-700" />
+            <h2 className="text-lg font-bold">Recent Posts</h2>
+          </div>
+          <div className="space-y-3">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} showActions />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

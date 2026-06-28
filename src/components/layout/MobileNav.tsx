@@ -19,6 +19,7 @@ import {
   Globe,
   Menu,
   X,
+  Share2,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -34,8 +35,9 @@ export function MobileNav() {
     { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { href: '/dashboard/workouts', label: t('nav.workouts'), icon: Dumbbell },
     { href: '/dashboard/log', label: t('nav.log'), icon: ClipboardList },
-    { href: '/dashboard/log/history', label: t('nav.history'), icon: History },
     { href: '/dashboard/streak', label: t('nav.streak'), icon: Flame },
+    { href: '/dashboard/posts', label: t('nav.posts'), icon: Share2 },
+    { href: '/dashboard/log/history', label: t('nav.history'), icon: History },
     { href: '/dashboard/settings', label: t('nav.settings'), icon: Settings },
   ]
 
