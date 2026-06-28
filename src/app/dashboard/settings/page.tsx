@@ -95,17 +95,27 @@ export default function SettingsPage() {
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">
-                  {profile?.is_public ? t('settings.publicProfile') : t('settings.privateProfile')}
-                </p>
-                <p className="text-sm text-gray-500 mt-0.5">
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
+                    profile?.is_public
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-gray-200 text-gray-600'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      profile?.is_public ? 'bg-green-500' : 'bg-gray-400'
+                    }`} />
+                    {profile?.is_public ? 'Now Public' : 'Now Private'}
+                  </span>
+                  <span className="text-xs text-gray-400">— tap to switch</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-2">
                   {profile?.is_public ? t('settings.publicProfileDesc') : t('settings.privateProfileDesc')}
                 </p>
               </div>
               <button
                 onClick={toggleVisibility}
                 disabled={saving}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
+                className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${
                   profile?.is_public ? 'bg-green-500' : 'bg-gray-300'
                 }`}
               >

@@ -13,6 +13,7 @@ import {
   useFollowUser,
   useUnfollowUser,
 } from '@/hooks/useCommunity'
+import { useUser } from '@/hooks/useUser'
 import { useI18n } from '@/lib/i18n/context'
 import { Loader2, Globe, Lock, Users, UserCheck, UserPlus } from 'lucide-react'
 import Link from 'next/link'
@@ -22,6 +23,7 @@ export default function UserProfilePage() {
   const params = useParams()
   const username = params.username as string
 
+  const { profile: currentUser } = useUser()
   const { data: profile, isLoading: profileLoading } = useUserByUsername(username)
   const { data: posts = [], isLoading: postsLoading } = useUserPosts(profile?.id || '')
   const { data: isFollowing, isLoading: followStatusLoading } = useFollowStatus(profile?.id || '')
@@ -93,8 +95,8 @@ export default function UserProfilePage() {
               </div>
             </div>
 
-            {/* Follow button */}
-            {!isPrivate && (
+            {/* Follow button (hide for own profile) */}
+            {!isPrivate && currentUser?.id !== profile.id && (
               <Button
                 variant={isFollowing ? 'outline' : 'default'}
                 size="sm"
