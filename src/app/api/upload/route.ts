@@ -16,16 +16,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Upload secret not configured' }, { status: 500 })
   }
 
-  let body: { files?: { name: string; type: string; data: string }[] }
+  // Read raw body first for debugging
+  const rawText = await request.clone().text()
+  let body: any
   try {
-    body = await request.json()
+    body = JSON.parse(rawText)
   } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    return NextResponse.json({
+      error: 'Invalid JSON body',
+      received: rawText.slice(0, 200),
+    }, { status: 400 })
   }
 
-  const files = body.files || []
-  if (files.length === 0) {
-    return NextResponse.json({ error: 'No files provided' }, { status: 400 })
+  const files = body?.files
+  if (!files || !Array.isArray(files) || files.length === 0) {
+    return NextResponse.json({
+      error: 'No files provided',
+      bodyKeys: Object.keys(body || {}),
+      filesType: typeof body?.files,
+      filesVal: JSON.stringify(body?.files).slice(0, 200),
+    }, { status: 400 })
   }
 
   if (files.length > 10) {
