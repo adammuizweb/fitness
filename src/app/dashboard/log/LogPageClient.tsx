@@ -53,7 +53,7 @@ export function LogPageClient() {
 
   const { data: logs, isLoading: logsLoading } = useTodayLogs()
   const { data: restDays = [] } = useRestDays()
-  const isRestDay = restDays.some(r => r.day_of_week === todayDayOfWeek)
+  const isRestDay = restDays.some(r => r.day_of_week === todayDayOfWeek) && (logs?.length ?? 0) === 0
   const toggleMutation = useToggleChecklistItem()
   const upsertMutation = useUpsertLog()
   const [editingId, setEditingId] = useState<string | null>(null)
