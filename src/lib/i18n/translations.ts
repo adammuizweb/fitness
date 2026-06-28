@@ -218,6 +218,66 @@ const en: TranslationSet = {
   'registerForm.password': 'Password',
   'registerForm.passwordPlaceholder': 'Min 6 characters',
   'registerForm.submit': 'Register',
+
+  'landing.hero.title': 'Your Fitness Journey,\nTracked Every Day',
+  'landing.hero.subtitle': 'Schedule workouts, log your progress, and maintain your streak. Simple, fast, and free.',
+  'landing.hero.ctaStart': 'Get Started Free',
+  'landing.hero.ctaLogin': 'Sign In',
+  'landing.loginTitle': 'Welcome Back',
+  'landing.registerTitle': 'Create Account',
+
+  'landing.features.title': 'Everything you need to stay fit',
+  'landing.features.workoutTitle': 'Workout Templates',
+  'landing.features.workoutDesc': 'Create lift or cardio workouts with sets, reps, weight, distance, and duration.',
+  'landing.features.scheduleTitle': 'Weekly Schedule',
+  'landing.features.scheduleDesc': 'Assign workouts to specific days. Your daily checklist updates automatically.',
+  'landing.features.logTitle': 'Daily Checklist',
+  'landing.features.logDesc': 'Check off workouts with inline editing. Track your progress effortlessly.',
+  'landing.features.streakTitle': 'Streak Tracker',
+  'landing.features.streakDesc': 'GitHub-style calendar showing your consistency. Stay motivated every day.',
+  'landing.features.i18nTitle': 'Multi Language',
+  'landing.features.i18nDesc': 'Full English and Indonesian support. Switch anytime.',
+  'landing.features.adminTitle': 'Admin Panel',
+  'landing.features.adminDesc': 'Manage users, view stats, and control everything from one dashboard.',
+
+  'landing.cta.title': 'Like this project?',
+  'landing.cta.subtitle': "It's open source and free. Clone it, fork it, make it yours.",
+  'landing.cta.ownIt': 'Own It for Free →',
+
+  'landing.stats.title': 'Built with',
+
+  'footer.tagline': 'Your personal fitness tracker, built with love.',
+  'footer.about': 'About',
+  'footer.contact': 'Contact',
+  'footer.privacy': 'Privacy Policy',
+  'footer.terms': 'Terms & Conditions',
+  'footer.source': 'Source Code',
+  'footer.copyright': 'All rights reserved.',
+
+  'about.title': 'About Fitness Tracker',
+  'about.desc1': 'Fitness Tracker is a web application designed to help you maintain a consistent workout routine. Create workout templates, schedule them throughout the week, and track your daily progress with a simple checklist.',
+  'about.desc2': "Built with Next.js, Supabase, and TypeScript, this project is fully open source. You can deploy your own instance, contribute improvements, or customize it to your needs.",
+  'about.stack': 'Technology Stack',
+  'about.owner': 'Made by',
+
+  'contact.title': 'Contact',
+  'contact.email': 'Email',
+  'contact.github': 'GitHub',
+  'contact.openSource': 'This project is open source. Feel free to open an issue or pull request on GitHub.',
+
+  'privacy.title': 'Privacy Policy',
+  'privacy.intro': 'Your privacy is important to us. This policy outlines how we handle your data.',
+  'privacy.data': 'We only store data necessary for the app to function: your account information (name, email), workout templates, logs, and streak data.',
+  'privacy.sharing': 'We do not share your data with third parties. All data is stored securely in our Supabase database.',
+  'privacy.cookies': 'We use Supabase Auth cookies for session management. No tracking or analytics cookies are used.',
+  'privacy.contact': 'For privacy concerns, contact us via GitHub issues.',
+
+  'terms.title': 'Terms & Conditions',
+  'terms.intro': 'By using Fitness Tracker, you agree to the following terms.',
+  'terms.use': 'You may use this app for personal fitness tracking. Misuse, abuse, or commercial exploitation is prohibited.',
+  'terms.data': 'You are responsible for the accuracy of the data you enter. We are not liable for any loss of data.',
+  'terms.changes': 'We reserve the right to modify these terms at any time. Continued use constitutes acceptance of changes.',
+  'terms.license': 'The source code is licensed under the MIT License. See the GitHub repository for details.',
 }
 
 const id: TranslationSet = {
@@ -431,6 +491,66 @@ const id: TranslationSet = {
   'registerForm.password': 'Password',
   'registerForm.passwordPlaceholder': 'Minimal 6 karakter',
   'registerForm.submit': 'Daftar',
+
+  'landing.hero.title': 'Perjalanan Kebugaranmu,\nTerlacak Setiap Hari',
+  'landing.hero.subtitle': 'Jadwalkan latihan, catat progres, dan jaga streak-mu. Sederhana, cepat, dan gratis.',
+  'landing.hero.ctaStart': 'Mulai Gratis',
+  'landing.hero.ctaLogin': 'Masuk',
+  'landing.loginTitle': 'Selamat Datang Kembali',
+  'landing.registerTitle': 'Buat Akun',
+
+  'landing.features.title': 'Semua yang kamu butuhkan untuk tetap bugar',
+  'landing.features.workoutTitle': 'Template Latihan',
+  'landing.features.workoutDesc': 'Buat latihan angkat beban atau kardio dengan set, repetisi, berat, jarak, dan durasi.',
+  'landing.features.scheduleTitle': 'Jadwal Mingguan',
+  'landing.features.scheduleDesc': 'Atur latihan di hari tertentu. Checklist harianmu terupdate otomatis.',
+  'landing.features.logTitle': 'Checklist Harian',
+  'landing.features.logDesc': 'Centang latihan dengan edit inline. Lacak progresmu tanpa ribet.',
+  'landing.features.streakTitle': 'Pelacak Streak',
+  'landing.features.streakDesc': 'Kalender gaya GitHub yang menunjukkan konsistensimu. Tetap termotivasi setiap hari.',
+  'landing.features.i18nTitle': 'Multi Bahasa',
+  'landing.features.i18nDesc': 'Dukungan penuh Bahasa Indonesia dan Inggris. Ganti kapan saja.',
+  'landing.features.adminTitle': 'Panel Admin',
+  'landing.features.adminDesc': 'Kelola pengguna, lihat statistik, dan kendalikan semuanya dari satu dashboard.',
+
+  'landing.cta.title': 'Suka proyek ini?',
+  'landing.cta.subtitle': 'Ini open source dan gratis. Clone, fork, dan jadikan milikmu.',
+  'landing.cta.ownIt': 'Miliki Gratis →',
+
+  'landing.stats.title': 'Dibangun dengan',
+
+  'footer.tagline': 'Pelacak kebugaran pribadimu, dibangun dengan cinta.',
+  'footer.about': 'Tentang',
+  'footer.contact': 'Kontak',
+  'footer.privacy': 'Kebijakan Privasi',
+  'footer.terms': 'Syarat & Ketentuan',
+  'footer.source': 'Kode Sumber',
+  'footer.copyright': 'Hak cipta dilindungi.',
+
+  'about.title': 'Tentang Fitness Tracker',
+  'about.desc1': 'Fitness Tracker adalah aplikasi web yang dirancang untuk membantu kamu menjaga rutinitas olahraga yang konsisten. Buat template latihan, jadwalkan sepanjang minggu, dan lacak progres harian dengan checklist sederhana.',
+  'about.desc2': 'Dibangun dengan Next.js, Supabase, dan TypeScript, proyek ini sepenuhnya open source. Kamu bisa deploy instance-mu sendiri, berkontribusi, atau kustomisasi sesuai kebutuhan.',
+  'about.stack': 'Tumpukan Teknologi',
+  'about.owner': 'Dibuat oleh',
+
+  'contact.title': 'Kontak',
+  'contact.email': 'Email',
+  'contact.github': 'GitHub',
+  'contact.openSource': 'Proyek ini open source. Silakan buka issue atau pull request di GitHub.',
+
+  'privacy.title': 'Kebijakan Privasi',
+  'privacy.intro': 'Privasi Anda penting bagi kami. Kebijakan ini menjelaskan bagaimana kami menangani data Anda.',
+  'privacy.data': 'Kami hanya menyimpan data yang diperlukan untuk fungsi aplikasi: informasi akun (nama, email), template latihan, log, dan data streak.',
+  'privacy.sharing': 'Kami tidak membagikan data Anda kepada pihak ketiga. Semua data disimpan dengan aman di database Supabase kami.',
+  'privacy.cookies': 'Kami menggunakan cookie Supabase Auth untuk manajemen sesi. Tidak ada cookie pelacakan atau analitik yang digunakan.',
+  'privacy.contact': 'Untuk masalah privasi, hubungi kami melalui GitHub issues.',
+
+  'terms.title': 'Syarat & Ketentuan',
+  'terms.intro': 'Dengan menggunakan Fitness Tracker, Anda menyetujui ketentuan berikut.',
+  'terms.use': 'Anda dapat menggunakan aplikasi ini untuk pelacakan kebugaran pribadi. Penyalahgunaan atau eksploitasi komersial dilarang.',
+  'terms.data': 'Anda bertanggung jawab atas keakuratan data yang Anda masukkan. Kami tidak bertanggung jawab atas kehilangan data.',
+  'terms.changes': 'Kami berhak mengubah ketentuan ini kapan saja. Penggunaan berkelanjutan merupakan penerimaan atas perubahan.',
+  'terms.license': 'Kode sumber dilisensikan di bawah MIT License. Lihat repositori GitHub untuk detail.',
 }
 
 export const allTranslations: Record<Lang, TranslationSet> = { en, id }
