@@ -15,6 +15,7 @@ import {
   LogOut,
   Globe,
   Share2,
+  Users,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { languages } from '@/lib/i18n/translations'
@@ -38,6 +39,7 @@ export function Sidebar() {
     { href: '/dashboard/log', label: t('nav.log'), icon: ClipboardList },
     { href: '/dashboard/streak', label: t('nav.streak'), icon: Flame },
     { href: '/dashboard/posts', label: t('nav.posts'), icon: Share2 },
+    { href: '/dashboard/community', label: t('nav.community'), icon: Users },
     { href: '/dashboard/log/history', label: t('nav.history'), icon: ClipboardList },
     { href: '/dashboard/settings', label: t('nav.settings'), icon: Settings },
   ]
