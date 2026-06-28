@@ -32,9 +32,10 @@ export async function POST(request: NextRequest) {
   if (!files || !Array.isArray(files) || files.length === 0) {
     return NextResponse.json({
       error: 'No files provided',
-      bodyKeys: Object.keys(body || {}),
-      filesType: typeof body?.files,
-      filesVal: JSON.stringify(body?.files).slice(0, 200),
+      bodyContentType: request.headers.get('content-type') || 'none',
+      bodySize: rawText.length,
+      bodyPreview: rawText.slice(0, 500),
+      filesRaw: typeof body?.files,
     }, { status: 400 })
   }
 
