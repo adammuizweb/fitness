@@ -82,6 +82,34 @@ async function updateWorkout(id: string, input: WorkoutInput): Promise<Workout> 
   return data
 }
 
+async function updateWorkoutWithSchedule(id: string, input: WorkoutInput & { schedule_days: number[] }): Promise<Workout> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const workout = await updateWorkout(id, input)
+
+  await supabase
+    .from('workout_schedules')
+    .delete()
+    .eq('workout_id', id)
+
+  if (input.schedule_days.length > 0) {
+    const { error } = await supabase
+      .from('workout_schedules')
+      .insert(
+        input.schedule_days.map((day) => ({
+          user_id: user.id,
+          workout_id: id,
+          day_of_week: day,
+        }))
+      )
+
+    if (error) throw error
+  }
+
+  return workout
+}
+
 async function deleteWorkout(id: string): Promise<void> {
   const { error } = await supabase
     .from('workouts')
@@ -125,6 +153,17 @@ export function useUpdateWorkout(id: string) {
     mutationFn: (input: WorkoutInput) => updateWorkout(id, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] })
+    },
+  })
+}
+
+export function useUpdateWorkoutWithSchedule(id: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: WorkoutInput & { schedule_days: number[] }) => updateWorkoutWithSchedule(id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workouts'] })
+      queryClient.invalidateQueries({ queryKey: ['schedules'] })
     },
   })
 }

@@ -2,15 +2,20 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import { WorkoutForm } from '@/components/workouts/WorkoutForm'
-import { useWorkouts, useUpdateWorkout } from '@/hooks/useWorkouts'
+import { useWorkouts, useUpdateWorkoutWithSchedule } from '@/hooks/useWorkouts'
+import { useSchedules } from '@/hooks/useSchedules'
 
 export default function EditWorkoutPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
-  const { data: workouts, isLoading } = useWorkouts()
-  const mutation = useUpdateWorkout(id)
+  const { data: workouts, isLoading: workoutsLoading } = useWorkouts()
+  const { data: schedules, isLoading: schedulesLoading } = useSchedules()
+  const mutation = useUpdateWorkoutWithSchedule(id)
 
   const workout = workouts?.find((w) => w.id === id)
+  const scheduleDays = schedules
+    ?.filter((s) => s.workout_id === id)
+    .map((s) => s.day_of_week) || []
 
   async function handleSubmit(data: Parameters<typeof mutation.mutateAsync>[0]) {
     await mutation.mutateAsync(data)
@@ -18,7 +23,7 @@ export default function EditWorkoutPage() {
     router.refresh()
   }
 
-  if (isLoading || !workout) {
+  if (workoutsLoading || schedulesLoading || !workout) {
     return <div className="text-center py-8 text-gray-500">Memuat...</div>
   }
 
@@ -37,6 +42,7 @@ export default function EditWorkoutPage() {
           default_reps: workout.default_reps || undefined,
           default_distance: workout.default_distance || undefined,
           default_duration: workout.default_duration || undefined,
+          schedule_days: scheduleDays,
         }}
         onSubmit={handleSubmit}
         loading={mutation.isPending}
