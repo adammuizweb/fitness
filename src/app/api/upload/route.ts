@@ -16,9 +16,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Upload secret not configured' }, { status: 500 })
   }
 
-  const formData = await request.formData()
-  const files = formData.getAll('file') as File[]
-  
+  let body: { files?: { name: string; type: string; data: string }[] }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
+
+  const files = body.files || []
   if (files.length === 0) {
     return NextResponse.json({ error: 'No files provided' }, { status: 400 })
   }
@@ -27,13 +32,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Max 10 files per request' }, { status: 400 })
   }
 
-  for (const file of files) {
-    if (file.size > 500 * 1024) {
-      return NextResponse.json({ error: 'Each file must be under 500KB' }, { status: 413 })
-    }
-  }
+  const incomingSize = files.reduce((sum, f) => {
+    const bytes = Math.round((f.data.length * 3) / 4)
+    return sum + bytes
+  }, 0)
 
-  // Rate limit check: sum upload_logs in last 24h
+  // Rate limit check
   const supabase = createAdminClient()
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
@@ -44,7 +48,6 @@ export async function POST(request: NextRequest) {
     .gte('created_at', since)
 
   const totalUsed = (usageData || []).reduce((sum, r) => sum + r.file_size_bytes, 0)
-  const incomingSize = files.reduce((sum, f) => sum + f.size, 0)
 
   if (totalUsed + incomingSize > MAX_BYTES_PER_24H) {
     return NextResponse.json({
@@ -54,44 +57,41 @@ export async function POST(request: NextRequest) {
     }, { status: 429 })
   }
 
-  const results: { url: string; filename: string }[] = []
+  const results: { url: string }[] = []
 
-  try {
-    for (const file of files) {
-      const cdnForm = new FormData()
-      cdnForm.append('file', file, 'photo.webp')
-      cdnForm.append('category', 'fitness')
-      cdnForm.append('user_id', user.id)
+  for (const file of files) {
+    const buffer = Buffer.from(file.data, 'base64')
+    const blob = new Blob([buffer], { type: file.type || 'image/webp' })
 
-      const res = await fetch(CDN_UPLOAD_URL, {
-        method: 'POST',
-        headers: { 'X-UPLOAD-TOKEN': UPLOAD_SECRET },
-        body: cdnForm,
-      })
+    const cdnForm = new FormData()
+    cdnForm.append('file', blob, file.name || 'photo.webp')
+    cdnForm.append('category', 'fitness')
+    cdnForm.append('user_id', user.id)
 
-      if (!res.ok) {
-        const err = await res.text()
-        console.error('CDN upload failed:', res.status, err)
-        continue
-      }
+    const res = await fetch(CDN_UPLOAD_URL, {
+      method: 'POST',
+      headers: { 'X-UPLOAD-TOKEN': UPLOAD_SECRET },
+      body: cdnForm,
+    })
 
-      const data = await res.json()
-      results.push(data)
-
-      // Log upload for rate limiting
-      await supabase.from('upload_logs').insert({
-        user_id: user.id,
-        file_size_bytes: file.size,
-      })
+    if (!res.ok) {
+      const err = await res.text()
+      console.error('CDN upload failed:', res.status, err)
+      continue
     }
 
-    if (results.length === 0) {
-      return NextResponse.json({ error: 'All uploads failed' }, { status: 502 })
-    }
+    const data = await res.json()
+    results.push(data)
 
-    return NextResponse.json({ urls: results.map(r => r.url) })
-  } catch (err) {
-    console.error('Upload error:', err)
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
+    await supabase.from('upload_logs').insert({
+      user_id: user.id,
+      file_size_bytes: incomingSize,
+    })
   }
+
+  if (results.length === 0) {
+    return NextResponse.json({ error: 'All uploads failed' }, { status: 502 })
+  }
+
+  return NextResponse.json({ urls: results.map(r => r.url) })
 }

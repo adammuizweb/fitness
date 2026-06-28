@@ -42,11 +42,15 @@ export default function ProfilePage() {
     setUploadingAvatar(true)
     try {
       const { compressImage } = await import('@/lib/compressImage')
+      const { fileToBase64 } = await import('@/lib/fileToBase64')
       const blob = await compressImage(file, 150)
-      const formData = new FormData()
-      formData.append('file', blob, 'photo.webp')
+      const base64 = await fileToBase64(blob)
 
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files: [{ name: 'photo.webp', type: blob.type || 'image/webp', data: base64 }] }),
+      })
       if (!res.ok) return
 
       const data = await res.json()
