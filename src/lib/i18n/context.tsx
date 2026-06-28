@@ -6,10 +6,10 @@ import { allTranslations, dayNames, monthNames, type Lang } from './translations
 const STORAGE_KEY = 'fitness_lang'
 
 function getInitialLang(): Lang {
-  if (typeof window === 'undefined') return 'id'
+  if (typeof window === 'undefined') return 'en'
   const stored = localStorage.getItem(STORAGE_KEY)
   if (stored === 'en' || stored === 'id') return stored
-  return navigator.language.startsWith('en') ? 'en' : 'id'
+  return navigator.language.startsWith('id') ? 'id' : 'en'
 }
 
 type I18nContextType = {

@@ -10,14 +10,14 @@ export default async function ContactPage() {
 
       <div className="grid sm:grid-cols-2 gap-6 mb-8">
         <a
-          href="mailto:adammuiz@example.com"
+          href="mailto:mail@adammuiz.com"
           className="rounded-2xl border border-stone-200 bg-white p-6 hover:shadow-md hover:border-stone-300 transition-all group"
         >
           <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center mb-4 group-hover:bg-green-100 transition-colors">
             <Mail className="w-5 h-5 text-green-600" />
           </div>
           <div className="font-medium text-stone-900 mb-1">{t('contact.email')}</div>
-          <div className="text-sm text-stone-500">adammuiz@example.com</div>
+          <div className="text-sm text-stone-500">mail@adammuiz.com</div>
         </a>
 
         <a

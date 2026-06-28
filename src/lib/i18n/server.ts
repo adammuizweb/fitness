@@ -6,7 +6,7 @@ const STORAGE_KEY = 'fitness_lang'
 export async function I18nServer() {
   const cookieStore = await cookies()
   const stored = cookieStore.get(STORAGE_KEY)?.value
-  const lang: Lang = stored === 'en' || stored === 'id' ? stored : 'id'
+  const lang: Lang = stored === 'en' || stored === 'id' ? stored : 'en'
 
   function t(key: string, vars?: Record<string, string | number>) {
     const set = allTranslations[lang]
