@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogFooter } from '@/components/ui/dialog'
+import { useI18n } from '@/lib/i18n/context'
 import { Trash2, CheckCircle2, Circle } from 'lucide-react'
 import { useDeleteLog, useToggleLogDone } from '@/hooks/useLogs'
 import type { WorkoutLog } from '@/types'
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export function LogList({ logs }: Props) {
+  const { t } = useI18n()
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const deleteMutation = useDeleteLog()
   const toggleMutation = useToggleLogDone()
@@ -41,7 +43,7 @@ export function LogList({ logs }: Props) {
   }
 
   if (logs.length === 0) {
-    return <p className="text-sm text-gray-500 py-4 text-center">Belum ada log</p>
+    return <p className="text-sm text-gray-500 py-4 text-center">{t('logList.empty')}</p>
   }
 
   return (
@@ -73,15 +75,15 @@ export function LogList({ logs }: Props) {
       <Dialog
         open={!!deleteId}
         onClose={() => setDeleteId(null)}
-        title="Hapus Log"
-        description="Apakah kamu yakin ingin menghapus log ini?"
+        title={t('logList.deleteTitle')}
+        description={t('logList.deleteDesc')}
       >
         <DialogFooter>
           <Button variant="outline" onClick={() => setDeleteId(null)}>
-            Batal
+            {t('common.cancel')}
           </Button>
           <Button variant="destructive" onClick={handleDelete} loading={deleteMutation.isPending}>
-            Hapus
+            {t('common.delete')}
           </Button>
         </DialogFooter>
       </Dialog>

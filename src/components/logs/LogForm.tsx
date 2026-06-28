@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { useI18n } from '@/lib/i18n/context'
 import { useUpsertLog } from '@/hooks/useLogs'
 import type { Workout } from '@/types'
 
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function LogForm({ workouts }: Props) {
+  const { t } = useI18n()
   const [workoutId, setWorkoutId] = useState('')
   const [sets, setSets] = useState('')
   const [reps, setReps] = useState('')
@@ -68,16 +70,19 @@ export function LogForm({ workouts }: Props) {
   }
 
   if (workouts.length === 0) {
-    return <p className="text-sm text-gray-500 py-4 text-center">Semua workout sudah di-log hari ini!</p>
+    return <p className="text-sm text-gray-500 py-4 text-center">{t('logForm.allLogged')}</p>
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Select
         id="workout"
-        label="Pilih Workout"
-        placeholder="Pilih workout..."
-        options={workouts.map((w) => ({ value: w.id, label: `${w.name} (${w.type === 'lift' ? 'Angkat Beban' : 'Cardio'})` }))}
+        label={t('logForm.selectWorkout')}
+        placeholder={t('logForm.selectPlaceholder')}
+        options={workouts.map((w) => ({
+          value: w.id,
+          label: `${w.name} (${w.type === 'lift' ? t('workoutList.typeLift') : t('workoutList.typeCardio')})`,
+        }))}
         value={workoutId}
         onChange={(e) => handleWorkoutChange(e.target.value)}
         required
@@ -88,7 +93,7 @@ export function LogForm({ workouts }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <Input
               id="sets"
-              label="Sets"
+              label={t('logForm.sets')}
               type="number"
               min="1"
               placeholder="3"
@@ -98,7 +103,7 @@ export function LogForm({ workouts }: Props) {
             />
             <Input
               id="reps"
-              label="Reps"
+              label={t('logForm.reps')}
               type="number"
               min="1"
               placeholder="12"
@@ -109,7 +114,7 @@ export function LogForm({ workouts }: Props) {
           </div>
           <Input
             id="weight"
-            label="Beban (kg) — opsional"
+            label={t('logForm.weight')}
             type="number"
             step="0.5"
             min="0"
@@ -124,7 +129,7 @@ export function LogForm({ workouts }: Props) {
         <div className="grid grid-cols-2 gap-3">
           <Input
             id="distance"
-            label="Jarak (meter)"
+            label={t('logForm.distance')}
             type="number"
             min="0"
             placeholder="200"
@@ -134,7 +139,7 @@ export function LogForm({ workouts }: Props) {
           />
           <Input
             id="duration"
-            label="Durasi (menit)"
+            label={t('logForm.duration')}
             type="number"
             min="1"
             placeholder="10"
@@ -147,15 +152,15 @@ export function LogForm({ workouts }: Props) {
 
       <Input
         id="notes"
-        label="Catatan — opsional"
-        placeholder="Misal: rasa di otot bagus"
+        label={t('logForm.notes')}
+        placeholder={t('logForm.notesPlaceholder')}
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
       />
 
       {selectedWorkout && (
         <Button type="submit" className="w-full" loading={mutation.isPending}>
-          Tandai Selesai
+          {t('logForm.submit')}
         </Button>
       )}
     </form>

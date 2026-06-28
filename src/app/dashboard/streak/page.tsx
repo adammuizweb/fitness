@@ -1,9 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth'
-import { Breadcrumb } from '@/components/ui/breadcrumb'
-import { StreakCalendar } from '@/components/streak/StreakCalendar'
-import { StreakStats } from '@/components/streak/StreakStats'
+import { StreakClient } from './StreakClient'
 
 export default async function StreakPage() {
   const user = await getCurrentUser()
@@ -29,19 +27,5 @@ export default async function StreakPage() {
 
   const activeDates = new Set(logs?.map((l) => l.logged_date) || [])
 
-  return (
-    <div className="space-y-6">
-      <Breadcrumb items={[
-        { label: 'Streak' },
-      ]} />
-      <div>
-        <h1 className="text-2xl font-bold">Streak</h1>
-        <p className="text-gray-500 text-sm mt-1">Track konsistensi workoutmu</p>
-      </div>
-
-      <StreakStats streak={streak} />
-
-      <StreakCalendar activeDates={activeDates} />
-    </div>
-  )
+  return <StreakClient streak={streak} activeDates={activeDates} />
 }

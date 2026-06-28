@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
+import { useI18n } from '@/lib/i18n/context'
+import { languages } from '@/lib/i18n/translations'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard,
@@ -14,26 +16,30 @@ import {
   Settings,
   Shield,
   LogOut,
+  Globe,
   Menu,
   X,
 } from 'lucide-react'
 import { useState } from 'react'
-
-const mobileItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/workouts', label: 'Workouts', icon: Dumbbell },
-  { href: '/dashboard/log', label: 'Log Harian', icon: ClipboardList },
-  { href: '/dashboard/log/history', label: 'Riwayat', icon: History },
-  { href: '/dashboard/streak', label: 'Streak', icon: Flame },
-  { href: '/dashboard/settings', label: 'Pengaturan', icon: Settings },
-]
 
 export function MobileNav() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   const { profile } = useUser()
+  const { t, lang, setLang } = useI18n()
   const [open, setOpen] = useState(false)
+
+  const mobileItems = [
+    { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { href: '/dashboard/workouts', label: t('nav.workouts'), icon: Dumbbell },
+    { href: '/dashboard/log', label: t('nav.log'), icon: ClipboardList },
+    { href: '/dashboard/log/history', label: t('nav.history'), icon: History },
+    { href: '/dashboard/streak', label: t('nav.streak'), icon: Flame },
+    { href: '/dashboard/settings', label: t('nav.settings'), icon: Settings },
+  ]
+
+  const otherLang = languages.find((l) => l.code !== lang)
 
   function isActive(href: string) {
     if (href === '/dashboard') return pathname === '/dashboard'
@@ -53,7 +59,7 @@ export function MobileNav() {
         <button onClick={() => setOpen(!open)} className="p-2 -ml-2 rounded-lg hover:bg-gray-100 transition-colors">
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
-        <span className="ml-2 font-bold">Fitnes</span>
+        <span className="ml-2 font-bold">{t('brand.name')}</span>
       </div>
 
       {open && (
@@ -92,13 +98,22 @@ export function MobileNav() {
                   )}
                 >
                   <Shield className="w-5 h-5" />
-                  Admin
+                  {t('nav.admin')}
                 </Link>
               )}
             </nav>
 
-            <div className="p-4 border-t border-gray-100">
-              <div className="flex items-center gap-3 mb-3 px-3">
+            <div className="p-4 border-t border-gray-100 space-y-2">
+              {otherLang && (
+                <button
+                  onClick={() => { setLang(otherLang.code); setOpen(false) }}
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                  {otherLang.flag} {otherLang.label}
+                </button>
+              )}
+              <div className="flex items-center gap-3 px-3">
                 <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                   <span className="text-sm font-medium text-green-700">
                     {profile?.username?.charAt(0).toUpperCase()}
@@ -114,7 +129,7 @@ export function MobileNav() {
                 className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-red-600 transition-colors"
               >
                 <LogOut className="w-5 h-5" />
-                Keluar
+                {t('nav.logout')}
               </button>
             </div>
           </div>

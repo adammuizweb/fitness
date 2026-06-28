@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth'
-import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { WorkoutList } from '@/components/workouts/WorkoutList'
 
 export default async function WorkoutsPage() {
@@ -21,21 +20,5 @@ export default async function WorkoutsPage() {
     scheduleDays.set(s.workout_id, days)
   }
 
-  return (
-    <div className="space-y-6">
-      <Breadcrumb items={[
-        { label: 'Workouts' },
-      ]} />
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Workouts</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Daftar workout template yang kamu miliki
-          </p>
-        </div>
-      </div>
-
-      <WorkoutList workouts={workouts || []} scheduleDays={scheduleDays} />
-    </div>
-  )
+  return <WorkoutList workouts={workouts || []} scheduleDays={scheduleDays} />
 }

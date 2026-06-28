@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { useI18n } from '@/lib/i18n/context'
 import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useLogs'
 import { createClient } from '@/lib/supabase/client'
 import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
@@ -36,15 +38,16 @@ function formatDetail(item: ChecklistItem): string {
     const parts: string[] = []
     if (w.default_distance) parts.push(`${w.default_distance} m`)
     if (w.default_duration) parts.push(`${w.default_duration} menit`)
-    return parts.join(' • ') || 'Cardio'
+    return parts.join(' • ') || ''
   }
   const parts: string[] = []
   if (w.default_sets) parts.push(`${w.default_sets} set`)
   if (w.default_reps) parts.push(`${w.default_reps} rep`)
-  return parts.join(' × ') || 'Angkat Beban'
+  return parts.join(' × ') || ''
 }
 
 export function LogPageClient() {
+  const { t } = useI18n()
   const todayDayOfWeek = new Date().getDay()
 
   const { data: logs, isLoading: logsLoading } = useTodayLogs()
@@ -136,8 +139,12 @@ export function LogPageClient() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[
+        { label: t('nav.log'), href: '/dashboard/log' },
+        { label: t('log.today') },
+      ]} />
       <div>
-        <h1 className="text-2xl font-bold">Workout Hari Ini</h1>
+        <h1 className="text-2xl font-bold">{t('log.title')}</h1>
         <p className="text-gray-500 text-sm mt-1">
           {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
@@ -146,15 +153,15 @@ export function LogPageClient() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Checklist ({done}/{total})
+            {t('log.checklist', { done, total })}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {total === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">Tidak ada jadwal workout hari ini.</p>
+              <p className="text-gray-500">{t('log.noSchedule')}</p>
               <p className="text-sm text-gray-400 mt-1">
-                Buat workout dan atur jadwalnya di menu Workout.
+                {t('log.noScheduleHint')}
               </p>
             </div>
           ) : (
@@ -181,7 +188,7 @@ export function LogPageClient() {
                         </p>
                       </button>
                       <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 mt-1 ${item.workout.type === 'cardio' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
-                        {item.workout.type === 'cardio' ? 'Cardio' : 'Lift'}
+                        {item.workout.type === 'cardio' ? t('log.cardio') : t('log.lift')}
                       </span>
                       <button onClick={() => isEditing ? setEditingId(null) : openEdit(item)} className="shrink-0 mt-1 p-1">
                         {isEditing ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
@@ -193,21 +200,21 @@ export function LogPageClient() {
                         {item.workout.type === 'lift' ? (
                           <div className="grid grid-cols-3 gap-2">
                             <Input
-                              label="Sets"
+                              label={t('log.sets')}
                               type="number"
                               min="1"
                               value={vals.sets || ''}
                               onChange={(e) => handleEditChange(item.workout.id, 'sets', e.target.value)}
                             />
                             <Input
-                              label="Reps"
+                              label={t('log.reps')}
                               type="number"
                               min="1"
                               value={vals.reps || ''}
                               onChange={(e) => handleEditChange(item.workout.id, 'reps', e.target.value)}
                             />
                             <Input
-                              label="Kg"
+                              label={t('log.weight')}
                               type="number"
                               step="0.5"
                               min="0"
@@ -218,14 +225,14 @@ export function LogPageClient() {
                         ) : (
                           <div className="grid grid-cols-2 gap-2">
                             <Input
-                              label="Jarak (m)"
+                              label={t('log.distance')}
                               type="number"
                               min="0"
                               value={vals.distance || ''}
                               onChange={(e) => handleEditChange(item.workout.id, 'distance', e.target.value)}
                             />
                             <Input
-                              label="Durasi (menit)"
+                              label={t('log.duration')}
                               type="number"
                               min="1"
                               value={vals.duration || ''}
@@ -235,10 +242,10 @@ export function LogPageClient() {
                         )}
                         <div className="flex justify-end gap-2 pt-1">
                           <Button variant="outline" size="sm" onClick={() => setEditingId(null)}>
-                            Batal
+                            {t('log.cancel')}
                           </Button>
                           <Button size="sm" onClick={() => handleSaveEdit(item)} loading={upsertMutation.isPending}>
-                            Simpan
+                            {t('log.save')}
                           </Button>
                         </div>
                       </div>

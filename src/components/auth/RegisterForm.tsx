@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useI18n } from '@/lib/i18n/context'
 
 export function RegisterForm() {
+  const { t } = useI18n()
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -44,7 +46,7 @@ export function RegisterForm() {
     }
 
     if (data.user?.identities?.length === 0) {
-      setError('Email sudah terdaftar')
+      setError(t('auth.registerEmailError'))
       return
     }
 
@@ -61,9 +63,9 @@ export function RegisterForm() {
 
       <Input
         id="email"
-        label="Email"
+        label={t('registerForm.email')}
         type="email"
-        placeholder="nama@email.com"
+        placeholder={t('registerForm.emailPlaceholder')}
         autoComplete="username"
         value={form.email}
         onChange={(e) => updateField('email', e.target.value)}
@@ -72,9 +74,9 @@ export function RegisterForm() {
 
       <Input
         id="username"
-        label="Username"
+        label={t('registerForm.username')}
         type="text"
-        placeholder="namaku"
+        placeholder={t('registerForm.usernamePlaceholder')}
         value={form.username}
         onChange={(e) => updateField('username', e.target.value)}
         required
@@ -82,9 +84,9 @@ export function RegisterForm() {
 
       <Input
         id="full_name"
-        label="Nama Lengkap"
+        label={t('registerForm.fullName')}
         type="text"
-        placeholder="Nama Lengkap"
+        placeholder={t('registerForm.fullNamePlaceholder')}
         value={form.full_name}
         onChange={(e) => updateField('full_name', e.target.value)}
         required
@@ -92,9 +94,9 @@ export function RegisterForm() {
 
       <Input
         id="password"
-        label="Password"
+        label={t('registerForm.password')}
         type="password"
-        placeholder="Minimal 6 karakter"
+        placeholder={t('registerForm.passwordPlaceholder')}
         autoComplete="new-password"
         value={form.password}
         onChange={(e) => updateField('password', e.target.value)}
@@ -103,7 +105,7 @@ export function RegisterForm() {
       />
 
       <Button type="submit" loading={loading} className="w-full">
-        Daftar
+        {t('registerForm.submit')}
       </Button>
     </form>
   )

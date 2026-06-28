@@ -1,8 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import { RegisterForm } from '@/components/auth/RegisterForm'
+import { useI18n } from '@/lib/i18n/context'
 import { Flame } from 'lucide-react'
 
 export default function RegisterPage() {
+  const { t } = useI18n()
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
@@ -12,9 +16,9 @@ export default function RegisterPage() {
               <Flame className="w-7 h-7 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Daftar Fitnes</h1>
+          <h1 className="text-2xl font-bold">{t('auth.registerTitle')}</h1>
           <p className="text-sm text-gray-500">
-            Mulai lacak perjalanan fitnesmu
+            {t('auth.registerSubtitle')}
           </p>
         </div>
 
@@ -23,9 +27,9 @@ export default function RegisterPage() {
         </div>
 
         <p className="text-center text-sm text-gray-500">
-          Sudah punya akun?{' '}
+          {t('auth.registerHasAccount')}{' '}
           <Link href="/login" className="text-green-600 font-medium hover:underline">
-            Masuk
+            {t('auth.registerLogin')}
           </Link>
         </p>
       </div>

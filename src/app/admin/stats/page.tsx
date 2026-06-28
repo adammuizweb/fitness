@@ -1,30 +1,35 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { useI18n } from '@/lib/i18n/context'
 import { useAdminStats } from '@/hooks/useAdmin'
 import { Users, ClipboardList, Activity, TrendingUp } from 'lucide-react'
 
 export default function AdminStatsPage() {
+  const { t } = useI18n()
   const { data: stats, isLoading } = useAdminStats()
 
   if (isLoading) {
-    return <div className="text-center py-8 text-gray-500">Memuat statistik...</div>
+    return <div className="text-center py-8 text-gray-500">{t('adminStats.loading')}</div>
   }
 
   if (!stats) {
     return (
       <div className="space-y-6">
+        <Breadcrumb items={[
+          { label: t('nav.admin'), href: '/admin' },
+          { label: t('adminStats.title') },
+        ]} />
         <div>
-          <h1 className="text-2xl font-bold">Statistik</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Untuk menampilkan statistik, buat function SQL get_admin_stats di Supabase
-          </p>
+          <h1 className="text-2xl font-bold">{t('adminStats.title')}</h1>
+          <p className="text-gray-500 text-sm mt-1">{t('adminStats.subtitle')}</p>
         </div>
         <Card>
           <CardContent className="p-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700">
-              <p className="font-medium mb-1">Petunjuk:</p>
-              <p>Jalankan SQL berikut di Supabase SQL Editor:</p>
+              <p className="font-medium mb-1">{t('adminStats.instructions')}</p>
+              <p>{t('adminStats.instructionsDesc')}</p>
                 <pre className="mt-2 bg-blue-100 p-3 rounded text-xs overflow-x-auto">
 {`CREATE OR REPLACE FUNCTION public.get_admin_stats()
 RETURNS json AS $$
@@ -63,9 +68,13 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;`}
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[
+        { label: t('nav.admin'), href: '/admin' },
+        { label: t('adminStats.title') },
+      ]} />
       <div>
-        <h1 className="text-2xl font-bold">Statistik</h1>
-        <p className="text-gray-500 text-sm mt-1">Data penggunaan aplikasi</p>
+        <h1 className="text-2xl font-bold">{t('adminStats.title')}</h1>
+        <p className="text-gray-500 text-sm mt-1">{t('adminStats.subtitle')}</p>
       </div>
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
@@ -74,7 +83,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;`}
             <Users className="w-5 h-5 text-purple-600" />
             <div>
               <p className="text-2xl font-bold">{stats.total_users}</p>
-              <p className="text-xs text-gray-500">Total Users</p>
+              <p className="text-xs text-gray-500">{t('adminStats.totalUsers')}</p>
             </div>
           </CardContent>
         </Card>
@@ -83,7 +92,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;`}
             <ClipboardList className="w-5 h-5 text-green-600" />
             <div>
               <p className="text-2xl font-bold">{stats.total_logs_today}</p>
-              <p className="text-xs text-gray-500">Hari Ini</p>
+              <p className="text-xs text-gray-500">{t('adminStats.today')}</p>
             </div>
           </CardContent>
         </Card>
@@ -92,7 +101,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;`}
             <Activity className="w-5 h-5 text-blue-600" />
             <div>
               <p className="text-2xl font-bold">{stats.total_logs_this_week}</p>
-              <p className="text-xs text-gray-500">Minggu Ini</p>
+              <p className="text-xs text-gray-500">{t('adminStats.week')}</p>
             </div>
           </CardContent>
         </Card>
@@ -101,7 +110,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;`}
             <TrendingUp className="w-5 h-5 text-orange-600" />
             <div>
               <p className="text-2xl font-bold">{stats.total_logs_this_month}</p>
-              <p className="text-xs text-gray-500">Bulan Ini</p>
+              <p className="text-xs text-gray-500">{t('adminStats.month')}</p>
             </div>
           </CardContent>
         </Card>
@@ -110,7 +119,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;`}
       {stats.top_exercises && stats.top_exercises.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Top Exercises</CardTitle>
+            <CardTitle>{t('adminStats.topExercises')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

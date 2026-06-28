@@ -6,12 +6,14 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogFooter } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { useI18n } from '@/lib/i18n/context'
 import { WorkoutForm } from '@/components/workouts/WorkoutForm'
 import { useWorkouts, useUpdateWorkoutWithSchedule, useToggleWorkoutActive, useDeleteWorkout } from '@/hooks/useWorkouts'
 import { useSchedules } from '@/hooks/useSchedules'
 import { EyeOff, Eye, Trash2, AlertTriangle } from 'lucide-react'
 
 export default function EditWorkoutPage() {
+  const { t } = useI18n()
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const { data: workouts, isLoading: workoutsLoading } = useWorkouts()
@@ -49,10 +51,10 @@ export default function EditWorkoutPage() {
     return (
       <div className="space-y-6">
         <Breadcrumb items={[
-          { label: 'Workouts', href: '/dashboard/workouts' },
-          { label: 'Edit Workout' },
+          { label: t('nav.workouts'), href: '/dashboard/workouts' },
+          { label: t('workout.breadcrumbEdit') },
         ]} />
-        <div className="text-center py-12 text-gray-500">Memuat...</div>
+        <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>
       </div>
     )
   }
@@ -60,13 +62,13 @@ export default function EditWorkoutPage() {
   return (
     <div className="space-y-6">
       <Breadcrumb items={[
-        { label: 'Workouts', href: '/dashboard/workouts' },
+        { label: t('nav.workouts'), href: '/dashboard/workouts' },
         { label: workout.name },
       ]} />
 
       <div>
-        <h1 className="text-2xl font-bold">Edit Workout</h1>
-        <p className="text-gray-500 text-sm mt-1">Ubah detail workout, jadwal, atau nonaktifkan</p>
+        <h1 className="text-2xl font-bold">{t('workout.edit')}</h1>
+        <p className="text-gray-500 text-sm mt-1">{t('workout.editSubtitle')}</p>
       </div>
 
       <WorkoutForm
@@ -89,11 +91,10 @@ export default function EditWorkoutPage() {
         <CardContent className="p-6">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle className="w-4 h-4 text-red-500" />
-            <h3 className="font-semibold text-red-700 text-sm">Area Berbahaya</h3>
+            <h3 className="font-semibold text-red-700 text-sm">{t('dangerZone.title')}</h3>
           </div>
           <p className="text-sm text-red-600 mb-4">
-            Nonaktifkan workout untuk menyembunyikannya dari jadwal tanpa menghapus history log.
-            Hapus permanen akan menghilangkan semua data workout ini.
+            {t('dangerZone.desc')}
           </p>
           <div className="flex gap-2">
             <Button
@@ -103,14 +104,14 @@ export default function EditWorkoutPage() {
               className="border-amber-300 text-amber-700 hover:bg-amber-50"
             >
               {workout.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              {workout.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+              {workout.is_active ? t('dangerZone.deactivate') : t('dangerZone.activate')}
             </Button>
             <Button
               variant="destructive"
               onClick={() => setShowDelete(true)}
             >
               <Trash2 className="w-4 h-4" />
-              Hapus
+              {t('dangerZone.delete')}
             </Button>
           </div>
         </CardContent>
@@ -119,15 +120,15 @@ export default function EditWorkoutPage() {
       <Dialog
         open={showDelete}
         onClose={() => setShowDelete(false)}
-        title="Hapus Workout Permanen"
-        description={`Yakin ingin menghapus "${workout.name}"? Semua jadwal dan log workout ini akan hilang.`}
+        title={t('dangerZone.deleteDialogTitle')}
+        description={t('dangerZone.deleteDialogDesc', { name: workout.name })}
       >
         <DialogFooter>
           <Button variant="outline" onClick={() => setShowDelete(false)}>
-            Batal
+            {t('common.cancel')}
           </Button>
           <Button variant="destructive" onClick={handleDelete} loading={deleteMutation.isPending}>
-            Hapus Permanen
+            {t('common.delete')}
           </Button>
         </DialogFooter>
       </Dialog>

@@ -6,10 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { useI18n } from '@/lib/i18n/context'
 import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SettingsPage() {
+  const { t } = useI18n()
   const { profile, loading } = useUser()
   const [fullName, setFullName] = useState(profile?.full_name || '')
   const [email, setEmail] = useState('')
@@ -22,6 +24,10 @@ export default function SettingsPage() {
       if (data.user?.email) setEmail(data.user.email)
     })
   }, [supabase])
+
+  useEffect(() => {
+    if (profile) setFullName(profile.full_name || '')
+  }, [profile])
 
   async function handleUpdateProfile(e: React.FormEvent) {
     e.preventDefault()
@@ -44,45 +50,45 @@ export default function SettingsPage() {
   }
 
   if (loading) {
-    return <div className="text-center py-8 text-gray-500">Memuat...</div>
+    return <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>
   }
 
   return (
     <div className="space-y-6 max-w-lg">
       <Breadcrumb items={[
-        { label: 'Pengaturan' },
+        { label: t('nav.settings') },
       ]} />
       <div>
-        <h1 className="text-2xl font-bold">Pengaturan</h1>
-        <p className="text-gray-500 text-sm mt-1">Atur profil akunmu</p>
+        <h1 className="text-2xl font-bold">{t('settings.title')}</h1>
+        <p className="text-gray-500 text-sm mt-1">{t('settings.subtitle')}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Profil</CardTitle>
+          <CardTitle>{t('settings.profile')}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <Input
               id="email"
-              label="Email"
+              label={t('settings.email')}
               value={email}
               disabled
             />
             <Input
               id="username"
-              label="Username"
+              label={t('settings.username')}
               value={`@${profile?.username || ''}`}
               disabled
             />
             <Input
               id="full_name"
-              label="Nama Lengkap"
+              label={t('settings.fullName')}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
             <Button type="submit" loading={saving}>
-              Simpan
+              {t('settings.save')}
             </Button>
           </form>
         </CardContent>
@@ -90,14 +96,14 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-red-600">Keluar</CardTitle>
+          <CardTitle className="text-red-600">{t('settings.logout')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-500 mb-4">
-            Keluar dari aplikasi Fitnes Tracker
+            {t('settings.logoutDesc')}
           </p>
           <Button variant="destructive" onClick={handleLogout}>
-            Keluar
+            {t('settings.logoutBtn')}
           </Button>
         </CardContent>
       </Card>

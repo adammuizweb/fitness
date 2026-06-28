@@ -3,9 +3,11 @@
 import { useRouter } from 'next/navigation'
 import { WorkoutForm } from '@/components/workouts/WorkoutForm'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { useI18n } from '@/lib/i18n/context'
 import { useCreateWorkoutWithSchedule } from '@/hooks/useWorkouts'
 
 export default function NewWorkoutPage() {
+  const { t } = useI18n()
   const router = useRouter()
   const mutation = useCreateWorkoutWithSchedule()
 
@@ -18,12 +20,12 @@ export default function NewWorkoutPage() {
   return (
     <div className="space-y-6">
       <Breadcrumb items={[
-        { label: 'Workouts', href: '/dashboard/workouts' },
-        { label: 'Tambah Workout' },
+        { label: t('nav.workouts'), href: '/dashboard/workouts' },
+        { label: t('workout.breadcrumbNew') },
       ]} />
       <div>
-        <h1 className="text-2xl font-bold">Tambah Workout</h1>
-        <p className="text-gray-500 text-sm mt-1">Buat workout baru, atur tipe dan jadwal mingguan</p>
+        <h1 className="text-2xl font-bold">{t('workout.new')}</h1>
+        <p className="text-gray-500 text-sm mt-1">{t('workout.newSubtitle')}</p>
       </div>
       <WorkoutForm onSubmit={handleSubmit} loading={mutation.isPending} cancelHref="/dashboard/workouts" />
     </div>

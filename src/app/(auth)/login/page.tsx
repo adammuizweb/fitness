@@ -1,8 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import { LoginForm } from '@/components/auth/LoginForm'
+import { useI18n } from '@/lib/i18n/context'
 import { Flame } from 'lucide-react'
 
 export default function LoginPage() {
+  const { t } = useI18n()
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
@@ -12,9 +16,9 @@ export default function LoginPage() {
               <Flame className="w-7 h-7 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Masuk ke Fitnes</h1>
+          <h1 className="text-2xl font-bold">{t('auth.loginTitle')}</h1>
           <p className="text-sm text-gray-500">
-            Lacak streak olahragamu setiap hari
+            {t('auth.loginSubtitle')}
           </p>
         </div>
 
@@ -23,9 +27,9 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-sm text-gray-500">
-          Belum punya akun?{' '}
+          {t('auth.loginNoAccount')}{' '}
           <Link href="/register" className="text-green-600 font-medium hover:underline">
-            Daftar
+            {t('auth.loginRegister')}
           </Link>
         </p>
       </div>

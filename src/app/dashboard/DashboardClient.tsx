@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/lib/i18n/context'
 import { Dumbbell, ClipboardList, Flame, TrendingUp, Plus } from 'lucide-react'
 import type { WorkoutLog, DailyStreak } from '@/types'
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function DashboardClient({ logs, streak, totalWorkouts }: Props) {
+  const { t } = useI18n()
   const totalSets = logs.reduce((sum, log) => sum + (log.sets || 0), 0)
   const totalReps = logs.reduce((sum, log) => sum + (log.reps || 0), 0)
   const currentStreak = streak?.current_streak || 0
@@ -21,107 +23,101 @@ export function DashboardClient({ logs, streak, totalWorkouts }: Props) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
           <p className="text-gray-500 text-sm mt-1">
             {logs.length === 0
-              ? 'Belum ada workout hari ini. Ayo mulai!'
-              : `${logs.length} workout telah dilog hari ini`}
+              ? t('dashboard.noWorkout')
+              : t('dashboard.loggedCount', { count: logs.length })}
           </p>
         </div>
+
         <Link href="/dashboard/log">
           <Button>
-            <Plus className="w-4 h-4" />
-            Log Workout
+            <ClipboardList className="w-4 h-4 mr-2" />
+            {t('dashboard.logWorkout')}
           </Button>
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-              <Flame className="w-5 h-5 text-green-600" />
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center">
+              <Flame className="w-6 h-6 text-orange-600" />
             </div>
             <div>
+              <p className="text-sm text-gray-500">{t('dashboard.streak')}</p>
               <p className="text-2xl font-bold">{currentStreak}</p>
-              <p className="text-xs text-gray-500">Streak</p>
             </div>
           </CardContent>
         </Card>
+
         <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Dumbbell className="w-5 h-5 text-blue-600" />
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+              <Dumbbell className="w-6 h-6 text-blue-600" />
             </div>
             <div>
+              <p className="text-sm text-gray-500">{t('dashboard.workouts')}</p>
               <p className="text-2xl font-bold">{totalWorkouts}</p>
-              <p className="text-xs text-gray-500">Workouts</p>
             </div>
           </CardContent>
         </Card>
+
         <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-orange-600" />
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-green-600" />
             </div>
             <div>
+              <p className="text-sm text-gray-500">{t('dashboard.setsToday')}</p>
               <p className="text-2xl font-bold">{totalSets}</p>
-              <p className="text-xs text-gray-500">Sets Hari Ini</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-              <ClipboardList className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalReps}</p>
-              <p className="text-xs text-gray-500">Reps Hari Ini</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {logs.length > 0 && (
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Workout Hari Ini</CardTitle>
+            <CardTitle>{t('dashboard.workoutToday')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="divide-y divide-gray-100">
-              {logs.map((log) => (
-                <div key={log.id} className="py-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{log.workout?.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {log.workout?.type === 'lift'
-                        ? `${log.sets || '?'} set x ${log.reps || '?'} rep${log.weight ? ` • ${log.weight} kg` : ''}`
-                        : `${log.distance || '?'} m • ${log.duration || '?'} menit`}
-                    </p>
+            {logs.length === 0 ? (
+              <p className="text-gray-500 text-sm py-4 text-center">
+                {t('dashboard.noWorkout')}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {logs.map((log) => (
+                  <div key={log.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium">{log.workout?.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {log.sets && log.sets > 0
+                          ? `${log.sets} set x ${log.reps} rep${log.weight ? ` \u2022 ${log.weight} kg` : ''}`
+                          : `${log.distance} m \u2022 ${log.duration} menit`}
+                      </p>
+                    </div>
                   </div>
-                  {log.notes && (
-                    <span className="text-xs text-gray-400 max-w-[200px] truncate">
-                      {log.notes}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
-      )}
 
-      {currentStreak >= 7 && (
-        <Card className="border-orange-200 bg-orange-50">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl">🔥</p>
-            <p className="font-semibold text-orange-800">
-              Streak {currentStreak} hari! Luar biasa!
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('dashboard.repsToday')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-4xl font-bold text-green-600">{totalReps}</p>
+            <p className="text-sm text-gray-500 mt-1">
+              {currentStreak > 0 && t('dashboard.streakFire', { count: currentStreak })}
             </p>
           </CardContent>
         </Card>
-      )}
+      </div>
     </div>
   )
 }

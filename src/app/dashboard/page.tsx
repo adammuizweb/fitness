@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth'
-import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { DashboardClient } from './DashboardClient'
 
 export default async function DashboardPage() {
@@ -30,15 +29,10 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
 
   return (
-    <div className="space-y-6">
-      <Breadcrumb items={[
-        { label: 'Dashboard' },
-      ]} />
-      <DashboardClient
-        logs={logs || []}
-        streak={streak}
-        totalWorkouts={totalWorkouts || 0}
-      />
-    </div>
+    <DashboardClient
+      logs={logs || []}
+      streak={streak}
+      totalWorkouts={totalWorkouts || 0}
+    />
   )
 }

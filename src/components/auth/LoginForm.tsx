@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useI18n } from '@/lib/i18n/context'
 
 export function LoginForm() {
+  const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -26,7 +28,7 @@ export function LoginForm() {
 
     if (authError) {
       setError(authError.message === 'Invalid login credentials'
-        ? 'Email atau password salah'
+        ? t('auth.loginError')
         : authError.message
       )
       return
@@ -45,9 +47,9 @@ export function LoginForm() {
 
       <Input
         id="email"
-        label="Email"
+        label={t('loginForm.email')}
         type="email"
-        placeholder="nama@email.com"
+        placeholder={t('loginForm.emailPlaceholder')}
         autoComplete="username"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -56,9 +58,9 @@ export function LoginForm() {
 
       <Input
         id="password"
-        label="Password"
+        label={t('loginForm.password')}
         type="password"
-        placeholder="••••••••"
+        placeholder={t('loginForm.passwordPlaceholder')}
         autoComplete="current-password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
@@ -66,7 +68,7 @@ export function LoginForm() {
       />
 
       <Button type="submit" loading={loading} className="w-full">
-        Masuk
+        {t('loginForm.submit')}
       </Button>
     </form>
   )
