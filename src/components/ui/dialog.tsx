@@ -34,7 +34,7 @@ export function Dialog({ open, onClose, title, description, className, size = 'm
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 md:pt-12 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
       <div className={`relative z-50 w-full ${sizeMap[size]} rounded-xl bg-white p-6 shadow-lg mx-4 ${className || ''}`}>
         {title && <h2 className="text-lg font-semibold">{title}</h2>}
