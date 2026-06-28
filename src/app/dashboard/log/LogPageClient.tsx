@@ -123,18 +123,22 @@ export function LogPageClient() {
     setUploadError(null)
     setUploading((prev) => ({ ...prev, [workoutId]: true }))
     try {
+      const { compressImage } = await import('@/lib/compressImage')
       const { fileToBase64 } = await import('@/lib/fileToBase64')
 
       const filePayloads: { name: string; type: string; data: string }[] = []
       for (let i = 0; i < files.length; i++) {
         const f = files[i]
-        const base64 = await fileToBase64(f)
-        const ext = f.type === 'image/png' ? 'png' : f.type === 'image/gif' ? 'gif' : 'jpg'
-        filePayloads.push({
-          name: `photo.${ext}`,
-          type: f.type || 'image/jpeg',
-          data: base64,
-        })
+        // Try to compress (resize + WebP/JPEG), fall back to original on failure
+        let blob: Blob
+        try {
+          blob = await compressImage(f)
+        } catch {
+          blob = f
+        }
+        const base64 = await fileToBase64(blob)
+        const ext = blob.type === 'image/webp' ? 'webp' : blob.type === 'image/png' ? 'png' : blob.type === 'image/gif' ? 'gif' : 'jpg'
+        filePayloads.push({ name: `photo.${ext}`, type: blob.type || 'image/jpeg', data: base64 })
       }
 
       const res = await fetch('/api/upload', {
