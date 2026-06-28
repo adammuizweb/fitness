@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
 import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useLogs'
+import { useRestDays } from '@/hooks/useRestDays'
 import { createClient } from '@/lib/supabase/client'
 import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2, Camera, X } from 'lucide-react'
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2, Camera, X, Moon, Sparkles } from 'lucide-react'
 
 interface ChecklistItem {
   workout: Workout
@@ -51,6 +52,8 @@ export function LogPageClient() {
   const todayDayOfWeek = new Date().getDay()
 
   const { data: logs, isLoading: logsLoading } = useTodayLogs()
+  const { data: restDays = [] } = useRestDays()
+  const isRestDay = restDays.some(r => r.day_of_week === todayDayOfWeek)
   const toggleMutation = useToggleChecklistItem()
   const upsertMutation = useUpsertLog()
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -209,6 +212,19 @@ export function LogPageClient() {
         </p>
       </div>
 
+      {isRestDay ? (
+        <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200">
+          <CardContent className="p-8 text-center">
+            <Moon className="w-12 h-12 text-indigo-400 mx-auto mb-3" />
+            <h2 className="text-xl font-bold text-indigo-700">Rest Day</h2>
+            <p className="text-indigo-500 mt-1">Take a break, recover, and come back stronger tomorrow!</p>
+            <div className="flex items-center justify-center gap-2 mt-4 text-sm text-indigo-400">
+              <Sparkles className="w-4 h-4" />
+              <span>Recovery is part of the progress</span>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
       <Card>
         <CardHeader>
           <CardTitle>
@@ -398,6 +414,7 @@ export function LogPageClient() {
           )}
         </CardContent>
       </Card>
+      )}
     </div>
   )
 }

@@ -10,7 +10,9 @@ import { useI18n } from '@/lib/i18n/context'
 import { Plus, Pencil, Trash2, EyeOff, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useWorkouts, useDeleteWorkout, useToggleWorkoutActive } from '@/hooks/useWorkouts'
 import { useSchedules } from '@/hooks/useSchedules'
+import { useRestDays, useToggleRestDay } from '@/hooks/useRestDays'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { Moon } from 'lucide-react'
 
 const PER_PAGE = 12
 
@@ -27,6 +29,8 @@ export function WorkoutList() {
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>('active')
   const [page, setPage] = useState(1)
 
+  const { data: restDays = [] } = useRestDays()
+  const toggleRestMutation = useToggleRestDay()
   const deleteMutation = useDeleteWorkout()
   const toggleActiveMutation = useToggleWorkoutActive()
 
@@ -154,6 +158,33 @@ export function WorkoutList() {
             {name}
           </button>
         ))}
+      </div>
+
+      {/* Rest Days */}
+      <div className="border-t pt-4 mt-2">
+        <div className="flex items-center gap-2 mb-2">
+          <Moon className="w-4 h-4 text-indigo-500" />
+          <span className="text-sm font-medium text-gray-700">Rest Days</span>
+          <span className="text-xs text-gray-400">— auto-check on these days</span>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {days.short.map((name, i) => {
+            const isRest = restDays.some(r => r.day_of_week === i)
+            return (
+              <button
+                key={i}
+                onClick={() => toggleRestMutation.mutate({ dayOfWeek: i as 0|1|2|3|4|5|6, currentlySet: isRest })}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                  isRest
+                    ? 'bg-indigo-100 text-indigo-700 border-indigo-300 font-medium'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300'
+                }`}
+              >
+                {name}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {filtered.length === 0 ? (

@@ -33,6 +33,13 @@ export interface Follow {
   created_at: string
 }
 
+export interface RestDay {
+  id: string
+  user_id: string
+  day_of_week: DayOfWeek
+  created_at: string
+}
+
 export type WorkoutType = 'lift' | 'cardio'
 
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
