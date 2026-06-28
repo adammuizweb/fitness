@@ -8,7 +8,7 @@ import { StreakStats } from '@/components/streak/StreakStats'
 import { useStreak } from '@/hooks/useStreak'
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 const supabase = createClient()
 
@@ -35,11 +35,7 @@ export function StreakClient() {
   const activeDates = useMemo(() => new Set(logs.map((l) => l.logged_date)), [logs])
 
   if (streakLoading || logsLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-      </div>
-    )
+    return <StreakSkeleton />
   }
 
   return (
@@ -54,6 +50,37 @@ export function StreakClient() {
 
       <StreakStats streak={streak ?? null} />
       <StreakCalendar activeDates={activeDates} />
+    </div>
+  )
+}
+
+function StreakSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-4 w-32 mb-4" />
+      <Skeleton className="h-7 w-48 mb-2" />
+      <Skeleton className="h-4 w-64 mb-6" />
+
+      <div className="rounded-xl border border-gray-200 bg-white p-6">
+        <Skeleton className="h-5 w-32 mb-4" />
+        <div className="grid grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i}>
+              <Skeleton className="h-3 w-16 mb-2" />
+              <Skeleton className="h-8 w-12" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-gray-200 bg-white p-6">
+        <Skeleton className="h-5 w-48 mb-4" />
+        <div className="flex flex-wrap gap-1">
+          {[...Array(50)].map((_, i) => (
+            <Skeleton key={i} className="h-3 w-3 rounded-sm" />
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
