@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogFooter } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
-import { Plus, Pencil, Trash2, EyeOff, Eye, ChevronLeft, ChevronRight, Moon, Share2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, EyeOff, Eye, ChevronLeft, ChevronRight, Moon, Share2, Info } from 'lucide-react'
 import { useWorkouts, useDeleteWorkout, useToggleWorkoutActive } from '@/hooks/useWorkouts'
 import { useSchedules } from '@/hooks/useSchedules'
 import { useRestDays, useToggleRestDay } from '@/hooks/useRestDays'
@@ -15,6 +15,7 @@ import { useMySharedWorkouts } from '@/hooks/useSharedWorkouts'
 import type { Workout } from '@/types'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ShareWorkoutDialog } from './ShareWorkoutDialog'
+import { SharePlanDialog } from './SharePlanDialog'
 
 const PER_PAGE = 12
 
@@ -37,6 +38,7 @@ export function WorkoutList() {
   const deleteMutation = useDeleteWorkout()
   const toggleActiveMutation = useToggleWorkoutActive()
   const [shareWorkout, setShareWorkout] = useState<Workout | null>(null)
+  const [showSharePlan, setShowSharePlan] = useState(false)
 
   const scheduleDays = useMemo(() => {
     const map = new Map<string, number[]>()
@@ -116,12 +118,18 @@ export function WorkoutList() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/dashboard/workouts/new">
-          <Button>
-            <Plus className="w-4 h-4" />
-            {t('workoutList.addBtn')}
+        <div className="flex gap-2">
+          <Link href="/dashboard/workouts/new">
+            <Button>
+              <Plus className="w-4 h-4" />
+              {t('workoutList.addBtn')}
+            </Button>
+          </Link>
+          <Button variant="outline" onClick={() => setShowSharePlan(true)}>
+            <Share2 className="w-4 h-4" />
+            Share Plan
           </Button>
-        </Link>
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <select
@@ -169,8 +177,13 @@ export function WorkoutList() {
         <div className="flex items-center gap-2 mb-2">
           <Moon className="w-4 h-4 text-indigo-500" />
           <span className="text-sm font-medium text-gray-700">{t('restDays.title')}</span>
+          <div className="group relative">
+            <Info className="w-3.5 h-3.5 text-gray-400 cursor-help" />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+              {t('restDays.desc')}
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-gray-400 mb-3 max-w-lg">{t('restDays.desc')}</p>
         <div className="flex flex-wrap gap-1.5">
           {days.short.map((name, i) => {
             const isRest = restDays.some(r => r.day_of_week === i)
@@ -320,6 +333,14 @@ export function WorkoutList() {
           workout={shareWorkout}
           open={!!shareWorkout}
           onClose={() => setShareWorkout(null)}
+        />
+      )}
+
+      {showSharePlan && (
+        <SharePlanDialog
+          schedules={schedules}
+          open={showSharePlan}
+          onClose={() => setShowSharePlan(false)}
         />
       )}
     </div>

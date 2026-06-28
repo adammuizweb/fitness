@@ -15,9 +15,10 @@ import {
 } from '@/hooks/useCommunity'
 import { useUser } from '@/hooks/useUser'
 import { useUserSharedWorkouts, useCopyWorkout } from '@/hooks/useSharedWorkouts'
+import { useUserPlans, useCopyPlan } from '@/hooks/useSharedPlans'
 import { useWorkouts } from '@/hooks/useWorkouts'
 import { useI18n } from '@/lib/i18n/context'
-import { Loader2, Globe, Lock, Users, UserCheck, UserPlus, Dumbbell, Copy } from 'lucide-react'
+import { Loader2, Globe, Lock, Users, UserCheck, UserPlus, Dumbbell, Copy, Calendar } from 'lucide-react'
 import Link from 'next/link'
 
 export default function UserProfilePage() {
@@ -31,8 +32,10 @@ export default function UserProfilePage() {
   const { data: isFollowing, isLoading: followStatusLoading } = useFollowStatus(profile?.id || '')
   const { data: followCount } = useFollowCount(profile?.id || '')
   const { data: sharedWorkouts = [] } = useUserSharedWorkouts(profile?.id || '')
+  const { data: sharedPlans = [] } = useUserPlans(profile?.id || '')
   const { data: myWorkouts } = useWorkouts()
   const copyMutation = useCopyWorkout()
+  const copyPlanMutation = useCopyPlan()
   const followMutation = useFollowUser()
   const unfollowMutation = useUnfollowUser()
 
@@ -161,6 +164,62 @@ export default function UserProfilePage() {
                       <Copy className="w-3.5 h-3.5 mr-1" />
                       {alreadyCopied ? 'Copied' : 'Copy'}
                     </Button>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Shared Plans */}
+      {!isPrivate && sharedPlans.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Calendar className="w-5 h-5" />
+              Weekly Plans
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {sharedPlans.map((plan) => {
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                return (
+                  <div key={plan.id} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">{plan.name}</p>
+                        {plan.description && (
+                          <p className="text-xs text-gray-500 mt-0.5">{plan.description}</p>
+                        )}
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {plan.days.map((d) => (
+                            <span
+                              key={d.id}
+                              className={`text-xs px-1.5 py-0.5 rounded ${
+                                d.is_rest
+                                  ? 'bg-indigo-100 text-indigo-600'
+                                  : 'bg-green-100 text-green-700'
+                              }`}
+                            >
+                              {dayNames[d.day_of_week]}
+                              {!d.is_rest && `: ${d.workout_name}`}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => copyPlanMutation.mutate(plan)}
+                        loading={copyPlanMutation.isPending}
+                        className="shrink-0 ml-2"
+                      >
+                        <Copy className="w-3.5 h-3.5 mr-1" />
+                        Copy Plan
+                      </Button>
+                    </div>
                   </div>
                 )
               })}
