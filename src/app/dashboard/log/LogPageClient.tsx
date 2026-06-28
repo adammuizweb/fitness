@@ -61,6 +61,7 @@ export function LogPageClient() {
   const [schedules, setSchedules] = useState<WorkoutSchedule[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -119,6 +120,7 @@ export function LogPageClient() {
     const item = checklist.find(c => c.workout.id === workoutId)
     if (!item) return
 
+    setUploadError(null)
     setUploading((prev) => ({ ...prev, [workoutId]: true }))
     try {
       const { compressImage } = await import('@/lib/compressImage')
@@ -135,20 +137,22 @@ export function LogPageClient() {
       }
 
       const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+
       if (!res.ok) {
-        const err = await res.json()
-        console.error('Upload failed:', err)
+        setUploadError(data.error || `Upload failed (${res.status})`)
         return
       }
 
-      const data = await res.json()
       const currentPhotos = item.log?.photos || []
       await upsertMutation.mutateAsync({
         workout_id: workoutId,
         photos: [...currentPhotos, ...data.urls],
         is_done: true,
       })
+      setUploadError(null)
     } catch (err) {
+      setUploadError('Upload failed. Check connection and try again.')
       console.error('Upload error:', err)
     } finally {
       setUploading((prev) => ({ ...prev, [workoutId]: false }))
@@ -289,7 +293,6 @@ export function LogPageClient() {
                         <input
                           type="file"
                           accept="image/*"
-                          capture="environment"
                           multiple
                           className="hidden"
                           id={`photo-input-${item.workout.id}`}
@@ -315,6 +318,9 @@ export function LogPageClient() {
                           </button>
                         )}
                       </div>
+                      {uploadError && (
+                        <p className="text-xs text-red-500 mt-1">{uploadError}</p>
+                      )}
                     </div>
 
                     {isEditing && (

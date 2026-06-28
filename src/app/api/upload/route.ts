@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
   }
 
   for (const file of files) {
-    if (file.size > 300 * 1024) {
-      return NextResponse.json({ error: 'Each file must be under 300KB' }, { status: 413 })
+    if (file.size > 500 * 1024) {
+      return NextResponse.json({ error: 'Each file must be under 500KB' }, { status: 413 })
     }
   }
 
