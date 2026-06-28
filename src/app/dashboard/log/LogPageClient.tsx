@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,6 +11,7 @@ import { useRestDays } from '@/hooks/useRestDays'
 import { createClient } from '@/lib/supabase/client'
 import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
 import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2, Camera, X, Moon, Sparkles } from 'lucide-react'
+import { UploadModal } from '@/components/logs/UploadModal'
 
 interface ChecklistItem {
   workout: Workout
@@ -62,6 +63,9 @@ export function LogPageClient() {
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const modalStageRef = useRef<'compress' | 'upload' | 'done' | 'error'>('compress')
+  const [modalStage, setModalStage] = useState<'compress' | 'upload' | 'done' | 'error'>('compress')
 
   useEffect(() => {
     async function load() {
@@ -116,34 +120,31 @@ export function LogPageClient() {
     }))
   }
 
-  async function handleUploadPhoto(workoutId: string, base64: string, fileType: string, fileSize: number) {
+  async function handleUploadPhoto(workoutId: string, base64: string, fileType: string) {
     const item = checklist.find(c => c.workout.id === workoutId)
     if (!item) return
 
     setUploadError(null)
     setUploading((prev) => ({ ...prev, [workoutId]: true }))
 
-    // Try to compress (best-effort, 8s timeout)
     let data = base64
     let type = fileType
     let ext = fileType === 'image/webp' ? 'webp' : fileType === 'image/png' ? 'png' : 'gif'
-    
-    if (fileSize > 200 * 1024) {
-      try {
-        const { compressImage } = await import('@/lib/compressImage')
-        const blob = await Promise.race([
-          compressImage(new File([await (await fetch(`data:${fileType};base64,${base64}`)).blob()], 'photo', { type: fileType })),
-          new Promise<never>((_, r) => setTimeout(() => r(new Error('Timeout')), 8000)),
-        ])
-        const { fileToBase64 } = await import('@/lib/fileToBase64')
-        data = await fileToBase64(blob)
-        type = blob.type
-        ext = type === 'image/webp' ? 'webp' : type === 'image/png' ? 'png' : 'gif'
-      } catch {
-        // Use original
-      }
+
+    // Phase 1: Compress
+    setModalStage('compress')
+    try {
+      const { compressBase64 } = await import('@/lib/compressBase64')
+      const result = await compressBase64(base64, fileType, 30000)
+      data = result.data
+      type = result.type
+      ext = type === 'image/webp' ? 'webp' : type === 'image/png' ? 'png' : 'gif'
+    } catch {
+      // Use original — still works
     }
 
+    // Phase 2: Upload
+    setModalStage('upload')
     try {
       const res = await fetch('/api/upload', {
         method: 'POST',
@@ -154,6 +155,7 @@ export function LogPageClient() {
 
       if (!res.ok) {
         setUploadError(result.error || `Upload failed (${res.status})`)
+        setModalStage('error')
         return
       }
 
@@ -163,9 +165,14 @@ export function LogPageClient() {
         photos: [...currentPhotos, ...result.urls],
         is_done: true,
       })
+
+      setModalStage('done')
+      setTimeout(() => setModalOpen(false), 800)
       setUploadError(null)
-    } catch (err) {
-      setUploadError('Upload failed. Check connection and try again.')
+    } catch {
+      setUploadError('Upload failed')
+      setModalStage('error')
+      setTimeout(() => setModalOpen(false), 2000)
     } finally {
       setUploading((prev) => ({ ...prev, [workoutId]: false }))
     }
@@ -179,7 +186,9 @@ export function LogPageClient() {
     reader.onload = () => {
       const b64 = (reader.result as string).split(',')[1]
       if (!b64) return
-      handleUploadPhoto(workoutId, b64, file.type || 'image/jpeg', file.size)
+      setModalOpen(true)
+      setModalStage('compress')
+      handleUploadPhoto(workoutId, b64, file.type || 'image/jpeg')
       e.target.value = ''
     }
     reader.readAsDataURL(file)
@@ -416,7 +425,7 @@ export function LogPageClient() {
                               <Camera className="w-4 h-4" />
                               {photos.length > 0 ? t('log.addMore') : t('log.photo')}
                             </label>
-                            {uploading[item.workout.id] && (
+                            {uploading[item.workout.id] && !modalOpen && (
                               <span className="ml-2 text-xs text-gray-400">Uploading...</span>
                             )}
                           </div>
@@ -440,6 +449,11 @@ export function LogPageClient() {
         </CardContent>
       </Card>
       )}
+
+      <UploadModal
+        open={modalOpen}
+        stage={modalStage}
+      />
     </div>
   )
 }
