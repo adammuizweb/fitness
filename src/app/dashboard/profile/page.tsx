@@ -53,7 +53,7 @@ export default function ProfilePage() {
       let type = file.type || 'image/jpeg'
       try {
         const { compressBase64 } = await import('@/lib/compressBase64')
-        const result = await compressBase64(base64, type, 15000)
+        const result = await compressBase64(base64, type)
         data = result.data
         type = result.type
       } catch { /* use original */ }
