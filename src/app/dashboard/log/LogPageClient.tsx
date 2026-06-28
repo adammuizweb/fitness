@@ -182,7 +182,6 @@ export function LogPageClient() {
     const files = e.target.files
     if (!files || files.length === 0) return
 
-    // Process first file only (multiple files = separate uploads)
     const file = files[0]
     const reader = new FileReader()
     reader.onload = () => {
@@ -323,7 +322,6 @@ export function LogPageClient() {
                         <input
                           type="file"
                           accept="image/*"
-                          multiple
                           className="hidden"
                           id={`photo-input-${item.workout.id}`}
                           onChange={(e) => handleFileSelect(e, item.workout.id)}
