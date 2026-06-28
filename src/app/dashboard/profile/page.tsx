@@ -17,7 +17,7 @@ const supabase = createClient()
 
 export default function ProfilePage() {
   const { t } = useI18n()
-  const { profile, loading: profileLoading } = useUser()
+  const { profile, loading: profileLoading, refetch: refetchProfile } = useUser()
   const { data: history = [], isLoading: historyLoading } = useLogHistory()
   const { data: streak } = useStreak()
   const router = useRouter()
@@ -51,7 +51,7 @@ export default function ProfilePage() {
       const url = data.urls[0]
       if (profile && url) {
         await supabase.from('profiles').update({ avatar_url: url }).eq('id', profile.id)
-        router.refresh()
+        refetchProfile()
       }
     } catch (err) {
       console.error('Avatar upload failed:', err)
@@ -66,7 +66,7 @@ export default function ProfilePage() {
     await supabase.from('profiles').update({ full_name: fullName }).eq('id', profile.id)
     setSaving(false)
     setEditing(false)
-    router.refresh()
+    refetchProfile()
   }
 
   const allPhotos = history.flatMap(log => log.photos || [])
