@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useRef, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useI18n } from '@/lib/i18n/context'
 
@@ -10,6 +10,13 @@ interface Props {
 
 export function StreakCalendar({ activeDates }: Props) {
   const { t, months, days } = useI18n()
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth
+    }
+  }, [])
 
   const weeks = useMemo(() => {
     const today = new Date()
@@ -58,7 +65,7 @@ export function StreakCalendar({ activeDates }: Props) {
         <CardTitle>{t('streak.calendar')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div ref={scrollRef} className="overflow-x-auto">
           <div className="inline-flex gap-1">
             <div className="flex flex-col gap-1 mr-2">
               <div className="h-4" />
