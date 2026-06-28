@@ -28,9 +28,10 @@ export default async function LandingPage() {
           }}
         />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-20 md:pt-24 md:pb-28 relative">
-          <div className="grid md:grid-cols-5 gap-8 md:gap-12 items-center">
-            <div className="md:col-span-2 order-2 md:order-1">
-              <div className="rounded-2xl border border-stone-200 bg-white shadow-xl shadow-stone-200/50 overflow-hidden">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
+            <div className="order-2 md:order-1 animate-float" style={{ animationDelay: '0.5s' }}>
+              <div className="rounded-2xl border border-stone-200 bg-white shadow-xl shadow-green-600/10 overflow-hidden
+                hover:shadow-2xl hover:shadow-green-600/20 transition-shadow duration-500">
                 <div className="flex items-center gap-1.5 px-4 py-3 border-b border-stone-100 bg-stone-50">
                   <span className="w-3 h-3 rounded-full bg-red-400" />
                   <span className="w-3 h-3 rounded-full bg-amber-400" />
@@ -40,7 +41,7 @@ export default async function LandingPage() {
                 <img src="/screenshots/dashboard.png" alt="Dashboard" className="w-full h-auto" />
               </div>
             </div>
-            <div className="md:col-span-3 order-1 md:order-2">
+            <div className="order-1 md:order-2">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-sm text-green-700 font-medium mb-6 animate-fade-slide-up" style={{ animationDelay: '0ms' }}>
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse-glow" />
                 {t('brand.desc')}
@@ -56,17 +57,31 @@ export default async function LandingPage() {
               <p className="text-lg text-stone-600 leading-relaxed max-w-lg mb-8 animate-fade-slide-up" style={{ animationDelay: '200ms' }}>
                 {t('landing.hero.subtitle')}
               </p>
-              <div className="flex flex-wrap gap-3 items-center animate-fade-slide-up" style={{ animationDelay: '300ms' }}>
+              <div className="flex flex-wrap gap-4 items-center animate-fade-slide-up" style={{ animationDelay: '300ms' }}>
                 <Link
                   href="/register"
-                  className="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-green-600 text-white font-semibold text-base hover:bg-green-700 transition-all shadow-lg shadow-green-600/20 hover:shadow-green-600/30"
+                  className="group relative inline-flex items-center justify-center h-12 px-8 rounded-xl bg-green-600 text-white font-semibold text-base
+                    overflow-hidden transition-all duration-300 shadow-lg shadow-green-600/20
+                    hover:shadow-xl hover:shadow-green-600/30 hover:scale-105 active:scale-95
+                    animate-float-glow"
+                  style={{ animationDelay: '1s' }}
                 >
-                  {t('landing.hero.ctaStart')}
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                      backgroundSize: '200% 100%',
+                      animation: 'btn-shine 1.5s ease-in-out infinite',
+                    }}
+                  />
+                  <span className="relative">{t('landing.hero.ctaStart')}</span>
+                  <ArrowRight className="w-5 h-5 ml-2 relative group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/login"
-                  className="inline-flex items-center justify-center h-12 px-8 rounded-xl border-2 border-stone-300 text-stone-700 font-semibold text-base hover:bg-stone-100 transition-colors"
+                  className="relative inline-flex items-center justify-center h-12 px-8 rounded-xl border-2 border-stone-300 text-stone-700 font-semibold text-base
+                    transition-all duration-300
+                    hover:border-green-500 hover:text-green-700 hover:bg-green-50 hover:scale-105 active:scale-95
+                    shadow-md hover:shadow-lg hover:shadow-green-600/10"
                 >
                   {t('landing.hero.ctaLogin')}
                 </Link>
