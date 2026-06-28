@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,6 +26,8 @@ export default function ProfilePage() {
   const [fullName, setFullName] = useState('')
   const [saving, setSaving] = useState(false)
   const [email, setEmail] = useState('')
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (profile) setFullName(profile.full_name || '')
@@ -33,6 +35,30 @@ export default function ProfilePage() {
       if (data.user?.email) setEmail(data.user.email)
     })
   }, [profile])
+
+  async function handleAvatarUpload(file: File) {
+    setUploadingAvatar(true)
+    try {
+      const { compressImage } = await import('@/lib/compressImage')
+      const compressed = await compressImage(file, 150)
+      const formData = new FormData()
+      formData.append('file', compressed)
+
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      if (!res.ok) return
+
+      const data = await res.json()
+      const url = data.urls[0]
+      if (profile && url) {
+        await supabase.from('profiles').update({ avatar_url: url }).eq('id', profile.id)
+        router.refresh()
+      }
+    } catch (err) {
+      console.error('Avatar upload failed:', err)
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
 
   async function handleSaveProfile() {
     if (!profile) return
@@ -68,10 +94,34 @@ export default function ProfilePage() {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-              <span className="text-2xl font-bold text-green-700">
-                {profile?.username?.charAt(0).toUpperCase()}
-              </span>
+            <div className="relative shrink-0">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) handleAvatarUpload(e.target.files[0])
+                }}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="w-16 h-16 rounded-full overflow-hidden bg-green-100 flex items-center justify-center hover:opacity-80 transition-opacity"
+              >
+                {uploadingAvatar ? (
+                  <Loader2 className="w-5 h-5 animate-spin text-green-700" />
+                ) : profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl font-bold text-green-700">
+                    {profile?.username?.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </button>
+              <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border">
+                <Camera className="w-3.5 h-3.5 text-gray-500" />
+              </div>
             </div>
             <div className="flex-1 min-w-0">
               {editing ? (

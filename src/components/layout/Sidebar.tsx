@@ -103,10 +103,14 @@ export function Sidebar() {
           href="/dashboard/profile"
           className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
         >
-          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-            <span className="text-sm font-medium text-green-700">
-              {profile?.username?.charAt(0).toUpperCase()}
-            </span>
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-green-100 flex items-center justify-center shrink-0">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-sm font-medium text-green-700">
+                {profile?.username?.charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{profile?.full_name}</p>
