@@ -1,56 +1,23 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
-import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/lib/supabase/client'
+import { languages } from '@/lib/i18n/translations'
+import { Globe, LogOut } from 'lucide-react'
 
 export default function SettingsPage() {
-  const { t } = useI18n()
-  const { profile, loading } = useUser()
-  const [fullName, setFullName] = useState(profile?.full_name || '')
-  const [email, setEmail] = useState('')
-  const [saving, setSaving] = useState(false)
+  const { t, lang, setLang } = useI18n()
   const router = useRouter()
   const supabase = createClient()
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email) setEmail(data.user.email)
-    })
-  }, [supabase])
-
-  useEffect(() => {
-    if (profile) setFullName(profile.full_name || '')
-  }, [profile])
-
-  async function handleUpdateProfile(e: React.FormEvent) {
-    e.preventDefault()
-    if (!profile) return
-    setSaving(true)
-
-    await supabase
-      .from('profiles')
-      .update({ full_name: fullName })
-      .eq('id', profile.id)
-
-    setSaving(false)
-    router.refresh()
-  }
 
   async function handleLogout() {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
-  }
-
-  if (loading) {
-    return <div className="text-center py-8 text-gray-500">{t('common.loading')}</div>
   }
 
   return (
@@ -65,38 +32,45 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('settings.profile')}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="w-5 h-5" />
+            {t('settings.language')}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleUpdateProfile} className="space-y-4">
-            <Input
-              id="email"
-              label={t('settings.email')}
-              value={email}
-              disabled
-            />
-            <Input
-              id="username"
-              label={t('settings.username')}
-              value={`@${profile?.username || ''}`}
-              disabled
-            />
-            <Input
-              id="full_name"
-              label={t('settings.fullName')}
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-            />
-            <Button type="submit" loading={saving}>
-              {t('settings.save')}
-            </Button>
-          </form>
+          <div className="space-y-2">
+            {languages.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLang(l.code)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                  lang === l.code
+                    ? 'bg-green-50 text-green-700 border border-green-200'
+                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <span className="text-xl">{l.flag}</span>
+                <div>
+                  <p className="font-medium">{l.label}</p>
+                  <p className="text-sm text-gray-400">{l.code === 'en' ? 'English' : 'Bahasa Indonesia'}</p>
+                </div>
+                {lang === l.code && (
+                  <span className="ml-auto text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">
+                    Active
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-red-600">{t('settings.logout')}</CardTitle>
+          <CardTitle className="text-red-600 flex items-center gap-2">
+            <LogOut className="w-5 h-5" />
+            {t('settings.logout')}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-500 mb-4">

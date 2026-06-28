@@ -1,7 +1,33 @@
-# Fitnes Tracker — AGENTS.md
+# Fitness Tracker — AGENTS.md
 
 > Aplikasi web fitness tracker dengan sistem streak harian, multi-user, admin panel, dan PWA.
-> Domain: `fitnes.adammuiz.com` — deployed via Vercel.
+> Domain: `fitness.adammuiz.com` — deployed via Vercel.
+> CDN: `cdn.jyavani.com` — home server via Cloudflare Tunnel.
+
+## Recent Changes (v1.1.0+)
+
+### CDN Photo Upload
+- **CDN infrastructure**: Home server at `cdn.jyavani.com` serves uploaded files. Nginx config routes `/uploads|media|img|video|file/` as static assets with 30d cache.
+- **PHP upload handler** (`/var/www/cdn.jyavani.com/public/upload.php`): Auth via `X-UPLOAD-TOKEN` header. Accepts `category` param (default `fitness`) mapping to subdirectories (`uploads/media/img/fitness/`). Files named `YYYYMMDD-HHmmss-8charhex.webp`. Validates WebP MIME type server-side.
+- **Client-side compression** (`src/lib/compressImage.ts`): Resizes to max 1200px width (auto height), compresses to WebP with iterative quality reduction targeting ≤300KB per file.
+- **Database**: `photos TEXT[]` column replaces `photo_url TEXT` (`00006_photos_array.sql`). `upload_logs` table tracks per-user uploads for rate limiting.
+- **Rate limit**: 2MB max upload per 24 hours per user, enforced in `/api/upload`.
+- **API route** (`src/app/api/upload/route.ts`): Accepts multiple files, forwards to CDN with auth token, logs each file's size to `upload_logs`, returns array of URLs.
+- **UI**: Photo grid in edit panel + inline photo thumbnails (up to 4 + overflow count) on checklist items. Add/remove photos individually.
+- **History**: LogList shows photo thumbnails per entry.
+
+### Profile Page
+- **New route** `/dashboard/profile`: Shows avatar, name, username, email, inline edit for full name, stats (total workouts, current streak), and a photo gallery grid from all workout logs.
+- **Sidebar**: Profile section (avatar + name) is now clickable → links to `/dashboard/profile`.
+- **Settings page** simplified: Only language switcher (English/Indonesian) and logout. Profile editing moved to `/dashboard/profile`.
+
+### Social Media Concept (Future Plan)
+- Users can set profile to public/private.
+- Public profiles visible to others → follow, like, share activities (similar to Strava).
+- Community section on marketing pages showcasing public user activity.
+- Architecture already supports `upload_logs` for rate limiting, `photos[]` for multi-image storage, and profile pages for user identity.
+
+[rest of existing content follows]
 
 ## Stack
 

@@ -249,6 +249,18 @@ export function LogPageClient() {
                         <p className="text-sm text-gray-500 mt-0.5">
                           {formatDetail(item)}
                         </p>
+                        {(item.log?.photos?.length ?? 0) > 0 && (
+                          <div className="flex gap-1 mt-2">
+                            {item.log!.photos.slice(0, 4).map((url) => (
+                              <img key={url} src={url} alt="" className="w-12 h-12 object-cover rounded-lg border border-gray-200" />
+                            ))}
+                            {item.log!.photos.length > 4 && (
+                              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium border border-gray-200">
+                                +{item.log!.photos.length - 4}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </button>
                       <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 mt-1 ${item.workout.type === 'cardio' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
                         {item.workout.type === 'cardio' ? t('log.cardio') : t('log.lift')}

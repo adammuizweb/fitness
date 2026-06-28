@@ -99,8 +99,11 @@ export function Sidebar() {
             {otherLang.flag} {otherLang.label}
           </button>
         )}
-        <div className="flex items-center gap-3 px-3">
-          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+        <Link
+          href="/dashboard/profile"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
             <span className="text-sm font-medium text-green-700">
               {profile?.username?.charAt(0).toUpperCase()}
             </span>
@@ -109,7 +112,7 @@ export function Sidebar() {
             <p className="text-sm font-medium truncate">{profile?.full_name}</p>
             <p className="text-xs text-gray-500 truncate">@{profile?.username}</p>
           </div>
-        </div>
+        </Link>
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-red-600 transition-colors"
