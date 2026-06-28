@@ -1,5 +1,7 @@
 export type Role = 'user' | 'admin'
 
+export type PostPrivacy = 'only_me' | 'friends' | 'followers' | 'all'
+
 export interface Profile {
   id: string
   username: string
@@ -7,8 +9,28 @@ export interface Profile {
   avatar_url: string | null
   role: Role
   is_banned: boolean
+  is_public: boolean
   created_at: string
   updated_at: string
+}
+
+export interface Post {
+  id: string
+  user_id: string
+  workout_log_id: string | null
+  caption: string | null
+  photos: string[]
+  privacy: PostPrivacy
+  created_at: string
+  updated_at: string
+  profile?: Profile
+}
+
+export interface Follow {
+  id: string
+  follower_id: string
+  followee_id: string
+  created_at: string
 }
 
 export type WorkoutType = 'lift' | 'cardio'
