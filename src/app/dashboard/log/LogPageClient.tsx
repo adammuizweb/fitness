@@ -116,62 +116,52 @@ export function LogPageClient() {
     }))
   }
 
-  async function handleUploadPhoto(workoutId: string, files: FileList) {
+  async function handleUploadPhoto(workoutId: string, base64: string, fileType: string, _fileSize: number) {
     const item = checklist.find(c => c.workout.id === workoutId)
     if (!item) return
 
     setUploadError(null)
     setUploading((prev) => ({ ...prev, [workoutId]: true }))
     try {
-      const { compressImage } = await import('@/lib/compressImage')
-      const { fileToBase64 } = await import('@/lib/fileToBase64')
-
-      const filePayloads: { name: string; type: string; data: string }[] = []
-      for (let i = 0; i < files.length; i++) {
-        const f = files[i]
-        let blob: Blob
-        try {
-          blob = await compressImage(f)
-        } catch {
-          blob = f
-        }
-        const base64 = await fileToBase64(blob)
-        const ext = blob.type === 'image/webp' ? 'webp' : blob.type === 'image/png' ? 'png' : blob.type === 'image/gif' ? 'gif' : 'jpg'
-        filePayloads.push({ name: `photo.${ext}`, type: blob.type || 'image/jpeg', data: base64 })
-      }
-
+      const ext = fileType === 'image/webp' ? 'webp' : fileType === 'image/png' ? 'png' : 'gif'
       const res = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ files: filePayloads }),
+        body: JSON.stringify({ files: [{ name: `photo.${ext}`, type: fileType, data: base64 }] }),
       })
-      const data = await res.json()
+      const result = await res.json()
 
       if (!res.ok) {
-        setUploadError(data.error || `Upload failed (${res.status})`)
+        setUploadError(result.error || `Upload failed (${res.status})`)
         return
       }
 
       const currentPhotos = item.log?.photos || []
       await upsertMutation.mutateAsync({
         workout_id: workoutId,
-        photos: [...currentPhotos, ...data.urls],
+        photos: [...currentPhotos, ...result.urls],
         is_done: true,
       })
       setUploadError(null)
     } catch (err) {
       setUploadError('Upload failed. Check connection and try again.')
-      console.error('Upload error:', err)
     } finally {
       setUploading((prev) => ({ ...prev, [workoutId]: false }))
     }
   }
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>, workoutId: string) {
-    if (e.target.files && e.target.files.length > 0) {
-      handleUploadPhoto(workoutId, e.target.files)
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const b64 = (reader.result as string).split(',')[1]
+      if (!b64) return
+      handleUploadPhoto(workoutId, b64, file.type || 'image/jpeg', file.size)
+      e.target.value = ''
     }
-    e.target.value = ''
+    reader.readAsDataURL(file)
   }
 
   function removePhoto(workoutId: string, photoUrl: string) {
