@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { PostCard } from '@/components/posts/PostCard'
@@ -14,8 +14,10 @@ import {
   useUnfollowUser,
 } from '@/hooks/useCommunity'
 import { useUser } from '@/hooks/useUser'
+import { useUserSharedWorkouts, useCopyWorkout } from '@/hooks/useSharedWorkouts'
+import { useWorkouts } from '@/hooks/useWorkouts'
 import { useI18n } from '@/lib/i18n/context'
-import { Loader2, Globe, Lock, Users, UserCheck, UserPlus } from 'lucide-react'
+import { Loader2, Globe, Lock, Users, UserCheck, UserPlus, Dumbbell, Copy } from 'lucide-react'
 import Link from 'next/link'
 
 export default function UserProfilePage() {
@@ -28,6 +30,9 @@ export default function UserProfilePage() {
   const { data: posts = [], isLoading: postsLoading } = useUserPosts(profile?.id || '')
   const { data: isFollowing, isLoading: followStatusLoading } = useFollowStatus(profile?.id || '')
   const { data: followCount } = useFollowCount(profile?.id || '')
+  const { data: sharedWorkouts = [] } = useUserSharedWorkouts(profile?.id || '')
+  const { data: myWorkouts } = useWorkouts()
+  const copyMutation = useCopyWorkout()
   const followMutation = useFollowUser()
   const unfollowMutation = useUnfollowUser()
 
@@ -120,6 +125,49 @@ export default function UserProfilePage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Shared Workouts */}
+      {!isPrivate && sharedWorkouts.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Dumbbell className="w-5 h-5" />
+              Workout Templates
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {sharedWorkouts.map((sw) => {
+                const alreadyCopied = myWorkouts?.some(w => w.name === sw.name)
+                return (
+                  <div key={sw.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">{sw.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {sw.type === 'lift'
+                          ? `${sw.default_sets || '?'} × ${sw.default_reps || '?'}`
+                          : `${sw.default_distance || '?'}m · ${sw.default_duration || '?'}min`}
+                        {sw.description && ` — ${sw.description}`}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={alreadyCopied ? 'outline' : 'default'}
+                      onClick={() => copyMutation.mutate(sw)}
+                      loading={copyMutation.isPending}
+                      disabled={alreadyCopied}
+                      className="shrink-0 ml-2"
+                    >
+                      <Copy className="w-3.5 h-3.5 mr-1" />
+                      {alreadyCopied ? 'Copied' : 'Copy'}
+                    </Button>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Private notice */}
       {isPrivate ? (

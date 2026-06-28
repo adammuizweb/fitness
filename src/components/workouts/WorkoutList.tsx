@@ -7,12 +7,14 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogFooter } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
-import { Plus, Pencil, Trash2, EyeOff, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Pencil, Trash2, EyeOff, Eye, ChevronLeft, ChevronRight, Moon, Share2 } from 'lucide-react'
 import { useWorkouts, useDeleteWorkout, useToggleWorkoutActive } from '@/hooks/useWorkouts'
 import { useSchedules } from '@/hooks/useSchedules'
 import { useRestDays, useToggleRestDay } from '@/hooks/useRestDays'
+import { useMySharedWorkouts } from '@/hooks/useSharedWorkouts'
+import type { Workout } from '@/types'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { Moon } from 'lucide-react'
+import { ShareWorkoutDialog } from './ShareWorkoutDialog'
 
 const PER_PAGE = 12
 
@@ -31,8 +33,10 @@ export function WorkoutList() {
 
   const { data: restDays = [] } = useRestDays()
   const toggleRestMutation = useToggleRestDay()
+  const { data: myShared = [] } = useMySharedWorkouts()
   const deleteMutation = useDeleteWorkout()
   const toggleActiveMutation = useToggleWorkoutActive()
+  const [shareWorkout, setShareWorkout] = useState<Workout | null>(null)
 
   const scheduleDays = useMemo(() => {
     const map = new Map<string, number[]>()
@@ -248,6 +252,9 @@ export function WorkoutList() {
                             <Pencil className="w-4 h-4" />
                           </Button>
                         </Link>
+                        <Button variant="ghost" size="icon" onClick={() => setShareWorkout(workout)}>
+                          <Share2 className={`w-4 h-4 ${myShared.some(s => s.source_workout_id === workout.id) ? 'text-green-500' : 'text-gray-300 hover:text-green-500'}`} />
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleToggleActive(workout)}>
                           {workout.is_active ? <EyeOff className="w-4 h-4 text-amber-500" /> : <Eye className="w-4 h-4 text-green-500" />}
                         </Button>
@@ -307,6 +314,14 @@ export function WorkoutList() {
           </Button>
         </DialogFooter>
       </Dialog>
+
+      {shareWorkout && (
+        <ShareWorkoutDialog
+          workout={shareWorkout}
+          open={!!shareWorkout}
+          onClose={() => setShareWorkout(null)}
+        />
+      )}
     </div>
   )
 }
