@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Dumbbell, Calendar, CheckCircle2, Flame, Languages, Shield, ArrowRight, GitFork, Users, Share2, Camera, Moon, Lock } from 'lucide-react'
+import { ArrowRight, GitFork, Sparkles } from 'lucide-react'
+import { InteractiveFeatures } from '@/components/marketing/InteractiveFeatures'
 import { I18nServer } from '@/lib/i18n/server'
 
 const techStack = [
@@ -16,24 +17,16 @@ const techStack = [
 export default async function LandingPage() {
   const { t } = await I18nServer()
 
-  const features = [
-    { icon: Users, title: t('landing.features.socialTitle'), desc: t('landing.features.socialDesc') },
-    { icon: Share2, title: t('landing.features.shareTitle'), desc: t('landing.features.shareDesc') },
-    { icon: Dumbbell, title: t('landing.features.workoutTitle'), desc: t('landing.features.workoutDesc') },
-    { icon: Calendar, title: t('landing.features.scheduleTitle'), desc: t('landing.features.scheduleDesc') },
-    { icon: Camera, title: t('landing.features.photosTitle'), desc: t('landing.features.photosDesc') },
-    { icon: Lock, title: t('landing.features.privacyTitle'), desc: t('landing.features.privacyDesc') },
-    { icon: CheckCircle2, title: t('landing.features.logTitle'), desc: t('landing.features.logDesc') },
-    { icon: Moon, title: t('landing.features.restTitle'), desc: t('landing.features.restDesc') },
-    { icon: Flame, title: t('landing.features.streakTitle'), desc: t('landing.features.streakDesc') },
-    { icon: Languages, title: t('landing.features.i18nTitle'), desc: t('landing.features.i18nDesc') },
-    { icon: Shield, title: t('landing.features.adminTitle'), desc: t('landing.features.adminDesc') },
-  ]
-
   return (
     <>
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#dcfce7,transparent_70%)]" />
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 25% 25%, #16a34a 1px, transparent 1px), radial-gradient(circle at 75% 75%, #16a34a 1px, transparent 1px)',
+            backgroundSize: '50px 50px',
+          }}
+        />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-20 md:pt-24 md:pb-28 relative">
           <div className="grid md:grid-cols-5 gap-8 md:gap-12 items-center">
             <div className="md:col-span-2 order-2 md:order-1">
@@ -48,11 +41,11 @@ export default async function LandingPage() {
               </div>
             </div>
             <div className="md:col-span-3 order-1 md:order-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-sm text-green-700 font-medium mb-6">
-                <span className="w-2 h-2 rounded-full bg-green-500" />
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-sm text-green-700 font-medium mb-6 animate-fade-slide-up" style={{ animationDelay: '0ms' }}>
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse-glow" />
                 {t('brand.desc')}
               </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-stone-900 leading-tight tracking-tight mb-6">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-stone-900 leading-tight tracking-tight mb-6 animate-fade-slide-up" style={{ animationDelay: '100ms' }}>
                 {t('landing.hero.title').split('\n').map((line, i) => (
                   <span key={i}>
                     {i > 0 && <br />}
@@ -60,10 +53,10 @@ export default async function LandingPage() {
                   </span>
                 ))}
               </h1>
-              <p className="text-lg text-stone-600 leading-relaxed max-w-lg mb-8">
+              <p className="text-lg text-stone-600 leading-relaxed max-w-lg mb-8 animate-fade-slide-up" style={{ animationDelay: '200ms' }}>
                 {t('landing.hero.subtitle')}
               </p>
-              <div className="flex flex-wrap gap-3 items-center">
+              <div className="flex flex-wrap gap-3 items-center animate-fade-slide-up" style={{ animationDelay: '300ms' }}>
                 <Link
                   href="/register"
                   className="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-green-600 text-white font-semibold text-base hover:bg-green-700 transition-all shadow-lg shadow-green-600/20 hover:shadow-green-600/30"
@@ -85,7 +78,11 @@ export default async function LandingPage() {
 
       <section id="features" className="py-20 md:py-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
+          <div className="text-center mb-14 animate-fade-slide-up">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full text-xs text-green-600 font-medium mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              Interactive — click any card to learn more
+            </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">
               {t('landing.features.title')}
             </h2>
@@ -94,20 +91,7 @@ export default async function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((f) => (
-              <div
-                key={f.title}
-                className="group rounded-2xl border border-stone-200 bg-white p-6 hover:shadow-lg hover:border-stone-300 transition-all"
-              >
-                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center mb-4 group-hover:bg-green-100 transition-colors">
-                  <f.icon className="w-5 h-5 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-stone-900 mb-1.5">{f.title}</h3>
-                <p className="text-sm text-stone-500 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
+          <InteractiveFeatures />
 
           <div className="mt-16 grid md:grid-cols-2 gap-8">
             <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-md">
