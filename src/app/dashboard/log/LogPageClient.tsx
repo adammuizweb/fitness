@@ -1,18 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useLogs'
-import { useSchedulesByDay } from '@/hooks/useSchedules'
-import type { WorkoutLog, Workout } from '@/types'
+import { createClient } from '@/lib/supabase/client'
+import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
 import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 
 interface ChecklistItem {
   workout: Workout
   log?: WorkoutLog
 }
+
+const supabase = createClient()
 
 function formatDetail(item: ChecklistItem): string {
   const log = item.log
@@ -44,29 +46,45 @@ function formatDetail(item: ChecklistItem): string {
 
 export function LogPageClient() {
   const todayDayOfWeek = new Date().getDay()
-  const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesByDay(todayDayOfWeek)
-  const { data: logs = [] } = useTodayLogs()
+
+  const { data: logs, isLoading: logsLoading } = useTodayLogs()
   const toggleMutation = useToggleChecklistItem()
   const upsertMutation = useUpsertLog()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({})
+  const [schedules, setSchedules] = useState<WorkoutSchedule[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const scheduledWorkouts = schedules
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase
+        .from('workout_schedules')
+        .select('*, workout:workouts(*)')
+        .eq('day_of_week', todayDayOfWeek)
+      setSchedules(data || [])
+      setLoading(false)
+    }
+    load()
+  }, [todayDayOfWeek])
+
+  const scheduledWorkouts: Workout[] = schedules
     .map((s) => s.workout)
     .filter((w): w is NonNullable<typeof w> => w !== null)
 
+  const displayLogs = logs || []
+
   const checklist: ChecklistItem[] = scheduledWorkouts.map((workout) => ({
     workout,
-    log: logs.find((l) => l.workout_id === workout.id),
+    log: displayLogs.find((l) => l.workout_id === workout.id),
   }))
 
-  async function handleToggle(item: ChecklistItem) {
+  const handleToggle = useCallback(async (item: ChecklistItem) => {
     await toggleMutation.mutateAsync({
       workoutId: item.workout.id,
       isCurrentlyDone: item.log?.is_done ?? false,
       workout: item.workout,
     })
-  }
+  }, [toggleMutation])
 
   function openEdit(item: ChecklistItem) {
     const log = item.log
@@ -108,6 +126,14 @@ export function LogPageClient() {
   const total = checklist.length
   const done = checklist.filter((item) => item.log?.is_done).length
 
+  if (loading || logsLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -124,11 +150,7 @@ export function LogPageClient() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {schedulesLoading ? (
-            <div className="text-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400 mx-auto" />
-            </div>
-          ) : total === 0 ? (
+          {total === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">Tidak ada jadwal workout hari ini.</p>
               <p className="text-sm text-gray-400 mt-1">
