@@ -33,9 +33,16 @@ export async function POST(request: NextRequest) {
   }
 
   const incomingSize = files.reduce((sum, f) => {
-    const bytes = Math.round((f.data.length * 3) / 4)
-    return sum + bytes
+    try { return sum + Math.round((f.data.length * 3) / 4) } catch { return sum }
   }, 0)
+  
+  // Per-file limit (5MB = PHP limit)
+  for (const f of files) {
+    const bytes = Math.round((f.data.length * 3) / 4)
+    if (bytes > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: `File too large (max 5MB)` }, { status: 413 })
+    }
+  }
 
   // Rate limit check
   const supabase = createAdminClient()

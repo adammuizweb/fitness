@@ -123,29 +123,18 @@ export function LogPageClient() {
     setUploadError(null)
     setUploading((prev) => ({ ...prev, [workoutId]: true }))
     try {
-      const { compressImage } = await import('@/lib/compressImage')
       const { fileToBase64 } = await import('@/lib/fileToBase64')
 
       const filePayloads: { name: string; type: string; data: string }[] = []
       for (let i = 0; i < files.length; i++) {
-        try {
-          const blob = await compressImage(files[i])
-          const base64 = await fileToBase64(blob)
-          filePayloads.push({ name: 'photo.webp', type: blob.type || 'image/webp', data: base64 })
-        } catch {
-          if (files[i].size <= 500 * 1024) {
-            const base64 = await fileToBase64(files[i])
-            filePayloads.push({ name: 'photo.webp', type: files[i].type || 'image/jpeg', data: base64 })
-          } else {
-            setUploadError(`Photo ${i+1}: too large (${(files[i].size/1024).toFixed(0)}KB)`)
-            return
-          }
-        }
-      }
-      
-      if (filePayloads.length === 0) {
-        setUploadError('No files could be processed')
-        return
+        const f = files[i]
+        const base64 = await fileToBase64(f)
+        const ext = f.type === 'image/png' ? 'png' : f.type === 'image/gif' ? 'gif' : 'jpg'
+        filePayloads.push({
+          name: `photo.${ext}`,
+          type: f.type || 'image/jpeg',
+          data: base64,
+        })
       }
 
       const res = await fetch('/api/upload', {
