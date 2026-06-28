@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
       const cdnForm = new FormData()
       cdnForm.append('file', file, 'photo.webp')
       cdnForm.append('category', 'fitness')
+      cdnForm.append('user_id', user.id)
 
       const res = await fetch(CDN_UPLOAD_URL, {
         method: 'POST',
