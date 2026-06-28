@@ -129,16 +129,16 @@ export function LogPageClient() {
 
     let data = base64
     let type = fileType
-    let ext = fileType === 'image/webp' ? 'webp' : fileType === 'image/png' ? 'png' : 'gif'
+    let ext = fileType === 'image/webp' ? 'webp' : 'jpg'
 
     // Phase 1: Compress
     setModalStage('compress')
     try {
       const { compressBase64 } = await import('@/lib/compressBase64')
-      const result = await compressBase64(base64, fileType, 30000)
+      const result = await compressBase64(base64, fileType)
       data = result.data
       type = result.type
-      ext = type === 'image/webp' ? 'webp' : type === 'image/png' ? 'png' : 'gif'
+      ext = 'jpg'
     } catch {
       // Use original — still works
     }

@@ -1,10 +1,10 @@
-export async function compressBase64(base64: string, fileType: string, _timeoutMs = 30000): Promise<{ data: string; type: string }> {
+export async function compressBase64(base64: string, fileType: string): Promise<{ data: string; type: string }> {
   const img = new Image()
   const url = `data:${fileType};base64,${base64}`
 
   return new Promise((resolve, reject) => {
     let done = false
-    const finish = () => { if (done) return; done = true }
+    const timeout = setTimeout(() => { if (!done) { done = true; reject(new Error('Timeout')) } }, 30000)
 
     img.onload = () => {
       let w = img.width, h = img.height
@@ -19,48 +19,41 @@ export async function compressBase64(base64: string, fileType: string, _timeoutM
       canvas.width = w
       canvas.height = h
       const ctx = canvas.getContext('2d')
-      if (!ctx) { finish(); reject(new Error('Canvas error')); return }
+      if (!ctx) { clearTimeout(timeout); done = true; reject(new Error('Canvas error')); return }
 
       ctx.drawImage(img, 0, 0, w, h)
 
-      // Try WebP first (toDataURL is synchronous and widely supported)
+      // JPEG is universally supported by toDataURL on all platforms
+      // WebP toDataURL is NOT supported on iOS Safari — skipping it
       let quality = 0.85
-      const compressStep = (fmt: string) => {
-        const mime = fmt === 'webp' ? 'image/webp' : 'image/jpeg'
-        try {
+      const mime = 'image/jpeg'
+
+      try {
+        while (quality >= 0.1) {
           const dataUrl = canvas.toDataURL(mime, quality)
           const b64 = dataUrl.split(',')[1]
-
-          if (quality <= 0.1) {
-            finish()
-            resolve({ data: b64, type: mime })
-            return
-          }
-
-          // Estimate size from base64 length
           const bytes = Math.round((b64.length * 3) / 4)
+
           if (bytes <= 300 * 1024) {
-            finish()
+            clearTimeout(timeout); done = true
             resolve({ data: b64, type: mime })
             return
           }
-
           quality -= 0.15
-          compressStep(fmt)
-        } catch {
-          if (fmt === 'webp') return compressStep('jpeg')
-          finish()
-          reject(new Error('Compression failed'))
         }
-      }
 
-      compressStep('webp')
+        // Accept whatever we got at lowest quality
+        const dataUrl = canvas.toDataURL(mime, 0.1)
+        const b64 = dataUrl.split(',')[1]
+        clearTimeout(timeout); done = true
+        resolve({ data: b64, type: mime })
+      } catch {
+        clearTimeout(timeout); done = true
+        reject(new Error('Compression failed'))
+      }
     }
 
-    img.onerror = () => { finish(); reject(new Error('Image load failed')) }
+    img.onerror = () => { clearTimeout(timeout); done = true; reject(new Error('Image load failed')) }
     img.src = url
-
-    // Timeout
-    setTimeout(() => { if (!done) { finish(); reject(new Error('Timeout')) } }, 30000)
   })
 }
