@@ -5,17 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useLogs'
-import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
-import { CheckCircle2, Circle, ChevronDown, ChevronUp } from 'lucide-react'
+import { useSchedulesByDay } from '@/hooks/useSchedules'
+import type { WorkoutLog, Workout } from '@/types'
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 
 interface ChecklistItem {
   workout: Workout
   log?: WorkoutLog
-}
-
-interface Props {
-  schedules: WorkoutSchedule[]
-  todayLogs: WorkoutLog[]
 }
 
 function formatDetail(item: ChecklistItem): string {
@@ -46,21 +42,22 @@ function formatDetail(item: ChecklistItem): string {
   return parts.join(' × ') || 'Angkat Beban'
 }
 
-export function LogPageClient({ schedules: initialSchedules, todayLogs: initialLogs }: Props) {
-  const { data: logs } = useTodayLogs()
-  const displayLogs = logs || initialLogs
+export function LogPageClient() {
+  const todayDayOfWeek = new Date().getDay()
+  const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesByDay(todayDayOfWeek)
+  const { data: logs = [] } = useTodayLogs()
   const toggleMutation = useToggleChecklistItem()
   const upsertMutation = useUpsertLog()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({})
 
-  const scheduledWorkouts = initialSchedules
+  const scheduledWorkouts = schedules
     .map((s) => s.workout)
     .filter((w): w is NonNullable<typeof w> => w !== null)
 
   const checklist: ChecklistItem[] = scheduledWorkouts.map((workout) => ({
     workout,
-    log: displayLogs.find((l) => l.workout_id === workout.id),
+    log: logs.find((l) => l.workout_id === workout.id),
   }))
 
   async function handleToggle(item: ChecklistItem) {
@@ -127,7 +124,11 @@ export function LogPageClient({ schedules: initialSchedules, todayLogs: initialL
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {total === 0 ? (
+          {schedulesLoading ? (
+            <div className="text-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-gray-400 mx-auto" />
+            </div>
+          ) : total === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">Tidak ada jadwal workout hari ini.</p>
               <p className="text-sm text-gray-400 mt-1">
