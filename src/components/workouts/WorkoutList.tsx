@@ -2,38 +2,42 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogFooter } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
-import { Plus, Pencil, Trash2, EyeOff, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useDeleteWorkout, useToggleWorkoutActive } from '@/hooks/useWorkouts'
-import type { Workout } from '@/types'
-
-interface Props {
-  workouts: Workout[]
-  scheduleDays?: Map<string, number[]>
-}
+import { Plus, Pencil, Trash2, EyeOff, Eye, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { useWorkouts, useDeleteWorkout, useToggleWorkoutActive } from '@/hooks/useWorkouts'
+import { useSchedules } from '@/hooks/useSchedules'
 
 const PER_PAGE = 12
 
 type TypeFilter = 'all' | 'lift' | 'cardio'
 type ActiveFilter = 'all' | 'active' | 'inactive'
 
-export function WorkoutList({ workouts: initialWorkouts, scheduleDays }: Props) {
+export function WorkoutList() {
   const { t, days } = useI18n()
-  const [workouts, setWorkouts] = useState(initialWorkouts)
+  const { data: workouts = [], isLoading } = useWorkouts()
+  const { data: schedules = [] } = useSchedules()
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
   const [dayFilter, setDayFilter] = useState<number | null>(null)
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>('active')
   const [page, setPage] = useState(1)
-  const router = useRouter()
 
   const deleteMutation = useDeleteWorkout()
   const toggleActiveMutation = useToggleWorkoutActive()
+
+  const scheduleDays = useMemo(() => {
+    const map = new Map<string, number[]>()
+    for (const s of schedules) {
+      const days = map.get(s.workout_id) || []
+      days.push(s.day_of_week)
+      map.set(s.workout_id, days)
+    }
+    return map
+  }, [schedules])
 
   const filtered = useMemo(() => {
     let result = workouts
@@ -50,7 +54,7 @@ export function WorkoutList({ workouts: initialWorkouts, scheduleDays }: Props) 
 
     if (dayFilter !== null) {
       result = result.filter((w) => {
-        const wdays = scheduleDays?.get(w.id)
+        const wdays = scheduleDays.get(w.id)
         return wdays?.includes(dayFilter)
       })
     }
@@ -64,16 +68,20 @@ export function WorkoutList({ workouts: initialWorkouts, scheduleDays }: Props) 
   async function handleDelete() {
     if (!deleteId) return
     await deleteMutation.mutateAsync(deleteId)
-    setWorkouts((prev) => prev.filter((w) => w.id !== deleteId))
     setDeleteId(null)
-    router.refresh()
   }
 
-  async function handleToggleActive(workout: Workout) {
+  async function handleToggleActive(workout: { id: string; is_active: boolean }) {
     const newActive = !workout.is_active
     await toggleActiveMutation.mutateAsync({ id: workout.id, is_active: newActive })
-    setWorkouts((prev) => prev.map((w) => (w.id === workout.id ? { ...w, is_active: newActive } : w)))
-    router.refresh()
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+      </div>
+    )
   }
 
   if (workouts.length === 0) {
@@ -161,7 +169,7 @@ export function WorkoutList({ workouts: initialWorkouts, scheduleDays }: Props) 
         <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {paginated.map((workout) => {
-              const wdays = scheduleDays?.get(workout.id)
+              const wdays = scheduleDays.get(workout.id)
               return (
                 <Card key={workout.id} className={workout.is_active ? '' : 'opacity-60'}>
                   <CardContent className="p-4">
