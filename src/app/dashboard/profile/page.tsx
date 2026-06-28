@@ -41,20 +41,32 @@ export default function ProfilePage() {
   async function handleAvatarUpload(file: File) {
     setUploadingAvatar(true)
     try {
-      const { compressImage } = await import('@/lib/compressImage')
-      const { fileToBase64 } = await import('@/lib/fileToBase64')
-      const blob = await compressImage(file, 150)
-      const base64 = await fileToBase64(blob)
+      const reader = new FileReader()
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => { const b64 = (reader.result as string).split(',')[1]; if (b64) resolve(b64); else reject() }
+        reader.onerror = () => reject()
+        reader.readAsDataURL(file)
+      })
+
+      // Try compress
+      let data = base64
+      let type = file.type || 'image/jpeg'
+      try {
+        const { compressBase64 } = await import('@/lib/compressBase64')
+        const result = await compressBase64(base64, type, 15000)
+        data = result.data
+        type = result.type
+      } catch { /* use original */ }
 
       const res = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ files: [{ name: 'photo.webp', type: blob.type || 'image/webp', data: base64 }] }),
+        body: JSON.stringify({ files: [{ name: 'photo', type, data }] }),
       })
       if (!res.ok) return
 
-      const data = await res.json()
-      const url = data.urls[0]
+      const result = await res.json()
+      const url = result.urls[0]
       if (profile && url) {
         await supabase.from('profiles').update({ avatar_url: url }).eq('id', profile.id)
         refetchProfile()
