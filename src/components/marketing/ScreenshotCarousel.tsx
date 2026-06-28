@@ -57,7 +57,7 @@ export function ScreenshotCarousel() {
         </div>
       </div>
 
-      <Dialog open={!!selected} onClose={() => setSelected(null)} className="max-w-4xl">
+      <Dialog open={!!selected} onClose={() => setSelected(null)} size="xl">
         {selected && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
