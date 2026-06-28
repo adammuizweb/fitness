@@ -4,17 +4,26 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n/context'
-import { Dumbbell, ClipboardList, Flame, TrendingUp, Plus } from 'lucide-react'
-import type { WorkoutLog, DailyStreak } from '@/types'
+import { Dumbbell, ClipboardList, Flame, TrendingUp, Loader2 } from 'lucide-react'
+import { useTodayLogs } from '@/hooks/useLogs'
+import { useStreak } from '@/hooks/useStreak'
+import { useWorkouts } from '@/hooks/useWorkouts'
 
-interface Props {
-  logs: WorkoutLog[]
-  streak: DailyStreak | null
-  totalWorkouts: number
-}
-
-export function DashboardClient({ logs, streak, totalWorkouts }: Props) {
+export function DashboardClient() {
   const { t } = useI18n()
+  const { data: logs = [], isLoading: logsLoading } = useTodayLogs()
+  const { data: streak, isLoading: streakLoading } = useStreak()
+  const { data: workouts, isLoading: workoutsLoading } = useWorkouts()
+
+  if (logsLoading || streakLoading || workoutsLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+      </div>
+    )
+  }
+
+  const totalWorkouts = workouts?.length || 0
   const totalSets = logs.reduce((sum, log) => sum + (log.sets || 0), 0)
   const totalReps = logs.reduce((sum, log) => sum + (log.reps || 0), 0)
   const currentStreak = streak?.current_streak || 0
