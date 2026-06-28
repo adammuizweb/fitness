@@ -24,31 +24,32 @@ export async function compressBase64(base64: string, fileType: string, timeoutMs
 
         ctx.drawImage(img, 0, 0, w, h)
 
-        // Always try WebP; if unsupported or fails, caller falls back to original
-        const mime = 'image/webp'
-        let quality = 0.8
-
-        const attempt = () => {
+        let quality = 0.85
+        const tryFormat = (fmt: string) => {
           canvas.toBlob((blob) => {
             if (done) return
-            if (!blob) { finish(); reject(new Error('WebP not supported')); return }
+            if (!blob) {
+              if (fmt === 'image/webp') return tryFormat('image/jpeg')
+              finish(); reject(new Error('Compression failed'))
+              return
+            }
 
             if (blob.size <= 300 * 1024 || quality <= 0.1) {
               const reader = new FileReader()
               reader.onload = () => {
                 finish()
-                resolve({ data: (reader.result as string).split(',')[1], type: mime })
+                resolve({ data: (reader.result as string).split(',')[1], type: fmt })
               }
               reader.readAsDataURL(blob)
               return
             }
 
             quality -= 0.15
-            attempt()
-          }, mime, quality)
+            tryFormat(fmt)
+          }, fmt, quality)
         }
 
-        attempt()
+        tryFormat('image/webp')
       }
 
       img.onerror = () => { finish(); reject(new Error('Image load failed')) }
