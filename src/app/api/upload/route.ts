@@ -4,12 +4,69 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 const CDN_UPLOAD_URL = 'https://cdn.jyavani.com/upload.php'
 const UPLOAD_SECRET = process.env.UPLOAD_SECRET || ''
-const MAX_BYTES_PER_24H = 2 * 1024 * 1024
 
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  if (!UPLOAD_SECRET) {
+    return NextResponse.json({ error: 'Upload secret not configured' }, { status: 500 })
+  }
+
+  // Check admin role for higher limit
+  const supabase = createAdminClient()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const isAdmin = profile?.role === 'admin'
+  const MAX_BYTES = isAdmin ? 50 * 1024 * 1024 : 2 * 1024 * 1024
+
+  let body: { files?: { name: string; type: string; data: string }[] }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
+
+  const files = body?.files
+  if (!files || !Array.isArray(files) || files.length === 0) {
+    return NextResponse.json({ error: 'No files provided' }, { status: 400 })
+  }
+
+  const incomingSize = files.reduce((sum, f) => {
+    try { return sum + Math.round((f.data.length * 3) / 4) } catch { return sum }
+  }, 0)
+  
+  // Per-file limit (5MB = PHP limit)
+  for (const f of files) {
+    const bytes = Math.round((f.data.length * 3) / 4)
+    if (bytes > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: `File too large (max 5MB)` }, { status: 413 })
+    }
+  }
+
+  // Rate limit check
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+
+  const { data: usageData } = await supabase
+    .from('upload_logs')
+    .select('file_size_bytes')
+    .eq('user_id', user.id)
+    .gte('created_at', since)
+
+  const totalUsed = (usageData || []).reduce((sum, r) => sum + r.file_size_bytes, 0)
+
+  if (totalUsed + incomingSize > MAX_BYTES) {
+    return NextResponse.json({
+      error: `Upload limit exceeded (${MAX_BYTES / 1024 / 1024}MB/24h)`,
+      used: totalUsed,
+      limit: MAX_BYTES,
+    }, { status: 429 })
   }
 
   if (!UPLOAD_SECRET) {

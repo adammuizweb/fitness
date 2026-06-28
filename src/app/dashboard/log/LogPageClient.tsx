@@ -179,9 +179,11 @@ export function LogPageClient() {
   }
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>, workoutId: string) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files || files.length === 0) return
 
+    // Process first file only (multiple files = separate uploads)
+    const file = files[0]
     const reader = new FileReader()
     reader.onload = () => {
       const b64 = (reader.result as string).split(',')[1]
@@ -189,9 +191,9 @@ export function LogPageClient() {
       setModalOpen(true)
       setModalStage('compress')
       handleUploadPhoto(workoutId, b64, file.type || 'image/jpeg')
-      e.target.value = ''
     }
     reader.readAsDataURL(file)
+    e.target.value = ''
   }
 
   function removePhoto(workoutId: string, photoUrl: string) {
