@@ -269,17 +269,49 @@ const en: TranslationSet = {
   'landing.registerTitle': 'Create Account',
 
   'landing.features.title': 'Everything you need to stay fit',
+
+  'landing.features.socialTitle': 'Community Feed',
+
+  'landing.features.socialDesc': 'Share your workouts, post photos, and inspire others. Follow people, like and comment on their activity.',
+
+  'landing.features.shareTitle': 'Share & Copy',
+
+  'landing.features.shareDesc': 'Share individual workouts or your full weekly plan. Copy routines from other members instantly.',
+
   'landing.features.workoutTitle': 'Workout Templates',
+
   'landing.features.workoutDesc': 'Create lift or cardio workouts with sets, reps, weight, distance, and duration.',
+
   'landing.features.scheduleTitle': 'Weekly Schedule',
-  'landing.features.scheduleDesc': 'Assign workouts to specific days. Your daily checklist updates automatically.',
+
+  'landing.features.scheduleDesc': 'Assign workouts to specific days. Set rest days that auto-complete your checklist.',
+
   'landing.features.logTitle': 'Daily Checklist',
-  'landing.features.logDesc': 'Check off workouts with inline editing. Track your progress effortlessly.',
+
+  'landing.features.logDesc': 'Check off workouts, add photos from your phone, and track your progress effortlessly.',
+
   'landing.features.streakTitle': 'Streak Tracker',
+
   'landing.features.streakDesc': 'GitHub-style calendar showing your consistency. Stay motivated every day.',
+
+  'landing.features.photosTitle': 'Workout Photos',
+
+  'landing.features.photosDesc': 'Take or upload photos of your workouts. Auto-compressed to WebP and stored on our CDN.',
+
+  'landing.features.privacyTitle': 'Privacy Control',
+
+  'landing.features.privacyDesc': 'Set your profile public or private. Each post has its own privacy level — Only Me, Followers, Friends, or All.',
+
+  'landing.features.restTitle': 'Rest Days',
+
+  'landing.features.restDesc': 'Mark days as rest — your checklist auto-completes so recovery counts toward your streak.',
+
   'landing.features.i18nTitle': 'Multi Language',
+
   'landing.features.i18nDesc': 'Full English and Indonesian support. Switch anytime.',
+
   'landing.features.adminTitle': 'Admin Panel',
+
   'landing.features.adminDesc': 'Manage users, view stats, and control everything from one dashboard.',
 
   'landing.cta.title': 'Like this project?',
@@ -308,17 +340,39 @@ const en: TranslationSet = {
   'contact.openSource': 'This project is open source. Feel free to open an issue or pull request on GitHub.',
 
   'privacy.title': 'Privacy Policy',
-  'privacy.intro': 'Your privacy is important to us. This policy outlines how we handle your data.',
-  'privacy.data': 'We only store data necessary for the app to function: your account information (name, email), workout templates, logs, and streak data.',
-  'privacy.sharing': 'We do not share your data with third parties. All data is stored securely in our Supabase database.',
-  'privacy.cookies': 'We use Supabase Auth cookies for session management. No tracking or analytics cookies are used.',
-  'privacy.contact': 'For privacy concerns, contact us via GitHub issues.',
+
+  'privacy.intro': 'Your privacy matters. This policy explains what data we collect, how it is used, and your rights regarding your information.',
+
+  'privacy.data': 'We collect and store only the data necessary for the app to function: account details (username, email), workout templates, daily logs, streak data, photos you upload, posts you create, and your follow relationships. Public profile information (username, full name, avatar) may be visible to others if you set your profile to public.',
+
+  'privacy.sharing': 'We do not sell or share your personal data with third parties. Data is stored securely in our Supabase database (PostgreSQL) and uploaded photos are stored on our private CDN server. No data is shared with advertisers or analytics platforms.',
+
+  'privacy.cookies': 'We use Supabase Auth cookies for session management only. No tracking, advertising, or analytics cookies are used.',
+
+  'privacy.retention': 'You can delete your account and associated data at any time by contacting us. However, we do not guarantee that all traces of shared content (posts, comments) can be removed from other users\' copies or cached views. Public content that has been copied by other users may persist in their accounts.',
+
+  'privacy.rights': 'You have the right to access, correct, or delete your personal data. Public content you have shared may remain visible even after deletion until other users\' copies are removed. We recommend reviewing your privacy settings before sharing sensitive information.',
+
+  'privacy.changes': 'We may update this policy as the platform evolves. Continued use after changes constitutes acceptance of the updated terms.',
+
+  'privacy.contact': 'For privacy concerns, account deletion requests, or data inquiries, contact us via the Contact page or open a GitHub issue.',
 
   'terms.title': 'Terms & Conditions',
-  'terms.intro': 'By using Fitness Tracker, you agree to the following terms.',
-  'terms.use': 'You may use this app for personal fitness tracking. Misuse, abuse, or commercial exploitation is prohibited.',
-  'terms.data': 'You are responsible for the accuracy of the data you enter. We are not liable for any loss of data.',
-  'terms.changes': 'We reserve the right to modify these terms at any time. Continued use constitutes acceptance of changes.',
+
+  'terms.intro': 'By using Fitness Tracker ("the Platform"), you agree to these terms. If you do not agree, do not use the Platform.',
+
+  'terms.use': 'You may use the Platform for personal fitness tracking and community interaction. You must not misuse the Platform for spam, harassment, illegal activity, or commercial exploitation.',
+
+  'terms.content': 'You are solely responsible for the content you post, including photos, captions, shared workouts, and plans. You retain ownership of your content but grant the Platform a license to display it. We reserve the right to remove any content that violates these terms.',
+
+  'terms.data': 'We strive to keep your data safe, but we do not guarantee against data loss. You are responsible for maintaining backups of important data. The Platform is provided "as is" without warranties of any kind.',
+
+  'terms.privacy': 'You control your visibility through privacy settings. Public content may be copied, shared, or screenshotted by other users. We are not responsible for how other users use publicly available information.',
+
+  'terms.termination': 'We reserve the right to suspend or terminate accounts that violate these terms. You may delete your account at any time. We may discontinue the Platform at any time without liability.',
+
+  'terms.changes': 'We may modify these terms at any time. Continued use after changes constitutes acceptance. We will notify significant changes via the Platform.',
+
   'terms.license': 'The source code is licensed under the MIT License. See the GitHub repository for details.',
 }
 
@@ -584,17 +638,49 @@ const id: TranslationSet = {
   'landing.registerTitle': 'Buat Akun',
 
   'landing.features.title': 'Semua yang kamu butuhkan untuk tetap bugar',
+
+  'landing.features.socialTitle': 'Feed Komunitas',
+
+  'landing.features.socialDesc': 'Bagikan latihanmu, posting foto, dan inspirasi orang lain. Ikuti pengguna, sukai dan komentari aktivitas mereka.',
+
+  'landing.features.shareTitle': 'Bagikan & Salin',
+
+  'landing.features.shareDesc': 'Bagikan latihan individu atau rencana mingguan penuh. Salin rutinitas dari anggota lain secara instan.',
+
   'landing.features.workoutTitle': 'Template Latihan',
+
   'landing.features.workoutDesc': 'Buat latihan angkat beban atau kardio dengan set, repetisi, berat, jarak, dan durasi.',
+
   'landing.features.scheduleTitle': 'Jadwal Mingguan',
-  'landing.features.scheduleDesc': 'Atur latihan di hari tertentu. Checklist harianmu terupdate otomatis.',
+
+  'landing.features.scheduleDesc': 'Atur latihan di hari tertentu. Atur hari istirahat yang otomatis melengkapi checklistmu.',
+
   'landing.features.logTitle': 'Checklist Harian',
-  'landing.features.logDesc': 'Centang latihan dengan edit inline. Lacak progresmu tanpa ribet.',
+
+  'landing.features.logDesc': 'Centang latihan, tambah foto dari ponselmu, dan lacak progres tanpa ribet.',
+
   'landing.features.streakTitle': 'Pelacak Streak',
+
   'landing.features.streakDesc': 'Kalender gaya GitHub yang menunjukkan konsistensimu. Tetap termotivasi setiap hari.',
+
+  'landing.features.photosTitle': 'Foto Latihan',
+
+  'landing.features.photosDesc': 'Ambil atau unggah foto latihanmu. Otomatis dikompres ke WebP dan disimpan di CDN kami.',
+
+  'landing.features.privacyTitle': 'Kontrol Privasi',
+
+  'landing.features.privacyDesc': 'Atur profil publik atau privat. Setiap postingan memiliki tingkat privasi sendiri — Hanya Saya, Pengikut, Teman, atau Semua.',
+
+  'landing.features.restTitle': 'Hari Istirahat',
+
+  'landing.features.restDesc': 'Tandai hari sebagai istirahat — checklist otomatis terpenuhi sehingga pemulihan tetap dihitung dalam streak.',
+
   'landing.features.i18nTitle': 'Multi Bahasa',
+
   'landing.features.i18nDesc': 'Dukungan penuh Bahasa Indonesia dan Inggris. Ganti kapan saja.',
+
   'landing.features.adminTitle': 'Panel Admin',
+
   'landing.features.adminDesc': 'Kelola pengguna, lihat statistik, dan kendalikan semuanya dari satu dashboard.',
 
   'landing.cta.title': 'Suka proyek ini?',
@@ -623,17 +709,39 @@ const id: TranslationSet = {
   'contact.openSource': 'Proyek ini open source. Silakan buka issue atau pull request di GitHub.',
 
   'privacy.title': 'Kebijakan Privasi',
-  'privacy.intro': 'Privasi Anda penting bagi kami. Kebijakan ini menjelaskan bagaimana kami menangani data Anda.',
-  'privacy.data': 'Kami hanya menyimpan data yang diperlukan untuk fungsi aplikasi: informasi akun (nama, email), template latihan, log, dan data streak.',
-  'privacy.sharing': 'Kami tidak membagikan data Anda kepada pihak ketiga. Semua data disimpan dengan aman di database Supabase kami.',
-  'privacy.cookies': 'Kami menggunakan cookie Supabase Auth untuk manajemen sesi. Tidak ada cookie pelacakan atau analitik yang digunakan.',
-  'privacy.contact': 'Untuk masalah privasi, hubungi kami melalui GitHub issues.',
+
+  'privacy.intro': 'Privasi Anda penting. Kebijakan ini menjelaskan data apa yang kami kumpulkan, bagaimana digunakan, dan hak Anda atas informasi Anda.',
+
+  'privacy.data': 'Kami mengumpulkan dan menyimpan hanya data yang diperlukan untuk fungsi aplikasi: detail akun (username, email), template latihan, log harian, data streak, foto yang Anda unggah, postingan yang Anda buat, dan hubungan follow Anda. Informasi profil publik (username, nama lengkap, avatar) mungkin terlihat oleh orang lain jika Anda mengatur profil ke publik.',
+
+  'privacy.sharing': 'Kami tidak menjual atau membagikan data pribadi Anda kepada pihak ketiga. Data disimpan dengan aman di database Supabase kami (PostgreSQL) dan foto yang diunggah disimpan di server CDN pribadi kami. Tidak ada data yang dibagikan dengan pengiklan atau platform analitik.',
+
+  'privacy.cookies': 'Kami menggunakan cookie Supabase Auth hanya untuk manajemen sesi. Tidak ada cookie pelacakan, periklanan, atau analitik yang digunakan.',
+
+  'privacy.retention': 'Anda dapat menghapus akun dan data terkait kapan saja dengan menghubungi kami. Namun, kami tidak menjamin semua jejak konten bersama (postingan, komentar) dapat dihapus dari salinan atau tampilan cache pengguna lain. Konten publik yang telah disalin oleh pengguna lain mungkin tetap ada di akun mereka.',
+
+  'privacy.rights': 'Anda berhak mengakses, memperbaiki, atau menghapus data pribadi Anda. Konten publik yang telah Anda bagikan mungkin tetap terlihat meskipun setelah dihapus hingga salinan pengguna lain dihapus. Kami sarankan meninjau pengaturan privasi sebelum membagikan informasi sensitif.',
+
+  'privacy.changes': 'Kami dapat memperbarui kebijakan ini seiring perkembangan platform. Penggunaan berkelanjutan setelah perubahan merupakan penerimaan atas ketentuan yang diperbarui.',
+
+  'privacy.contact': 'Untuk masalah privasi, permintaan penghapusan akun, atau pertanyaan data, hubungi kami melalui halaman Kontak atau buka GitHub issue.',
 
   'terms.title': 'Syarat & Ketentuan',
-  'terms.intro': 'Dengan menggunakan Fitness Tracker, Anda menyetujui ketentuan berikut.',
-  'terms.use': 'Anda dapat menggunakan aplikasi ini untuk pelacakan kebugaran pribadi. Penyalahgunaan atau eksploitasi komersial dilarang.',
-  'terms.data': 'Anda bertanggung jawab atas keakuratan data yang Anda masukkan. Kami tidak bertanggung jawab atas kehilangan data.',
-  'terms.changes': 'Kami berhak mengubah ketentuan ini kapan saja. Penggunaan berkelanjutan merupakan penerimaan atas perubahan.',
+
+  'terms.intro': 'Dengan menggunakan Fitness Tracker ("Platform"), Anda menyetujui ketentuan ini. Jika tidak setuju, jangan gunakan Platform.',
+
+  'terms.use': 'Anda dapat menggunakan Platform untuk pelacakan kebugaran pribadi dan interaksi komunitas. Anda tidak boleh menyalahgunakan Platform untuk spam, pelecehan, aktivitas ilegal, atau eksploitasi komersial.',
+
+  'terms.content': 'Anda sepenuhnya bertanggung jawab atas konten yang Anda posting, termasuk foto, caption, latihan yang dibagikan, dan rencana. Anda mempertahankan kepemilikan konten Anda tetapi memberikan Platform lisensi untuk menampilkannya. Kami berhak menghapus konten apa pun yang melanggar ketentuan ini.',
+
+  'terms.data': 'Kami berusaha menjaga keamanan data Anda, tetapi kami tidak menjamin terhadap kehilangan data. Anda bertanggung jawab untuk menjaga cadangan data penting. Platform disediakan "apa adanya" tanpa jaminan apa pun.',
+
+  'terms.privacy': 'Anda mengontrol visibilitas melalui pengaturan privasi. Konten publik mungkin disalin, dibagikan, atau di-screenshot oleh pengguna lain. Kami tidak bertanggung jawab atas bagaimana pengguna lain menggunakan informasi yang tersedia untuk publik.',
+
+  'terms.termination': 'Kami berhak menangguhkan atau menghentikan akun yang melanggar ketentuan ini. Anda dapat menghapus akun kapan saja. Kami dapat menghentikan Platform kapan saja tanpa kewajiban.',
+
+  'terms.changes': 'Kami dapat mengubah ketentuan ini kapan saja. Penggunaan berkelanjutan setelah perubahan merupakan penerimaan. Kami akan memberitahukan perubahan signifikan melalui Platform.',
+
   'terms.license': 'Kode sumber dilisensikan di bawah MIT License. Lihat repositori GitHub untuk detail.',
 }
 

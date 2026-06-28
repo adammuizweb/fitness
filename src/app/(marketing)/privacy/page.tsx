@@ -17,7 +17,7 @@ export default async function PrivacyPage() {
         <p>{t('privacy.intro')}</p>
 
         <div className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="font-semibold text-stone-900 mb-2">1. Data Collection</h2>
+          <h2 className="font-semibold text-stone-900 mb-2">1. {t('privacy.data').split(':')[0]}</h2>
           <p className="text-sm">{t('privacy.data')}</p>
         </div>
 
@@ -32,7 +32,22 @@ export default async function PrivacyPage() {
         </div>
 
         <div className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="font-semibold text-stone-900 mb-2">4. Contact</h2>
+          <h2 className="font-semibold text-stone-900 mb-2">4. Data Retention & Deletion</h2>
+          <p className="text-sm">{t('privacy.retention')}</p>
+        </div>
+
+        <div className="rounded-xl border border-stone-200 bg-white p-5">
+          <h2 className="font-semibold text-stone-900 mb-2">5. Your Rights</h2>
+          <p className="text-sm">{t('privacy.rights')}</p>
+        </div>
+
+        <div className="rounded-xl border border-stone-200 bg-white p-5">
+          <h2 className="font-semibold text-stone-900 mb-2">6. Policy Changes</h2>
+          <p className="text-sm">{t('privacy.changes')}</p>
+        </div>
+
+        <div className="rounded-xl border border-stone-200 bg-white p-5">
+          <h2 className="font-semibold text-stone-900 mb-2">7. Contact</h2>
           <p className="text-sm">{t('privacy.contact')}</p>
         </div>
       </div>

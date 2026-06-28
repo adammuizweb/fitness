@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Dumbbell, Calendar, CheckCircle2, Flame, Languages, Shield, ArrowRight, GitFork } from 'lucide-react'
+import { Dumbbell, Calendar, CheckCircle2, Flame, Languages, Shield, ArrowRight, GitFork, Users, Share2, Camera, Moon, Lock } from 'lucide-react'
 import { I18nServer } from '@/lib/i18n/server'
 
 const techStack = [
@@ -17,9 +17,14 @@ export default async function LandingPage() {
   const { t } = await I18nServer()
 
   const features = [
+    { icon: Users, title: t('landing.features.socialTitle'), desc: t('landing.features.socialDesc') },
+    { icon: Share2, title: t('landing.features.shareTitle'), desc: t('landing.features.shareDesc') },
     { icon: Dumbbell, title: t('landing.features.workoutTitle'), desc: t('landing.features.workoutDesc') },
     { icon: Calendar, title: t('landing.features.scheduleTitle'), desc: t('landing.features.scheduleDesc') },
+    { icon: Camera, title: t('landing.features.photosTitle'), desc: t('landing.features.photosDesc') },
+    { icon: Lock, title: t('landing.features.privacyTitle'), desc: t('landing.features.privacyDesc') },
     { icon: CheckCircle2, title: t('landing.features.logTitle'), desc: t('landing.features.logDesc') },
+    { icon: Moon, title: t('landing.features.restTitle'), desc: t('landing.features.restDesc') },
     { icon: Flame, title: t('landing.features.streakTitle'), desc: t('landing.features.streakDesc') },
     { icon: Languages, title: t('landing.features.i18nTitle'), desc: t('landing.features.i18nDesc') },
     { icon: Shield, title: t('landing.features.adminTitle'), desc: t('landing.features.adminDesc') },

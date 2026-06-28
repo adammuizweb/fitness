@@ -17,22 +17,42 @@ export default async function TermsPage() {
         <p>{t('terms.intro')}</p>
 
         <div className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="font-semibold text-stone-900 mb-2">1. Usage</h2>
+          <h2 className="font-semibold text-stone-900 mb-2">1. Acceptance</h2>
+          <p className="text-sm">{t('terms.intro')}</p>
+        </div>
+
+        <div className="rounded-xl border border-stone-200 bg-white p-5">
+          <h2 className="font-semibold text-stone-900 mb-2">2. Usage Rules</h2>
           <p className="text-sm">{t('terms.use')}</p>
         </div>
 
         <div className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="font-semibold text-stone-900 mb-2">2. Data Responsibility</h2>
+          <h2 className="font-semibold text-stone-900 mb-2">3. User Content</h2>
+          <p className="text-sm">{t('terms.content')}</p>
+        </div>
+
+        <div className="rounded-xl border border-stone-200 bg-white p-5">
+          <h2 className="font-semibold text-stone-900 mb-2">4. Data & Liability</h2>
           <p className="text-sm">{t('terms.data')}</p>
         </div>
 
         <div className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="font-semibold text-stone-900 mb-2">3. Changes</h2>
+          <h2 className="font-semibold text-stone-900 mb-2">5. Privacy & Public Content</h2>
+          <p className="text-sm">{t('terms.privacy')}</p>
+        </div>
+
+        <div className="rounded-xl border border-stone-200 bg-white p-5">
+          <h2 className="font-semibold text-stone-900 mb-2">6. Account Termination</h2>
+          <p className="text-sm">{t('terms.termination')}</p>
+        </div>
+
+        <div className="rounded-xl border border-stone-200 bg-white p-5">
+          <h2 className="font-semibold text-stone-900 mb-2">7. Changes</h2>
           <p className="text-sm">{t('terms.changes')}</p>
         </div>
 
         <div className="rounded-xl border border-stone-200 bg-white p-5">
-          <h2 className="font-semibold text-stone-900 mb-2">4. License</h2>
+          <h2 className="font-semibold text-stone-900 mb-2">8. License</h2>
           <p className="text-sm">{t('terms.license')}</p>
           <a
             href="https://github.com/adammuizweb/fitness/blob/main/LICENSE"
