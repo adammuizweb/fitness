@@ -11,6 +11,13 @@ export function MarketingHeader() {
   const [showAuth, setShowAuth] = useState<'login' | 'register' | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  function switchLang(l: 'id' | 'en') {
+    if (l === lang) return
+    setLang(l)
+    document.cookie = `fitness_lang=${l}; path=/; max-age=31536000`
+    window.location.reload()
+  }
+
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/80 backdrop-blur-md">
@@ -33,7 +40,7 @@ export function MarketingHeader() {
               </Link>
               <div className="flex items-center gap-1 ml-4">
                 <button
-                  onClick={() => setLang('id')}
+                  onClick={() => switchLang('id')}
                   className={`px-2 py-1 text-xs rounded-md transition-colors ${
                     lang === 'id' ? 'bg-green-100 text-green-700 font-medium' : 'text-stone-500 hover:text-stone-700'
                   }`}
@@ -41,7 +48,7 @@ export function MarketingHeader() {
                   ID
                 </button>
                 <button
-                  onClick={() => setLang('en')}
+                  onClick={() => switchLang('en')}
                   className={`px-2 py-1 text-xs rounded-md transition-colors ${
                     lang === 'en' ? 'bg-green-100 text-green-700 font-medium' : 'text-stone-500 hover:text-stone-700'
                   }`}
@@ -98,13 +105,13 @@ export function MarketingHeader() {
               </Link>
               <div className="flex items-center gap-2 py-2">
                 <button
-                  onClick={() => setLang('id')}
+                  onClick={() => switchLang('id')}
                   className={`px-3 py-1.5 text-sm rounded-md ${lang === 'id' ? 'bg-green-100 text-green-700 font-medium' : 'text-stone-500'}`}
                 >
                   ID
                 </button>
                 <button
-                  onClick={() => setLang('en')}
+                  onClick={() => switchLang('en')}
                   className={`px-3 py-1.5 text-sm rounded-md ${lang === 'en' ? 'bg-green-100 text-green-700 font-medium' : 'text-stone-500'}`}
                 >
                   EN
