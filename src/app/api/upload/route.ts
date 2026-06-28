@@ -38,11 +38,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No files provided' }, { status: 400 })
   }
 
+  if (files.length > 10) {
+    return NextResponse.json({ error: 'Max 10 files per request' }, { status: 400 })
+  }
+
   const incomingSize = files.reduce((sum, f) => {
     try { return sum + Math.round((f.data.length * 3) / 4) } catch { return sum }
   }, 0)
   
-  // Per-file limit (5MB = PHP limit)
   for (const f of files) {
     const bytes = Math.round((f.data.length * 3) / 4)
     if (bytes > 5 * 1024 * 1024) {
@@ -50,9 +53,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Rate limit check
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-
   const { data: usageData } = await supabase
     .from('upload_logs')
     .select('file_size_bytes')
@@ -66,58 +67,6 @@ export async function POST(request: NextRequest) {
       error: `Upload limit exceeded (${MAX_BYTES / 1024 / 1024}MB/24h)`,
       used: totalUsed,
       limit: MAX_BYTES,
-    }, { status: 429 })
-  }
-
-  if (!UPLOAD_SECRET) {
-    return NextResponse.json({ error: 'Upload secret not configured' }, { status: 500 })
-  }
-
-  let body: { files?: { name: string; type: string; data: string }[] }
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
-  }
-
-  const files = body?.files
-  if (!files || !Array.isArray(files) || files.length === 0) {
-    return NextResponse.json({ error: 'No files provided' }, { status: 400 })
-  }
-
-  if (files.length > 10) {
-    return NextResponse.json({ error: 'Max 10 files per request' }, { status: 400 })
-  }
-
-  const incomingSize = files.reduce((sum, f) => {
-    try { return sum + Math.round((f.data.length * 3) / 4) } catch { return sum }
-  }, 0)
-  
-  // Per-file limit (5MB = PHP limit)
-  for (const f of files) {
-    const bytes = Math.round((f.data.length * 3) / 4)
-    if (bytes > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: `File too large (max 5MB)` }, { status: 413 })
-    }
-  }
-
-  // Rate limit check
-  const supabase = createAdminClient()
-  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-
-  const { data: usageData } = await supabase
-    .from('upload_logs')
-    .select('file_size_bytes')
-    .eq('user_id', user.id)
-    .gte('created_at', since)
-
-  const totalUsed = (usageData || []).reduce((sum, r) => sum + r.file_size_bytes, 0)
-
-  if (totalUsed + incomingSize > MAX_BYTES_PER_24H) {
-    return NextResponse.json({
-      error: 'Upload limit exceeded (2MB/24h)',
-      used: totalUsed,
-      limit: MAX_BYTES_PER_24H,
     }, { status: 429 })
   }
 
