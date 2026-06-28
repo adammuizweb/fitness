@@ -125,15 +125,10 @@ export function LogPageClient() {
     try {
       const { compressImage } = await import('@/lib/compressImage')
 
-      const compressedFiles: File[] = []
-      for (let i = 0; i < files.length; i++) {
-        const compressed = await compressImage(files[i])
-        compressedFiles.push(compressed)
-      }
-
       const formData = new FormData()
-      for (const cf of compressedFiles) {
-        formData.append('file', cf)
+      for (let i = 0; i < files.length; i++) {
+        const blob = await compressImage(files[i])
+        formData.append('file', blob, 'photo.webp')
       }
 
       const res = await fetch('/api/upload', { method: 'POST', body: formData })

@@ -1,11 +1,20 @@
-export async function compressImage(file: File, maxSizeKB = 300): Promise<File> {
+export async function compressImage(file: File, maxSizeKB = 300): Promise<Blob> {
+  // Skip compression if already small enough
+  if (file.size <= maxSizeKB * 1024) {
+    return file
+  }
+
   return new Promise((resolve, reject) => {
     const img = new Image()
     const url = URL.createObjectURL(file)
 
-    img.onload = () => {
+    const cleanup = () => {
       URL.revokeObjectURL(url)
+      img.onload = null
+      img.onerror = null
+    }
 
+    img.onload = () => {
       let { width, height } = img
       const maxWidth = 1200
       if (width > maxWidth) {
@@ -18,41 +27,43 @@ export async function compressImage(file: File, maxSizeKB = 300): Promise<File> 
       canvas.height = height
       const ctx = canvas.getContext('2d')
       if (!ctx) {
+        cleanup()
         reject(new Error('Could not get canvas context'))
         return
       }
 
       ctx.drawImage(img, 0, 0, width, height)
 
-      let quality = 0.85
-      const mimeType = 'image/webp'
+      // Try WebP first, fall back to JPEG
+      function tryCompress(mimeType: string, quality: number) {
+        canvas.toBlob((blob) => {
+          if (blob && blob.size <= maxSizeKB * 1024) {
+            cleanup()
+            resolve(blob)
+            return
+          }
 
-      function attemptCompress() {
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              reject(new Error('Compression failed'))
-              return
-            }
-
-            if (blob.size <= maxSizeKB * 1024 || quality <= 0.1) {
-              const compressed = new File([blob], 'photo.webp', { type: mimeType })
-              resolve(compressed)
-            } else {
-              quality -= 0.1
-              attemptCompress()
-            }
-          },
-          mimeType,
-          quality
-        )
+          if (quality > 0.1) {
+            tryCompress(mimeType, quality - 0.15)
+          } else if (mimeType === 'image/webp') {
+            // WebP failed or too large - fall back to JPEG
+            tryCompress('image/jpeg', 0.8)
+          } else {
+            // JPEG at lowest quality - accept whatever we get
+            canvas.toBlob((finalBlob) => {
+              cleanup()
+              if (finalBlob) resolve(finalBlob)
+              else reject(new Error('Compression failed'))
+            }, 'image/jpeg', 0.6)
+          }
+        }, mimeType, quality)
       }
 
-      attemptCompress()
+      tryCompress('image/webp', 0.85)
     }
 
     img.onerror = () => {
-      URL.revokeObjectURL(url)
+      cleanup()
       reject(new Error('Failed to load image'))
     }
 

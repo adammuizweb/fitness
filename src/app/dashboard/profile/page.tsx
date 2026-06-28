@@ -42,9 +42,9 @@ export default function ProfilePage() {
     setUploadingAvatar(true)
     try {
       const { compressImage } = await import('@/lib/compressImage')
-      const compressed = await compressImage(file, 150)
+      const blob = await compressImage(file, 150)
       const formData = new FormData()
-      formData.append('file', compressed)
+      formData.append('file', blob, 'photo.webp')
 
       const res = await fetch('/api/upload', { method: 'POST', body: formData })
       if (!res.ok) return
