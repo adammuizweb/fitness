@@ -119,6 +119,15 @@ async function deleteWorkout(id: string): Promise<void> {
   if (error) throw error
 }
 
+async function toggleWorkoutActive(id: string, is_active: boolean): Promise<void> {
+  const { error } = await supabase
+    .from('workouts')
+    .update({ is_active })
+    .eq('id', id)
+
+  if (error) throw error
+}
+
 export function useWorkouts() {
   return useQuery({
     queryKey: ['workouts'],
@@ -172,6 +181,16 @@ export function useDeleteWorkout() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: deleteWorkout,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workouts'] })
+    },
+  })
+}
+
+export function useToggleWorkoutActive() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, is_active }: { id: string; is_active: boolean }) => toggleWorkoutActive(id, is_active),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] })
     },
