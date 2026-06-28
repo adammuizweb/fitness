@@ -13,6 +13,13 @@ const privacyIcons: Record<string, React.ReactNode> = {
   only_me: <Lock className="w-3 h-3" />,
 }
 
+const privacyKey: Record<string, string> = {
+  all: 'All',
+  followers: 'Followers',
+  friends: 'Friends',
+  only_me: 'OnlyMe',
+}
+
 const privacyColors: Record<string, string> = {
   all: 'text-green-600 bg-green-50',
   followers: 'text-blue-600 bg-blue-50',
@@ -56,7 +63,7 @@ export function PostCard({ post }: Props) {
           <div className="flex items-center gap-1">
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${privacyColors[post.privacy] || 'text-gray-600 bg-gray-100'}`}>
               {privacyIcons[post.privacy] || null}
-              {t(`settings.privacy${post.privacy.charAt(0).toUpperCase() + post.privacy.slice(1)}`)}
+              {t(`settings.privacy${privacyKey[post.privacy] || 'All'}`)}
             </span>
             <button
               onClick={() => { if (confirm('Delete this post?')) deleteMutation.mutate(post.id) }}

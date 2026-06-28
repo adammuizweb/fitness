@@ -8,6 +8,13 @@ import { useCreatePost } from '@/hooks/usePosts'
 import { Globe, Users, UserCheck, Lock, Send } from 'lucide-react'
 import type { WorkoutLog, PostPrivacy } from '@/types'
 
+const privacyKey: Record<string, string> = {
+  all: 'All',
+  followers: 'Followers',
+  friends: 'Friends',
+  only_me: 'OnlyMe',
+}
+
 const privacyOptions: { value: PostPrivacy; icon: React.ReactNode }[] = [
   { value: 'all', icon: <Globe className="w-4 h-4" /> },
   { value: 'followers', icon: <Users className="w-4 h-4" /> },
@@ -118,7 +125,7 @@ export function CreatePostDialog({ open, onClose, logs }: Props) {
                 }`}
               >
                 {opt.icon}
-                {t(`settings.privacy${opt.value.charAt(0).toUpperCase() + opt.value.slice(1)}`)}
+                {t(`settings.privacy${privacyKey[opt.value] || 'All'}`)}
               </button>
             ))}
           </div>
