@@ -16,6 +16,10 @@ const slides = [
   { src: '/screenshots/admin.png', label: 'Admin' },
   { src: '/screenshots/dashboard_en.png', label: 'English Dashboard' },
   { src: '/screenshots/admin_users.png', label: 'User Management' },
+  { src: '/screenshots/schedule.png', label: 'Weekly Schedule' },
+  { src: '/screenshots/photos_feature.png', label: 'Workout Photos' },
+  { src: '/screenshots/rest_days.png', label: 'Rest Days' },
+  { src: '/screenshots/language.png', label: 'Multi Language' },
 ]
 
 const allSlides = [...slides, ...slides]
@@ -53,12 +57,12 @@ export function ScreenshotCarousel() {
         </div>
       </div>
 
-      <Dialog open={!!selected} onClose={() => setSelected(null)} title="">
+      <Dialog open={!!selected} onClose={() => setSelected(null)} className="max-w-4xl">
         {selected && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-stone-600">{selected.label}</p>
-              <button onClick={() => setSelected(null)} className="text-stone-400 hover:text-stone-600 transition-colors">
+              <button onClick={() => setSelected(null)} className="text-stone-400 hover:text-stone-600 transition-colors p-1 rounded-lg hover:bg-stone-100">
                 <X className="w-5 h-5" />
               </button>
             </div>
