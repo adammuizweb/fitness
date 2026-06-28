@@ -1,20 +1,26 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n/context'
-import { Dumbbell, ClipboardList, Flame, TrendingUp } from 'lucide-react'
+import { Dumbbell, ClipboardList, Flame, TrendingUp, Share2, Camera } from 'lucide-react'
 import { useTodayLogs } from '@/hooks/useLogs'
 import { useStreak } from '@/hooks/useStreak'
 import { useWorkouts } from '@/hooks/useWorkouts'
+import { useMyPosts } from '@/hooks/usePosts'
+import { PostCard } from '@/components/posts/PostCard'
+import { CreatePostDialog } from '@/components/posts/CreatePostDialog'
 import { Skeleton, SkeletonStatCard } from '@/components/ui/Skeleton'
 
 export function DashboardClient() {
   const { t } = useI18n()
+  const [showCreatePost, setShowCreatePost] = useState(false)
   const { data: logs = [], isLoading: logsLoading } = useTodayLogs()
   const { data: streak, isLoading: streakLoading } = useStreak()
   const { data: workouts, isLoading: workoutsLoading } = useWorkouts()
+  const { data: posts = [], isLoading: postsLoading } = useMyPosts()
 
   if (logsLoading || streakLoading || workoutsLoading) {
     return <DashboardSkeleton />
@@ -24,6 +30,7 @@ export function DashboardClient() {
   const totalSets = logs.reduce((sum, log) => sum + (log.sets || 0), 0)
   const totalReps = logs.reduce((sum, log) => sum + (log.reps || 0), 0)
   const currentStreak = streak?.current_streak || 0
+  const hasPhotos = logs.some(l => (l.photos?.length ?? 0) > 0)
 
   return (
     <div className="space-y-6">
@@ -45,6 +52,32 @@ export function DashboardClient() {
         </Link>
       </div>
 
+      {/* Share prompt — only when there's something to share */}
+      {logs.length > 0 && (
+        <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+          <CardContent className="p-5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                <Share2 className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-green-800">Share your workout!</p>
+                <p className="text-sm text-green-600">
+                  {hasPhotos
+                    ? 'You have photos — inspire others with your progress!'
+                    : 'Inspire others by sharing what you did today.'}
+                </p>
+              </div>
+            </div>
+            <Button onClick={() => setShowCreatePost(true)} className="shrink-0">
+              <Camera className="w-4 h-4 mr-1" />
+              Share
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardContent className="p-6 flex items-center gap-4">
@@ -124,6 +157,27 @@ export function DashboardClient() {
           </CardContent>
         </Card>
       </div>
+
+      {/* My Posts */}
+      {posts.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold">Your Posts</h2>
+          <div className="space-y-3">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Create Post Dialog */}
+      {showCreatePost && (
+        <CreatePostDialog
+          open={showCreatePost}
+          onClose={() => setShowCreatePost(false)}
+          logs={logs}
+        />
+      )}
     </div>
   )
 }
