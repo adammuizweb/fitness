@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -58,7 +58,6 @@ export function LogPageClient() {
   const [schedules, setSchedules] = useState<WorkoutSchedule[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     async function load() {
@@ -157,9 +156,7 @@ export function LogPageClient() {
     if (e.target.files && e.target.files.length > 0) {
       handleUploadPhoto(workoutId, e.target.files)
     }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
+    e.target.value = ''
   }
 
   function removePhoto(workoutId: string, photoUrl: string) {
@@ -270,8 +267,42 @@ export function LogPageClient() {
                       </button>
                     </div>
 
+                    {/* Always-visible camera button + photo indicator */}
+                    <div className="ml-9 mt-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          multiple
+                          className="hidden"
+                          id={`photo-input-${item.workout.id}`}
+                          onChange={(e) => handleFileSelect(e, item.workout.id)}
+                        />
+                        <label
+                          htmlFor={`photo-input-${item.workout.id}`}
+                          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-green-600 cursor-pointer transition-colors"
+                        >
+                          <Camera className="w-3.5 h-3.5" />
+                          {photos.length > 0 ? (
+                            <span>{photos.length} {t('log.photos')}</span>
+                          ) : (
+                            <span>{t('log.addPhoto')}</span>
+                          )}
+                        </label>
+                        {photos.length > 0 && (
+                          <button
+                            onClick={() => openEdit(item)}
+                            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                          >
+                            {t('log.managePhotos')}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
                     {isEditing && (
-                      <div className="ml-9 mt-2 border rounded-lg p-3 bg-gray-50 space-y-2">
+                      <div className="ml-9 mt-1 border rounded-lg p-3 bg-gray-50 space-y-2">
                         {item.workout.type === 'lift' ? (
                           <div className="grid grid-cols-3 gap-2">
                             <Input
@@ -316,7 +347,7 @@ export function LogPageClient() {
                           </div>
                         )}
 
-                        <div className="border-t pt-2 space-y-2">
+                          <div className="border-t pt-2 space-y-2">
                           {photos.length > 0 && (
                             <div className="flex flex-wrap gap-2">
                               {photos.map((url) => (
@@ -337,24 +368,16 @@ export function LogPageClient() {
                             </div>
                           )}
                           <div>
-                            <input
-                              ref={fileInputRef}
-                              type="file"
-                              accept="image/*"
-                              capture="environment"
-                              multiple
-                              className="hidden"
-                              onChange={(e) => handleFileSelect(e, item.workout.id)}
-                            />
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => fileInputRef.current?.click()}
-                              loading={uploading[item.workout.id]}
+                            <label
+                              htmlFor={`photo-input-${item.workout.id}`}
+                              className="inline-flex items-center gap-1.5 text-sm text-green-600 hover:text-green-700 cursor-pointer font-medium"
                             >
-                              <Camera className="w-4 h-4 mr-1" />
-                              {t('log.photo')}
-                            </Button>
+                              <Camera className="w-4 h-4" />
+                              {photos.length > 0 ? t('log.addMore') : t('log.photo')}
+                            </label>
+                            {uploading[item.workout.id] && (
+                              <span className="ml-2 text-xs text-gray-400">Uploading...</span>
+                            )}
                           </div>
                         </div>
 

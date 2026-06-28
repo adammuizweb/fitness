@@ -106,6 +106,10 @@ const en: TranslationSet = {
   'log.cardio': 'Cardio',
   'log.lift': 'Lifting',
   'log.photo': 'Photo',
+  'log.photos': 'photos',
+  'log.addPhoto': 'Add Photo',
+  'log.addMore': 'Add More',
+  'log.managePhotos': 'Manage',
 
   'logHistory.title': 'Log History',
   'logHistory.subtitle': 'View workout logs by date',
@@ -390,6 +394,10 @@ const id: TranslationSet = {
   'log.cardio': 'Cardio',
   'log.lift': 'Angkat Beban',
   'log.photo': 'Foto',
+  'log.photos': 'foto',
+  'log.addPhoto': 'Tambah Foto',
+  'log.addMore': 'Tambah Lagi',
+  'log.managePhotos': 'Atur',
 
   'logHistory.title': 'Riwayat Log',
   'logHistory.subtitle': 'Lihat log workout berdasarkan tanggal',
