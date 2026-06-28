@@ -28,10 +28,20 @@ async function fetchPublicPosts({ pageParam = 0 }): Promise<PostWithProfile[]> {
 }
 
 async function searchUsers(query: string): Promise<Profile[]> {
-  const { data, error } = await supabase
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+
+  // Always include yourself, plus any public profiles matching the query
+  let dbQuery = supabase
     .from('profiles')
     .select('*')
-    .eq('is_public', true)
+
+  if (authUser) {
+    dbQuery = dbQuery.or(`is_public.eq.true,id.eq.${authUser.id}`)
+  } else {
+    dbQuery = dbQuery.eq('is_public', true)
+  }
+
+  const { data, error } = await dbQuery
     .ilike('username', `%${query}%`)
     .limit(20)
 

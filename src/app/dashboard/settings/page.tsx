@@ -9,7 +9,8 @@ import { useI18n } from '@/lib/i18n/context'
 import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/lib/supabase/client'
 import { languages } from '@/lib/i18n/translations'
-import { Globe, LogOut, Shield, ChevronDown, ChevronUp } from 'lucide-react'
+import Link from 'next/link'
+import { Globe, LogOut, Shield, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
 const supabase = createClient()
 
 export default function SettingsPage() {
@@ -115,6 +116,15 @@ export default function SettingsPage() {
                 />
               </button>
             </div>
+            {profile?.is_public && profile?.username && (
+              <Link
+                href={`/dashboard/community/user/${profile.username}`}
+                className="mt-3 inline-flex items-center gap-1 text-sm text-green-600 hover:text-green-700 font-medium"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                View my public profile
+              </Link>
+            )}
           </div>
 
           {/* Privacy rules accordion */}
