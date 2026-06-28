@@ -25,7 +25,7 @@ export default function NewWorkoutPage() {
         <h1 className="text-2xl font-bold">Tambah Workout</h1>
         <p className="text-gray-500 text-sm mt-1">Buat workout baru, atur tipe dan jadwal mingguan</p>
       </div>
-      <WorkoutForm onSubmit={handleSubmit} loading={mutation.isPending} />
+      <WorkoutForm onSubmit={handleSubmit} loading={mutation.isPending} cancelHref="/dashboard/workouts" />
     </div>
   )
 }

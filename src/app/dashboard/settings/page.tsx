@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/lib/supabase/client'
 
@@ -48,6 +49,9 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 max-w-lg">
+      <Breadcrumb items={[
+        { label: 'Pengaturan' },
+      ]} />
       <div>
         <h1 className="text-2xl font-bold">Pengaturan</h1>
         <p className="text-gray-500 text-sm mt-1">Atur profil akunmu</p>

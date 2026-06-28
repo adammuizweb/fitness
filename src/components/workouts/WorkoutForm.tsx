@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Dumbbell, Heart, Calendar, ChevronDown } from 'lucide-react'
+import { Dumbbell, Heart, Calendar } from 'lucide-react'
 import type { WorkoutInput, WorkoutType } from '@/types'
 
 const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu']
@@ -13,9 +14,10 @@ interface Props {
   defaultValues?: Partial<WorkoutInput> & { schedule_days?: number[] }
   onSubmit: (data: WorkoutInput & { schedule_days: number[] }) => Promise<void>
   loading: boolean
+  cancelHref?: string
 }
 
-export function WorkoutForm({ defaultValues, onSubmit, loading }: Props) {
+export function WorkoutForm({ defaultValues, onSubmit, loading, cancelHref }: Props) {
   const [name, setName] = useState(defaultValues?.name || '')
   const [description, setDescription] = useState(defaultValues?.description || '')
   const [type, setType] = useState<WorkoutType>(defaultValues?.type || 'lift')
@@ -189,6 +191,11 @@ export function WorkoutForm({ defaultValues, onSubmit, loading }: Props) {
           </div>
 
           <div className="flex gap-2 pt-2">
+            {cancelHref && (
+              <Link href={cancelHref}>
+                <Button type="button" variant="outline">Batal</Button>
+              </Link>
+            )}
             <Button type="submit" loading={loading} className="min-w-[120px]">
               Simpan
             </Button>

@@ -82,6 +82,7 @@ export default function EditWorkoutPage() {
         }}
         onSubmit={handleSubmit}
         loading={updateMutation.isPending}
+        cancelHref="/dashboard/workouts"
       />
 
       <Card className="border-red-200 bg-red-50/30">

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useLogsByDate } from '@/hooks/useLogs'
 import { LogList } from '@/components/logs/LogList'
 
@@ -13,6 +14,10 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[
+        { label: 'Log', href: '/dashboard/log' },
+        { label: 'Riwayat' },
+      ]} />
       <div>
         <h1 className="text-2xl font-bold">Riwayat Log</h1>
         <p className="text-gray-500 text-sm mt-1">Lihat log workout berdasarkan tanggal</p>
