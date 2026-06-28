@@ -62,6 +62,9 @@ async function upsertLog(input: WorkoutLogInput & { logged_date?: string }): Pro
     notes: input.notes || null,
     is_done: input.is_done ?? true,
   }
+  if (input.photos !== undefined) {
+    payload.photos = input.photos
+  }
 
   if (existing) {
     const { data, error } = await supabase

@@ -104,6 +104,7 @@ const en: TranslationSet = {
   'log.cancel': 'Cancel',
   'log.cardio': 'Cardio',
   'log.lift': 'Lifting',
+  'log.photo': 'Photo',
 
   'logHistory.title': 'Log History',
   'logHistory.subtitle': 'View workout logs by date',
@@ -377,6 +378,7 @@ const id: TranslationSet = {
   'log.cancel': 'Batal',
   'log.cardio': 'Cardio',
   'log.lift': 'Angkat Beban',
+  'log.photo': 'Foto',
 
   'logHistory.title': 'Riwayat Log',
   'logHistory.subtitle': 'Lihat log workout berdasarkan tanggal',

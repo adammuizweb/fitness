@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +9,7 @@ import { useI18n } from '@/lib/i18n/context'
 import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useLogs'
 import { createClient } from '@/lib/supabase/client'
 import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2, Camera, X } from 'lucide-react'
 
 interface ChecklistItem {
   workout: Workout
@@ -57,6 +57,8 @@ export function LogPageClient() {
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({})
   const [schedules, setSchedules] = useState<WorkoutSchedule[]>([])
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState<Record<string, boolean>>({})
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     async function load() {
@@ -109,6 +111,66 @@ export function LogPageClient() {
       ...prev,
       [workoutId]: { ...(prev[workoutId] || {}), [field]: value },
     }))
+  }
+
+  async function handleUploadPhoto(workoutId: string, files: FileList) {
+    const item = checklist.find(c => c.workout.id === workoutId)
+    if (!item) return
+
+    setUploading((prev) => ({ ...prev, [workoutId]: true }))
+    try {
+      const { compressImage } = await import('@/lib/compressImage')
+
+      const compressedFiles: File[] = []
+      for (let i = 0; i < files.length; i++) {
+        const compressed = await compressImage(files[i])
+        compressedFiles.push(compressed)
+      }
+
+      const formData = new FormData()
+      for (const cf of compressedFiles) {
+        formData.append('file', cf)
+      }
+
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      if (!res.ok) {
+        const err = await res.json()
+        console.error('Upload failed:', err)
+        return
+      }
+
+      const data = await res.json()
+      const currentPhotos = item.log?.photos || []
+      await upsertMutation.mutateAsync({
+        workout_id: workoutId,
+        photos: [...currentPhotos, ...data.urls],
+        is_done: true,
+      })
+    } catch (err) {
+      console.error('Upload error:', err)
+    } finally {
+      setUploading((prev) => ({ ...prev, [workoutId]: false }))
+    }
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>, workoutId: string) {
+    if (e.target.files && e.target.files.length > 0) {
+      handleUploadPhoto(workoutId, e.target.files)
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  function removePhoto(workoutId: string, photoUrl: string) {
+    const item = checklist.find(c => c.workout.id === workoutId)
+    if (!item) return
+    const currentPhotos = item.log?.photos || []
+    upsertMutation.mutateAsync({
+      workout_id: workoutId,
+      photos: currentPhotos.filter(u => u !== photoUrl),
+      is_done: item.log?.is_done ?? true,
+    })
   }
 
   async function handleSaveEdit(item: ChecklistItem) {
@@ -169,6 +231,7 @@ export function LogPageClient() {
               {checklist.map((item) => {
                 const isEditing = editingId === item.workout.id
                 const vals = editValues[item.workout.id] || {}
+                const photos = item.log?.photos || []
                 return (
                   <div key={item.workout.id} className="py-3">
                     <div className="flex items-start gap-3">
@@ -240,6 +303,49 @@ export function LogPageClient() {
                             />
                           </div>
                         )}
+
+                        <div className="border-t pt-2 space-y-2">
+                          {photos.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {photos.map((url) => (
+                                <div key={url} className="relative">
+                                  <img
+                                    src={url}
+                                    alt=""
+                                    className="w-20 h-20 object-cover rounded-lg"
+                                  />
+                                  <button
+                                    onClick={() => removePhoto(item.workout.id, url)}
+                                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <div>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              multiple
+                              className="hidden"
+                              onChange={(e) => handleFileSelect(e, item.workout.id)}
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fileInputRef.current?.click()}
+                              loading={uploading[item.workout.id]}
+                            >
+                              <Camera className="w-4 h-4 mr-1" />
+                              {t('log.photo')}
+                            </Button>
+                          </div>
+                        </div>
+
                         <div className="flex justify-end gap-2 pt-1">
                           <Button variant="outline" size="sm" onClick={() => setEditingId(null)}>
                             {t('log.cancel')}

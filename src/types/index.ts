@@ -49,6 +49,7 @@ export interface WorkoutLog {
   distance: number | null
   duration: number | null
   notes: string | null
+  photos: string[]
   is_done: boolean
   logged_date: string
   created_at: string
@@ -73,8 +74,16 @@ export interface WorkoutLogInput {
   distance?: number
   duration?: number
   notes?: string
+  photos?: string[]
   is_done?: boolean
   logged_date?: string
+}
+
+export interface UploadLog {
+  id: string
+  user_id: string
+  file_size_bytes: number
+  created_at: string
 }
 
 export interface WorkoutInput {

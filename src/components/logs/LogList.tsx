@@ -63,6 +63,13 @@ export function LogList({ logs }: Props) {
                 {log.notes && (
                   <p className="text-xs text-gray-400 mt-0.5">{log.notes}</p>
                 )}
+                {(log.photos?.length ?? 0) > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {log.photos.map((url) => (
+                      <img key={url} src={url} alt="" className="w-16 h-16 object-cover rounded-lg" />
+                    ))}
+                  </div>
+                )}
               </div>
             </button>
             <Button variant="ghost" size="icon" onClick={() => setDeleteId(log.id)}>
