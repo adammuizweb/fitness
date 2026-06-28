@@ -116,18 +116,39 @@ export function LogPageClient() {
     }))
   }
 
-  async function handleUploadPhoto(workoutId: string, base64: string, fileType: string, _fileSize: number) {
+  async function handleUploadPhoto(workoutId: string, base64: string, fileType: string, fileSize: number) {
     const item = checklist.find(c => c.workout.id === workoutId)
     if (!item) return
 
     setUploadError(null)
     setUploading((prev) => ({ ...prev, [workoutId]: true }))
+
+    // Try to compress (best-effort, 8s timeout)
+    let data = base64
+    let type = fileType
+    let ext = fileType === 'image/webp' ? 'webp' : fileType === 'image/png' ? 'png' : 'gif'
+    
+    if (fileSize > 200 * 1024) {
+      try {
+        const { compressImage } = await import('@/lib/compressImage')
+        const blob = await Promise.race([
+          compressImage(new File([await (await fetch(`data:${fileType};base64,${base64}`)).blob()], 'photo', { type: fileType })),
+          new Promise<never>((_, r) => setTimeout(() => r(new Error('Timeout')), 8000)),
+        ])
+        const { fileToBase64 } = await import('@/lib/fileToBase64')
+        data = await fileToBase64(blob)
+        type = blob.type
+        ext = type === 'image/webp' ? 'webp' : type === 'image/png' ? 'png' : 'gif'
+      } catch {
+        // Use original
+      }
+    }
+
     try {
-      const ext = fileType === 'image/webp' ? 'webp' : fileType === 'image/png' ? 'png' : 'gif'
       const res = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ files: [{ name: `photo.${ext}`, type: fileType, data: base64 }] }),
+        body: JSON.stringify({ files: [{ name: `photo.${ext}`, type, data }] }),
       })
       const result = await res.json()
 
