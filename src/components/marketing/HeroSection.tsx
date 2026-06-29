@@ -26,7 +26,7 @@ export async function HeroSection() {
                 <span className="w-3 h-3 rounded-full bg-green-400" />
                 <span className="ml-2 text-xs text-stone-400 font-mono">dashboard</span>
               </div>
-              <img src="/screenshots/dashboard.png" alt="Dashboard" className="w-full h-auto" />
+              <img src="/screenshots/dashboard.webp" alt="Dashboard" className="w-full h-auto" />
             </div>
           </div>
 

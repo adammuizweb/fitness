@@ -5,21 +5,21 @@ import { Dialog } from '@/components/ui/dialog'
 import { X } from 'lucide-react'
 
 const slides = [
-  { src: '/screenshots/dashboard.png', label: 'Dashboard' },
-  { src: '/screenshots/workouts.png', label: 'Workouts' },
-  { src: '/screenshots/streak.png', label: 'Streak' },
-  { src: '/screenshots/log.png', label: 'Daily Log' },
-  { src: '/screenshots/profile.png', label: 'Profile' },
-  { src: '/screenshots/posts.png', label: 'Posts' },
-  { src: '/screenshots/community.png', label: 'Community' },
-  { src: '/screenshots/settings.png', label: 'Settings' },
-  { src: '/screenshots/admin.png', label: 'Admin' },
-  { src: '/screenshots/dashboard_en.png', label: 'English Dashboard' },
-  { src: '/screenshots/admin_users.png', label: 'User Management' },
-  { src: '/screenshots/schedule.png', label: 'Weekly Schedule' },
-  { src: '/screenshots/photos_feature.png', label: 'Workout Photos' },
-  { src: '/screenshots/rest_days.png', label: 'Rest Days' },
-  { src: '/screenshots/language.png', label: 'Multi Language' },
+  { src: '/screenshots/dashboard.webp', label: 'Dashboard' },
+  { src: '/screenshots/workouts.webp', label: 'Workouts' },
+  { src: '/screenshots/streak.webp', label: 'Streak' },
+  { src: '/screenshots/log.webp', label: 'Daily Log' },
+  { src: '/screenshots/profile.webp', label: 'Profile' },
+  { src: '/screenshots/posts.webp', label: 'Posts' },
+  { src: '/screenshots/community.webp', label: 'Community' },
+  { src: '/screenshots/settings.webp', label: 'Settings' },
+  { src: '/screenshots/admin.webp', label: 'Admin' },
+  { src: '/screenshots/dashboard_en.webp', label: 'English Dashboard' },
+  { src: '/screenshots/admin_users.webp', label: 'User Management' },
+  { src: '/screenshots/schedule.webp', label: 'Weekly Schedule' },
+  { src: '/screenshots/photos_feature.webp', label: 'Workout Photos' },
+  { src: '/screenshots/rest_days.webp', label: 'Rest Days' },
+  { src: '/screenshots/language.webp', label: 'Multi Language' },
 ]
 
 const allSlides = [...slides, ...slides]
