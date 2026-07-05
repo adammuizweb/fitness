@@ -124,7 +124,7 @@ export function MobileNav() {
               >
                 <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center overflow-hidden shrink-0">
                   {profile?.avatar_url ? (
-                    <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                    <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                   ) : (
                     <span className="text-sm font-medium text-green-700">
                       {profile?.username?.charAt(0).toUpperCase()}

@@ -7,6 +7,7 @@ import { useI18n } from '@/lib/i18n/context'
 import { useDeletePost } from '@/hooks/usePosts'
 import { EditPostDialog } from './EditPostDialog'
 import { Globe, Users, UserCheck, Lock, Trash2, Clock, Pencil } from 'lucide-react'
+import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
 import type { Post, Profile } from '@/types'
 
 const privacyKey: Record<string, string> = {
@@ -63,7 +64,7 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                 <Link href={`/dashboard/community/user/${author.username}`} className="shrink-0">
                   <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
                     {author.avatar_url ? (
-                      <img src={author.avatar_url} alt="" className="w-full h-full object-cover" />
+                      <img src={author.avatar_url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                     ) : (
                       <span className="text-xs font-bold text-green-700">
                         {author.username?.charAt(0).toUpperCase()}
@@ -125,7 +126,12 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
           {(post.photos?.length ?? 0) > 0 && (
             <div className={`grid gap-1 ${post.photos.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
               {post.photos.map((url) => (
-                <img key={url} src={url} alt="" className="w-full aspect-square object-cover rounded-lg" />
+                <PhotoWithFallback
+                  key={url}
+                  src={url}
+                  alt=""
+                  className="w-full aspect-square object-cover rounded-lg"
+                />
               ))}
             </div>
           )}

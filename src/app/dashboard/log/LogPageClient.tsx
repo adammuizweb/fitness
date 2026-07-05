@@ -10,6 +10,7 @@ import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useL
 import { useRestDays } from '@/hooks/useRestDays'
 import { createClient } from '@/lib/supabase/client'
 import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
+import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
 import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2, Camera, X, Moon, Sparkles } from 'lucide-react'
 import { UploadModal } from '@/components/logs/UploadModal'
 
@@ -298,7 +299,12 @@ export function LogPageClient() {
                         {(item.log?.photos?.length ?? 0) > 0 && (
                           <div className="flex gap-1 mt-2">
                             {item.log!.photos.slice(0, 4).map((url) => (
-                              <img key={url} src={url} alt="" className="w-12 h-12 object-cover rounded-lg border border-gray-200" />
+                              <PhotoWithFallback
+                                key={url}
+                                src={url}
+                                alt=""
+                                className="w-12 h-12 object-cover rounded-lg border border-gray-200"
+                              />
                             ))}
                             {item.log!.photos.length > 4 && (
                               <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium border border-gray-200">
@@ -402,7 +408,7 @@ export function LogPageClient() {
                             <div className="flex flex-wrap gap-2">
                               {photos.map((url) => (
                                 <div key={url} className="relative">
-                                  <img
+                                  <PhotoWithFallback
                                     src={url}
                                     alt=""
                                     className="w-20 h-20 object-cover rounded-lg"

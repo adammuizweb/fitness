@@ -78,7 +78,7 @@ export default function UserProfilePage() {
           <div className="flex items-start gap-4">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center overflow-hidden shrink-0">
               {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
               ) : (
                 <span className="text-2xl font-bold text-green-700">
                   {profile.username?.charAt(0).toUpperCase()}

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n/context'
 import { useCreatePost } from '@/hooks/usePosts'
 import { Globe, Users, UserCheck, Lock, Send } from 'lucide-react'
+import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
 import type { WorkoutLog, PostPrivacy } from '@/types'
 
 const privacyKey: Record<string, string> = {
@@ -105,7 +106,12 @@ export function CreatePostDialog({ open, onClose, logs }: Props) {
         {allPhotos.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {allPhotos.map((url) => (
-              <img key={url} src={url} alt="" className="w-14 h-14 object-cover rounded-lg" />
+              <PhotoWithFallback
+                key={url}
+                src={url}
+                alt=""
+                className="w-14 h-14 object-cover rounded-lg"
+              />
             ))}
           </div>
         )}

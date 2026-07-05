@@ -4,14 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
-import { useI18n } from '@/lib/i18n/context'
-import { useUser } from '@/hooks/useUser'
-import { createClient } from '@/lib/supabase/client'
-import { useLogHistory } from '@/hooks/useLogs'
-import { useStreak } from '@/hooks/useStreak'
-import { useMyPosts } from '@/hooks/usePosts'
+import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
 import { PostCard } from '@/components/posts/PostCard'
 import { Dumbbell, Flame, Camera, Pencil, X, Check, Loader2, Share2 } from 'lucide-react'
 
@@ -131,7 +125,7 @@ export default function ProfilePage() {
                 {uploadingAvatar ? (
                   <Loader2 className="w-5 h-5 animate-spin text-green-700" />
                 ) : profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 ) : (
                   <span className="text-2xl font-bold text-green-700">
                     {profile?.username?.charAt(0).toUpperCase()}
@@ -229,9 +223,9 @@ export default function ProfilePage() {
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block aspect-square rounded-lg overflow-hidden bg-gray-100"
+                  className="block aspect-square rounded-lg overflow-hidden"
                 >
-                  <img
+                  <PhotoWithFallback
                     src={url}
                     alt=""
                     className="w-full h-full object-cover hover:scale-105 transition-transform"
