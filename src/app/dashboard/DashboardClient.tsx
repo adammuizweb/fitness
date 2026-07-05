@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n/context'
 import { Dumbbell, ClipboardList, Flame, TrendingUp, Share2, Camera } from 'lucide-react'
 import { useTodayLogs } from '@/hooks/useLogs'
+import { useTodayActivities } from '@/hooks/useActivityLogs'
 import { useStreak } from '@/hooks/useStreak'
 import { useWorkouts } from '@/hooks/useWorkouts'
 import { useMyPosts, useMyPostsFull } from '@/hooks/usePosts'
@@ -21,16 +22,24 @@ export function DashboardClient() {
   const { data: streak, isLoading: streakLoading } = useStreak()
   const { data: workouts, isLoading: workoutsLoading } = useWorkouts()
   const { data: posts = [], isLoading: postsLoading } = useMyPosts(3)
+  const { data: activities = [] } = useTodayActivities()
 
   if (logsLoading || streakLoading || workoutsLoading) {
     return <DashboardSkeleton />
   }
 
+  const SYSTEM_WORKOUT_NAME = '\u{1F3F7}\uFE0F Custom Activity'
+  const doneLogs = logs.filter(l => l.is_done)
   const totalWorkouts = workouts?.length || 0
-  const totalSets = logs.reduce((sum, log) => sum + (log.sets || 0), 0)
-  const totalReps = logs.reduce((sum, log) => sum + (log.reps || 0), 0)
-  const currentStreak = streak?.current_streak || 0
-  const hasPhotos = logs.some(l => (l.photos?.length ?? 0) > 0)
+  const totalSets = doneLogs.reduce((sum, log) => sum + (log.sets || 0), 0)
+  const totalReps = doneLogs.reduce((sum, log) => sum + (log.reps || 0), 0)
+  const hasActivityToday = doneLogs.length > 0 || activities.length > 0
+  const today = new Date().toISOString().split('T')[0]
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+  const lastDate = streak?.last_activity_date
+  const isActive = (lastDate === today || lastDate === yesterday) && hasActivityToday
+  const currentStreak = isActive ? (streak?.current_streak || 0) : 0
+  const hasPhotos = doneLogs.some(l => (l.photos?.length ?? 0) > 0)
 
   return (
     <div className="space-y-6">
@@ -53,7 +62,7 @@ export function DashboardClient() {
       </div>
 
       {/* Share prompt — only when there's something to share */}
-      {logs.length > 0 && (
+      {hasActivityToday && (
         <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
           <CardContent className="p-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -122,24 +131,38 @@ export function DashboardClient() {
             <CardTitle>{t('dashboard.workoutToday')}</CardTitle>
           </CardHeader>
           <CardContent>
-            {logs.length === 0 ? (
+            {doneLogs.length === 0 && activities.length === 0 ? (
               <p className="text-gray-500 text-sm py-4 text-center">
                 {t('dashboard.noWorkout')}
               </p>
             ) : (
               <div className="space-y-2">
-                {logs.map((log) => (
-                  <div key={log.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium">{log.workout?.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {log.sets && log.sets > 0
-                          ? `${log.sets} set x ${log.reps} rep${log.weight ? ` \u2022 ${log.weight} kg` : ''}`
-                          : `${log.distance} m \u2022 ${log.duration} menit`}
-                      </p>
+                {doneLogs.map((log) => {
+                  const isCustom = log.workout?.name === SYSTEM_WORKOUT_NAME
+                  return (
+                    <div key={log.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium">{isCustom ? log.notes : log.workout?.name}</p>
+                        {!isCustom && (
+                          <p className="text-sm text-gray-500">
+                            {log.sets && log.sets > 0
+                              ? `${log.sets} set x ${log.reps} rep${log.weight ? ` \u2022 ${log.weight} kg` : ''}`
+                              : `${log.distance} m \u2022 ${log.duration} menit`}
+                          </p>
+                        )}
+                      </div>
                     </div>
+                  )
+                })}
+                {activities.length > 0 && (
+                  <div className="text-sm text-gray-500 px-1">
+                    {activities.map(a => (
+                      <span key={a.id} className="inline-flex items-center gap-1 mr-3 text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">
+                        <span>{a.activity_name}</span>
+                      </span>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
           </CardContent>

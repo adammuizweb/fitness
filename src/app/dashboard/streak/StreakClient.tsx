@@ -33,6 +33,8 @@ export function StreakClient() {
   })
 
   const activeDates = useMemo(() => new Set(logs.map((l) => l.logged_date)), [logs])
+  const today = new Date().toISOString().split('T')[0]
+  const hasActivityToday = activeDates.has(today)
 
   if (streakLoading || logsLoading) {
     return <StreakSkeleton />
@@ -48,7 +50,7 @@ export function StreakClient() {
         <p className="text-gray-500 text-sm mt-1">{t('streak.subtitle')}</p>
       </div>
 
-      <StreakStats streak={streak ?? null} />
+      <StreakStats streak={streak ?? null} hasActivityToday={hasActivityToday} />
       <StreakCalendar activeDates={activeDates} />
     </div>
   )

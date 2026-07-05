@@ -7,14 +7,19 @@ import type { DailyStreak } from '@/types'
 
 interface Props {
   streak: DailyStreak | null
+  hasActivityToday?: boolean
 }
 
-export function StreakStats({ streak }: Props) {
+export function StreakStats({ streak, hasActivityToday }: Props) {
   const { t } = useI18n()
   const today = new Date().toISOString().split('T')[0]
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
   const lastDate = streak?.last_activity_date
-  const isActive = lastDate === today || lastDate === yesterday
+  const isActive = lastDate
+    ? lastDate === today
+      ? (hasActivityToday ?? true)
+      : lastDate === yesterday
+    : false
   const currentStreak = isActive ? (streak?.current_streak || 0) : 0
   const longestStreak = streak?.longest_streak || 0
 
