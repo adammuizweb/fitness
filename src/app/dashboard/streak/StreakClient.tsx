@@ -25,6 +25,7 @@ export function StreakClient() {
       const { data, error } = await supabase
         .from('workout_logs')
         .select('logged_date')
+        .eq('is_done', true)
         .gte('logged_date', since)
         .order('logged_date')
       if (error) throw error
