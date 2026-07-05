@@ -14,7 +14,8 @@ export function StreakCalendar({ activeDates }: Props) {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth
+      const el = scrollRef.current
+      el.scrollLeft = Math.max(0, el.scrollWidth - el.clientWidth - el.clientWidth / 2)
     }
   }, [])
 
@@ -64,24 +65,24 @@ export function StreakCalendar({ activeDates }: Props) {
       <CardHeader>
         <CardTitle>{t('streak.calendar')}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div ref={scrollRef} className="overflow-x-auto">
-          <div className="inline-flex gap-1">
-            <div className="flex flex-col gap-1 mr-2">
-              <div className="h-4" />
+      <CardContent className="px-3 sm:px-6">
+        <div ref={scrollRef} className="overflow-x-auto scroll-smooth">
+          <div className="inline-flex gap-0.5 sm:gap-1">
+            <div className="flex flex-col gap-0.5 sm:gap-1 mr-1.5 sm:mr-2">
+              <div className="h-3 sm:h-4" />
               {days.short.map((d) => (
-                <div key={d} className="h-3 text-[10px] text-gray-400 leading-3">{d}</div>
+                <div key={d} className="h-2.5 sm:h-3 text-[9px] sm:text-[10px] text-gray-400 leading-[10px] sm:leading-3">{d}</div>
               ))}
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-0.5 sm:gap-1">
               {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-1">
+                <div key={wi} className="flex flex-col gap-0.5 sm:gap-1">
                   {Array.from({ length: 7 }).map((_, di) => {
                     const day = week[di]
                     return (
                       <div
                         key={di}
-                        className={`w-3 h-3 rounded-sm ${
+                        className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[3px] sm:rounded-sm ${
                           day?.active
                             ? 'bg-green-500'
                             : day
@@ -96,9 +97,13 @@ export function StreakCalendar({ activeDates }: Props) {
               ))}
             </div>
           </div>
-          <div className="flex gap-1 mt-2 ml-8">
-            {monthLabels.map((m) => (
-              <span key={m.label} className="text-[10px] text-gray-400" style={{ marginLeft: m.index * 16 - (monthLabels.indexOf(m) > 0 ? 8 : 0) }}>
+          <div className="flex gap-0.5 sm:gap-1 mt-1.5 sm:mt-2 ml-[22px] sm:ml-8">
+            {monthLabels.map((m, i) => (
+              <span
+                key={m.label}
+                className="text-[9px] sm:text-[10px] text-gray-400 whitespace-nowrap"
+                style={{ marginLeft: i > 0 ? `${(m.index - monthLabels[i - 1].index) * 12.5 - 4}px` : `${m.index * 12.5}px` }}
+              >
                 {m.label}
               </span>
             ))}
