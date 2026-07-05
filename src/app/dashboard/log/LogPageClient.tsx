@@ -550,46 +550,65 @@ export function LogPageClient() {
           <CardTitle>{t('log.customActivity')}</CardTitle>
           <p className="text-sm text-gray-500">{t('log.customActivityDesc')}</p>
         </CardHeader>
-        <CardContent>
-          {activities.length === 0 ? (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                if (!activityName.trim()) return
-                createActivity.mutate(activityName.trim())
-                setActivityName('')
-              }}
-              className="flex gap-2"
-            >
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <div className="flex-1">
               <Input
                 placeholder={t('log.customActivityPlaceholder')}
                 value={activityName}
                 onChange={(e) => setActivityName(e.target.value)}
-                className="flex-1"
               />
-              <Button type="submit" loading={createActivity.isPending}>
-                {t('log.customActivityLog')}
-              </Button>
-            </form>
-          ) : (
-            activities.map((a) => {
-              const photos = a.photos || []
-              return (
-                <div key={a.id} className="space-y-3">
-                  <div className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-purple-500" />
-                      <span className="text-sm font-medium">{a.activity_name}</span>
-                    </div>
-                    <button
-                      onClick={() => deleteActivity.mutate(a.id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
+            </div>
+            {activities.length === 0 ? (
+              <>
+                <Button onClick={() => {
+                  if (!activityName.trim()) return
+                  createActivity.mutate(activityName.trim())
+                  setActivityName('')
+                }} loading={createActivity.isPending}>
+                  {t('log.customActivityLog')}
+                </Button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="activity-photo-new"
+                  onChange={async (e) => {
+                    const files = e.target.files
+                    if (!files || !files[0]) return
+                    const name = activityName.trim() || 'Custom Activity'
+                    const file = files[0]
+                    setActivityName('')
+                    e.target.value = ''
+                    const result = await createActivity.mutateAsync(name)
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                      const b64 = (reader.result as string).split(',')[1]
+                      if (b64) handleActivityPhotoUpload(result.id, b64, file.type || 'image/jpeg')
+                    }
+                    reader.readAsDataURL(file)
+                  }}
+                />
+                <label
+                  htmlFor="activity-photo-new"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors cursor-pointer h-10 w-10 border border-gray-300 hover:bg-gray-50 shrink-0"
+                >
+                  <Camera className="w-4 h-4 text-gray-500" />
+                </label>
+              </>
+            ) : null}
+          </div>
 
+          {activities.map((a) => {
+            const photos = a.photos || []
+            return (
+              <div key={a.id} className="space-y-3 border-t pt-3">
+                <div className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
                   <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-500" />
+                    <span className="text-sm font-medium">{a.activity_name}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
                     <input
                       type="file"
                       accept="image/*"
@@ -599,38 +618,43 @@ export function LogPageClient() {
                     />
                     <label
                       htmlFor={`activity-photo-input-${a.id}`}
-                      className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-green-600 cursor-pointer transition-colors"
+                      className="text-gray-400 hover:text-green-600 cursor-pointer p-1 transition-colors"
+                      title="Add photo"
                     >
-                      <Camera className="w-3.5 h-3.5" />
-                      {photos.length > 0
-                        ? `${photos.length} ${t('log.photos')}`
-                        : t('log.addPhoto')}
+                      <Camera className="w-4 h-4" />
                     </label>
+                    <button
+                      onClick={() => deleteActivity.mutate(a.id)}
+                      className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                      title="Delete"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
-
-                  {photos.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {photos.map((url) => (
-                        <div key={url} className="relative">
-                          <PhotoWithFallback
-                            src={url}
-                            alt=""
-                            className="w-20 h-20 object-cover rounded-lg"
-                          />
-                          <button
-                            onClick={() => removeActivityPhoto(a.id, url)}
-                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
-              )
-            })
-          )}
+
+                {photos.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {photos.map((url) => (
+                      <div key={url} className="relative">
+                        <PhotoWithFallback
+                          src={url}
+                          alt=""
+                          className="w-20 h-20 object-cover rounded-lg"
+                        />
+                        <button
+                          onClick={() => removeActivityPhoto(a.id, url)}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </CardContent>
       </Card>
     </div>
