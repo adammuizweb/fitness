@@ -185,14 +185,16 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                           ]
                           const c = colors[i % colors.length]
                           return (
-                            <div key={log.id} className={`rounded-xl border p-3 ${c}`}>
-                              <p className="text-2xl font-black text-gray-300 leading-none mb-1">{i + 1}</p>
-                              <p className="text-sm font-semibold text-gray-800 leading-tight">{log.workout?.name}</p>
-                              <div className="text-xs text-gray-500 mt-1 space-y-0.5">
-                                {log.sets ? <p>{log.sets} set × {log.reps} rep</p> : null}
-                                {log.weight ? <p>{log.weight} kg</p> : null}
-                                {log.distance ? <p>{log.distance} m</p> : null}
-                                {log.duration ? <p>{log.duration} min</p> : null}
+                            <div key={log.id} className={`rounded-xl border p-3 ${c} flex gap-3`}>
+                              <span className="text-3xl font-black text-gray-300 leading-none shrink-0">{i + 1}</span>
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-gray-800 leading-tight">{log.workout?.name}</p>
+                                <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                                  {log.sets ? <p>{log.sets} set × {log.reps} rep</p> : null}
+                                  {log.weight ? <p>{log.weight} kg</p> : null}
+                                  {log.distance ? <p>{log.distance} m</p> : null}
+                                  {log.duration ? <p>{log.duration} min</p> : null}
+                                </div>
                               </div>
                             </div>
                           )
@@ -216,10 +218,12 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                                 const c = colors[i % colors.length]
                                 const letter = String.fromCharCode(97 + i)
                                 return (
-                                  <div key={log.id} className={`rounded-xl border p-3 ${c}`}>
-                                    <p className="text-2xl font-black text-gray-300 leading-none mb-1">{letter}</p>
-                                    <p className="text-sm font-semibold text-gray-800 leading-tight">{log.workout?.name}</p>
-                                    {log.notes && <p className="text-xs text-gray-400 italic mt-1">— {log.notes}</p>}
+                                  <div key={log.id} className={`rounded-xl border p-3 ${c} flex gap-3`}>
+                                    <span className="text-3xl font-black text-gray-300 leading-none shrink-0">{letter}</span>
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-semibold text-gray-800 leading-tight">{log.workout?.name}</p>
+                                      {log.notes && <p className="text-xs text-gray-400 italic mt-1">— {log.notes}</p>}
+                                    </div>
                                   </div>
                                 )
                               })}
