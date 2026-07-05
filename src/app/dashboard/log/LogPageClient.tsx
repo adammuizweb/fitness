@@ -8,6 +8,7 @@ import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
 import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useLogs'
 import { useRestDays } from '@/hooks/useRestDays'
+import { useTodayActivities, useCreateActivity, useDeleteActivity } from '@/hooks/useActivityLogs'
 import { createClient } from '@/lib/supabase/client'
 import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
@@ -62,6 +63,10 @@ export function LogPageClient() {
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({})
   const [schedules, setSchedules] = useState<WorkoutSchedule[]>([])
   const [loading, setLoading] = useState(true)
+  const { data: activities = [] } = useTodayActivities()
+  const createActivity = useCreateActivity()
+  const deleteActivity = useDeleteActivity()
+  const [activityName, setActivityName] = useState('')
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -460,6 +465,52 @@ export function LogPageClient() {
         open={modalOpen}
         stage={modalStage}
       />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('log.customActivity')}</CardTitle>
+          <p className="text-sm text-gray-500">{t('log.customActivityDesc')}</p>
+        </CardHeader>
+        <CardContent>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (!activityName.trim()) return
+              createActivity.mutate(activityName.trim())
+              setActivityName('')
+            }}
+            className="flex gap-2"
+          >
+            <Input
+              placeholder={t('log.customActivityPlaceholder')}
+              value={activityName}
+              onChange={(e) => setActivityName(e.target.value)}
+              className="flex-1"
+            />
+            <Button type="submit" loading={createActivity.isPending}>
+              {t('log.customActivityLog')}
+            </Button>
+          </form>
+          {activities.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {activities.map((a) => (
+                <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-500" />
+                    <span className="text-sm font-medium">{a.activity_name}</span>
+                  </div>
+                  <button
+                    onClick={() => deleteActivity.mutate(a.id)}
+                    className="text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

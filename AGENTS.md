@@ -27,6 +27,13 @@
 - Community section on marketing pages showcasing public user activity.
 - Architecture already supports `upload_logs` for rate limiting, `photos[]` for multi-image storage, and profile pages for user identity.
 
+### Custom Activity (Auto-create system exercise)
+- **No new table needed**: Uses existing `workout_logs` with a hidden system workout (`🏷️ Custom Activity`, `is_active=false`)
+- **System workout auto-created** on first use per user (via `useActivityLogs` hook)
+- **Streak maintained**: The existing `update_streak()` trigger fires on every `workout_logs` insert, so custom activities count toward the streak
+- **Workout list filtered**: `fetchWorkouts` excludes the system workout via `.neq('name', '🏷️ Custom Activity')`
+- **UI**: Collapsible section below the checklist on `/dashboard/log` — text input + submit, shows today's custom activities with delete
+
 ### v1.2.0 — July 5 2026 — Bug Fixes & Polish
 - **PhotoWithFallback** component: Loading skeleton + ImageOff placeholder for broken CDN images. Applied to PostCard, CreatePostDialog, EditPostDialog, LogPage, profile page, community pages, Sidebar, MobileNav.
 - **Streak calendar**: Responsive cell sizes (`w-2.5 h-2.5` mobile vs `w-3 h-3` desktop), reduced gaps, auto-centers on today.
