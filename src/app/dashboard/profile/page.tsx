@@ -236,7 +236,7 @@ export default function ProfilePage() {
                   <PhotoWithFallback
                     src={url}
                     alt=""
-                    className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    className="w-full aspect-square object-cover hover:scale-105 transition-transform"
                   />
                 </button>
               ))}

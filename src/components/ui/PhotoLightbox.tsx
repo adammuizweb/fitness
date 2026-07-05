@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, ImageOff } from 'lucide-react'
 
 interface Props {
   photos: string[]
@@ -11,9 +11,14 @@ interface Props {
 
 export function PhotoLightbox({ photos, initialIndex = 0, onClose }: Props) {
   const [index, setIndex] = useState(initialIndex)
+  const [imgError, setImgError] = useState(false)
 
-  const goNext = useCallback(() => setIndex((i) => (i + 1) % photos.length), [photos.length])
-  const goPrev = useCallback(() => setIndex((i) => (i - 1 + photos.length) % photos.length), [photos.length])
+  const goNext = useCallback(() => { setIndex((i) => (i + 1) % photos.length); setImgError(false) }, [photos.length])
+  const goPrev = useCallback(() => { setIndex((i) => (i - 1 + photos.length) % photos.length); setImgError(false) }, [photos.length])
+
+  useEffect(() => {
+    setImgError(false)
+  }, [index])
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -60,13 +65,24 @@ export function PhotoLightbox({ photos, initialIndex = 0, onClose }: Props) {
         </>
       )}
 
-      {current && (
+      {current && !imgError && (
         <img
           src={current}
           alt=""
           className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg"
           onClick={(e) => e.stopPropagation()}
+          onError={() => setImgError(true)}
         />
+      )}
+
+      {current && imgError && (
+        <div
+          className="flex flex-col items-center justify-center bg-gray-800 text-gray-400 rounded-lg w-48 h-48"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ImageOff className="w-10 h-10 mb-2" />
+          <span className="text-sm font-medium">Photo unavailable</span>
+        </div>
       )}
 
       {photos.length > 1 && (
