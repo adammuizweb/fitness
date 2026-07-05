@@ -173,46 +173,42 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                 return (
                   <>
                     {workouts.length > 0 && (
-                      <div className="space-y-1.5 mb-3">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-3">
                         {workouts.map((log, i) => (
-                          <div key={log.id} className="flex items-start gap-2 text-sm">
-                            <span className="text-xs font-bold text-gray-400 mt-0.5 min-w-[1.2rem]">{i + 1}.</span>
-                            <div className="flex-1 min-w-0">
-                              <span className="font-medium text-gray-800">{log.workout?.name}</span>
-                              <span className="text-gray-500 ml-1">
-                                {log.sets ? `${log.sets}×${log.reps}` : ''}
-                                {log.weight ? ` ${log.weight}kg` : ''}
-                                {log.distance ? `${log.distance}m` : ''}
-                                {log.duration ? ` ${log.duration}min` : ''}
-                              </span>
-                            </div>
-                          </div>
+                          <span key={log.id} className="text-sm text-gray-700 whitespace-nowrap">
+                            <span className="font-bold text-gray-400">{i + 1}.</span>
+                            {' '}
+                            <span className="font-medium text-gray-800">{log.workout?.name}</span>
+                            {log.sets ? <span className="text-gray-500"> {log.sets}×{log.reps}</span> : null}
+                            {log.weight ? <span className="text-gray-500"> {log.weight}kg</span> : null}
+                            {log.distance ? <span className="text-gray-500"> {log.distance}m</span> : null}
+                            {log.duration ? <span className="text-gray-500"> {log.duration}min</span> : null}
+                          </span>
                         ))}
                       </div>
                     )}
                     {customs.length > 0 && (
                       <div className="mb-3">
                         {customs.length === 1 ? (
-                          <div className="flex items-start gap-2 text-sm">
-                            <Sparkles className="w-3.5 h-3.5 text-purple-500 mt-0.5 shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <span className="font-medium text-gray-800">{customs[0].workout?.name}</span>
-                              {customs[0].notes && <span className="text-gray-400 ml-1 italic">— {customs[0].notes}</span>}
-                            </div>
+                          <div className="flex items-center gap-1.5 text-sm text-gray-700">
+                            <Sparkles className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                            <span className="font-medium text-gray-800">{customs[0].workout?.name}</span>
+                            {customs[0].notes && <span className="text-gray-400 italic">— {customs[0].notes}</span>}
                           </div>
                         ) : (
-                          <div className="space-y-1.5">
-                            <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Custom Activity</p>
-                            {customs.map((log, i) => (
-                              <div key={log.id} className="flex items-start gap-2 text-sm">
-                                <span className="text-xs font-bold text-purple-400 mt-0.5 min-w-[1.2rem]">{String.fromCharCode(97 + i)}.</span>
-                                <div className="flex-1 min-w-0">
+                          <>
+                            <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1.5">Custom Activity</p>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                              {customs.map((log, i) => (
+                                <span key={log.id} className="text-sm text-gray-700 whitespace-nowrap">
+                                  <span className="font-bold text-purple-400">{String.fromCharCode(97 + i)}.</span>
+                                  {' '}
                                   <span className="font-medium text-gray-800">{log.workout?.name}</span>
-                                  {log.notes && <span className="text-gray-400 ml-1 italic">— {log.notes}</span>}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                                  {log.notes && <span className="text-gray-400 italic">— {log.notes}</span>}
+                                </span>
+                              ))}
+                            </div>
+                          </>
                         )}
                       </div>
                     )}
