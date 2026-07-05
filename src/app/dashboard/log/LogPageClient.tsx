@@ -169,6 +169,11 @@ export function LogPageClient() {
       const currentPhotos = item.log?.photos || []
       await upsertMutation.mutateAsync({
         workout_id: workoutId,
+        sets: item.log?.sets ?? item.workout.default_sets ?? undefined,
+        reps: item.log?.reps ?? item.workout.default_reps ?? undefined,
+        weight: item.log?.weight ?? undefined,
+        distance: item.log?.distance ?? item.workout.default_distance ?? undefined,
+        duration: item.log?.duration ?? item.workout.default_duration ?? undefined,
         photos: [...currentPhotos, ...result.urls],
         is_done: true,
       })

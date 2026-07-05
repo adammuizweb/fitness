@@ -53,18 +53,16 @@ async function upsertLog(input: WorkoutLogInput & { logged_date?: string }): Pro
     .eq('logged_date', today)
     .maybeSingle()
 
-  const payload: Record<string, unknown> = {
-    sets: input.sets ?? null,
-    reps: input.reps ?? null,
-    weight: input.weight ?? null,
-    distance: input.distance ?? null,
-    duration: input.duration ?? null,
-    notes: input.notes || null,
-    is_done: input.is_done ?? true,
-  }
-  if (input.photos !== undefined) {
-    payload.photos = input.photos
-  }
+  const payload: Record<string, unknown> = {}
+  // Only include fields that are explicitly provided (not undefined)
+  if (input.sets !== undefined) payload.sets = input.sets
+  if (input.reps !== undefined) payload.reps = input.reps
+  if (input.weight !== undefined) payload.weight = input.weight
+  if (input.distance !== undefined) payload.distance = input.distance
+  if (input.duration !== undefined) payload.duration = input.duration
+  if (input.notes !== undefined) payload.notes = input.notes
+  payload.is_done = input.is_done ?? true
+  if (input.photos !== undefined) payload.photos = input.photos
 
   if (existing) {
     const { data, error } = await supabase
