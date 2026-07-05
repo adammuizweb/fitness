@@ -564,44 +564,46 @@ export function LogPageClient() {
                 onChange={(e) => setActivityName(e.target.value)}
               />
             </div>
-            {activities.length === 0 ? (
-              <>
-                <Button onClick={() => {
-                  if (!activityName.trim()) return
-                  createActivity.mutate(activityName.trim())
-                  setActivityName('')
-                }} loading={createActivity.isPending}>
-                  {t('log.customActivityLog')}
-                </Button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  id="activity-photo-new"
-                  onChange={async (e) => {
-                    const files = e.target.files
-                    if (!files || !files[0]) return
-                    const name = activityName.trim() || 'Custom Activity'
-                    const file = files[0]
-                    setActivityName('')
-                    e.target.value = ''
-                    const result = await createActivity.mutateAsync(name)
-                    const reader = new FileReader()
-                    reader.onload = () => {
-                      const b64 = (reader.result as string).split(',')[1]
-                      if (b64) handleActivityPhotoUpload(result.id, b64, file.type || 'image/jpeg')
-                    }
-                    reader.readAsDataURL(file)
-                  }}
-                />
-                <label
-                  htmlFor="activity-photo-new"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors cursor-pointer h-10 w-10 border border-gray-300 hover:bg-gray-50 shrink-0"
-                >
-                  <Camera className="w-4 h-4 text-gray-500" />
-                </label>
-              </>
-            ) : null}
+            <Button
+              onClick={() => {
+                if (!activityName.trim()) return
+                createActivity.mutate(activityName.trim())
+                setActivityName('')
+              }}
+              loading={createActivity.isPending}
+              disabled={!activityName.trim()}
+            >
+              {t('log.customActivityLog')}
+            </Button>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              id="activity-photo-new"
+              onChange={async (e) => {
+                const files = e.target.files
+                if (!files || !files[0]) return
+                const name = activityName.trim() || 'Custom Activity'
+                const file = files[0]
+                setActivityName('')
+                e.target.value = ''
+                const result = await createActivity.mutateAsync(name)
+                const reader = new FileReader()
+                reader.onload = () => {
+                  const b64 = (reader.result as string).split(',')[1]
+                  if (b64) handleActivityPhotoUpload(result.id, b64, file.type || 'image/jpeg')
+                }
+                reader.readAsDataURL(file)
+              }}
+            />
+            <label
+              htmlFor="activity-photo-new"
+              className="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors cursor-pointer h-10 w-10 border border-gray-300 hover:bg-gray-50 shrink-0"
+              style={!activityName.trim() ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
+              onClick={(e) => { if (!activityName.trim()) e.preventDefault() }}
+            >
+              <Camera className="w-4 h-4 text-gray-500" />
+            </label>
           </div>
 
           {activities.map((a) => {

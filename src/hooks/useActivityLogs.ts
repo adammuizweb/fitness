@@ -49,10 +49,10 @@ async function fetchTodayActivities(): Promise<ActivityLog[]> {
 
   const { data, error } = await supabase
     .from('workout_logs')
-    .select('id, notes, logged_date, photos, workout!inner(name)')
+    .select('id, notes, logged_date, photos, workouts!inner(name)')
     .eq('user_id', user.id)
     .eq('logged_date', today)
-    .eq('workout.name', SYSTEM_WORKOUT_NAME)
+    .eq('workouts.name', SYSTEM_WORKOUT_NAME)
     .order('created_at')
 
   if (error) throw error
