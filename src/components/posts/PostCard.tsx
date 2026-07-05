@@ -173,18 +173,30 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                 return (
                   <>
                     {workouts.length > 0 && (
-                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-3">
-                        {workouts.map((log, i) => (
-                          <span key={log.id} className="text-sm text-gray-700 whitespace-nowrap">
-                            <span className="font-bold text-gray-400">{i + 1}.</span>
-                            {' '}
-                            <span className="font-medium text-gray-800">{log.workout?.name}</span>
-                            {log.sets ? <span className="text-gray-500"> {log.sets}×{log.reps}</span> : null}
-                            {log.weight ? <span className="text-gray-500"> {log.weight}kg</span> : null}
-                            {log.distance ? <span className="text-gray-500"> {log.distance}m</span> : null}
-                            {log.duration ? <span className="text-gray-500"> {log.duration}min</span> : null}
-                          </span>
-                        ))}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+                        {workouts.map((log, i) => {
+                          const colors = [
+                            'bg-rose-50 border-rose-200',
+                            'bg-sky-50 border-sky-200',
+                            'bg-amber-50 border-amber-200',
+                            'bg-emerald-50 border-emerald-200',
+                            'bg-violet-50 border-violet-200',
+                            'bg-cyan-50 border-cyan-200',
+                          ]
+                          const c = colors[i % colors.length]
+                          return (
+                            <div key={log.id} className={`rounded-xl border p-3 ${c}`}>
+                              <p className="text-2xl font-black text-gray-300 leading-none mb-1">{i + 1}</p>
+                              <p className="text-sm font-semibold text-gray-800 leading-tight">{log.workout?.name}</p>
+                              <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                                {log.sets ? <p>{log.sets} set × {log.reps} rep</p> : null}
+                                {log.weight ? <p>{log.weight} kg</p> : null}
+                                {log.distance ? <p>{log.distance} m</p> : null}
+                                {log.duration ? <p>{log.duration} min</p> : null}
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     )}
                     {customs.length > 0 && (
@@ -198,15 +210,19 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                         ) : (
                           <>
                             <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1.5">Custom Activity</p>
-                            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-                              {customs.map((log, i) => (
-                                <span key={log.id} className="text-sm text-gray-700 whitespace-nowrap">
-                                  <span className="font-bold text-purple-400">{String.fromCharCode(97 + i)}.</span>
-                                  {' '}
-                                  <span className="font-medium text-gray-800">{log.workout?.name}</span>
-                                  {log.notes && <span className="text-gray-400 italic">— {log.notes}</span>}
-                                </span>
-                              ))}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                              {customs.map((log, i) => {
+                                const colors = ['bg-fuchsia-50 border-fuchsia-200', 'bg-indigo-50 border-indigo-200']
+                                const c = colors[i % colors.length]
+                                const letter = String.fromCharCode(97 + i)
+                                return (
+                                  <div key={log.id} className={`rounded-xl border p-3 ${c}`}>
+                                    <p className="text-2xl font-black text-gray-300 leading-none mb-1">{letter}</p>
+                                    <p className="text-sm font-semibold text-gray-800 leading-tight">{log.workout?.name}</p>
+                                    {log.notes && <p className="text-xs text-gray-400 italic mt-1">— {log.notes}</p>}
+                                  </div>
+                                )
+                              })}
                             </div>
                           </>
                         )}
