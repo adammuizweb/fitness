@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { useI18n } from '@/lib/i18n/context'
 import { useDeletePost } from '@/hooks/usePosts'
+import { useUser } from '@/hooks/useUser'
 import { EditPostDialog } from './EditPostDialog'
 import { Globe, Users, UserCheck, Lock, Trash2, Clock, Pencil } from 'lucide-react'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
@@ -41,6 +42,7 @@ interface Props {
 export function PostCard({ post, showActions = true, showPrivacy = true, author }: Props) {
   const { t } = useI18n()
   const deleteMutation = useDeletePost()
+  const { profile } = useUser()
   const [editing, setEditing] = useState(false)
 
   const date = new Date(post.created_at).toLocaleDateString('id-ID', {
@@ -73,9 +75,17 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                   </div>
                 </Link>
               ) : (
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-green-700">You</span>
-                </div>
+                <Link href="/dashboard/profile" className="shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                    ) : (
+                      <span className="text-xs font-bold text-green-700">
+                        {profile?.username?.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                </Link>
               )}
               <div className="min-w-0">
                 {author ? (
@@ -83,7 +93,9 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                     <p className="text-sm font-medium truncate">{author.full_name || author.username}</p>
                   </Link>
                 ) : (
-                  <p className="text-sm font-medium">You</p>
+                  <Link href="/dashboard/profile" className="hover:underline">
+                    <p className="text-sm font-medium truncate">{profile?.full_name || profile?.username}</p>
+                  </Link>
                 )}
                 <div className="flex items-center gap-2 text-xs text-gray-400">
                   <Clock className="w-3 h-3 shrink-0" />

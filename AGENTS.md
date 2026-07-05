@@ -27,7 +27,13 @@
 - Community section on marketing pages showcasing public user activity.
 - Architecture already supports `upload_logs` for rate limiting, `photos[]` for multi-image storage, and profile pages for user identity.
 
-[rest of existing content follows]
+### v1.2.0 — July 5 2026 — Bug Fixes & Polish
+- **PhotoWithFallback** component: Loading skeleton + ImageOff placeholder for broken CDN images. Applied to PostCard, CreatePostDialog, EditPostDialog, LogPage, profile page, community pages, Sidebar, MobileNav.
+- **Streak calendar**: Responsive cell sizes (`w-2.5 h-2.5` mobile vs `w-3 h-3` desktop), reduced gaps, auto-centers on today.
+- **StreakStats**: Shows 0 when `last_activity_date` is older than yesterday (instead of stale `current_streak` from DB). Fixes false streak on missed days.
+- **Streak DB fix**: Reset `az@adammuiz.com` data — `current_streak=0`, `longest_streak=3` (was incorrectly 7).
+- **Missing image fix**: `20260628-162600-c8dc5662.jpg` missing from CDN → copied from similar file.
+- **Build fix**: Profile page missing imports (createClient, useI18n, etc.) unblocked Vercel deploy.
 
 ## Stack
 
@@ -377,7 +383,7 @@ CREATE TRIGGER on_workout_log_inserted
 
 ### 4. Streak Chain
 - Kalau user log workout hari ini → streak +1
-- Kalau skip sehari → streak reset ke 0
+  - Kalau skip sehari → streak reset ke 0 (frontend calculates: show 0 if `last_activity_date` is not today/yesterday, since DB only updates on INSERT)
 - Tampilkan: current streak, longest streak
 - GitHub-style contribution calendar (12 bulan ke belakang)
 - Warna: hijau gradient sesuai intensity (berapa hari berturut-turut)
