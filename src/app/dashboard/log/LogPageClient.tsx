@@ -597,12 +597,14 @@ export function LogPageClient() {
               }}
             />
             <label
-              htmlFor="activity-photo-new"
-              className="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors cursor-pointer h-10 w-10 border border-gray-300 hover:bg-gray-50 shrink-0"
-              style={!activityName.trim() ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
-              onClick={(e) => { if (!activityName.trim()) e.preventDefault() }}
+              htmlFor={activityName.trim() ? 'activity-photo-new' : undefined}
+              className={`inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors h-10 w-10 border shrink-0 ${
+                activityName.trim()
+                  ? 'cursor-pointer border-gray-300 hover:bg-gray-50 text-gray-500'
+                  : 'border-gray-200 text-gray-300'
+              }`}
             >
-              <Camera className="w-4 h-4 text-gray-500" />
+              <Camera className="w-4 h-4" />
             </label>
           </div>
 
