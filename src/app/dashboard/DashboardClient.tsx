@@ -136,32 +136,30 @@ export function DashboardClient() {
               </p>
             ) : (
               <div className="space-y-2">
-                {doneLogs.map((log) => {
-                  const isCustom = log.workout?.is_active === false
-                  return (
-                    <div key={log.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium">{isCustom ? log.notes : log.workout?.name}</p>
-                        {!isCustom && (
-                          <p className="text-sm text-gray-500">
-                            {log.sets && log.sets > 0
-                              ? `${log.sets} set x ${log.reps} rep${log.weight ? ` \u2022 ${log.weight} kg` : ''}`
-                              : log.distance
-                                ? `${log.distance} m \u2022 ${log.duration} menit`
-                                : ''}
-                          </p>
-                        )}
-                      </div>
+                {doneLogs.filter(l => l.workout?.is_active !== false).map((log) => (
+                  <div key={log.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium">{log.workout?.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {log.sets && log.sets > 0
+                          ? `${log.sets} set x ${log.reps} rep${log.weight ? ` \u2022 ${log.weight} kg` : ''}`
+                          : log.distance
+                            ? `${log.distance} m \u2022 ${log.duration} menit`
+                            : ''}
+                      </p>
                     </div>
-                  )
-                })}
+                  </div>
+                ))}
                 {activities.length > 0 && (
-                  <div className="text-sm text-gray-500 px-1">
-                    {activities.map(a => (
-                      <span key={a.id} className="inline-flex items-center gap-1 mr-3 text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">
-                        <span>{a.activity_name}</span>
-                      </span>
-                    ))}
+                  <div className="pt-2">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Custom Activity</p>
+                    <div className="space-y-1">
+                      {activities.map(a => (
+                        <div key={a.id} className="flex items-center justify-between p-2 bg-purple-50 rounded-lg">
+                          <span className="text-sm text-purple-700 font-medium">{a.activity_name}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
