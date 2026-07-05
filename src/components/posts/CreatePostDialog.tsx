@@ -38,14 +38,17 @@ export function CreatePostDialog({ open, onClose, logs, activities = [] }: Props
   const [caption, setCaption] = useState('')
   const [privacy, setPrivacy] = useState<PostPrivacy>('all')
   const [selectedLogIds, setSelectedLogIds] = useState<string[]>(logs.map(l => l.id))
+  const [selectedActivityIds, setSelectedActivityIds] = useState<string[]>(activities.map(a => a.id))
 
   const selectedLogs = logs.filter(l => selectedLogIds.includes(l.id))
-  const allPhotos = selectedLogs.flatMap(l => l.photos || [])
+  const selectedActivities = activities.filter(a => selectedActivityIds.includes(a.id))
+  const allPhotos = [...selectedLogs.flatMap(l => l.photos || []), ...selectedActivities.flatMap(a => a.photos || [])]
+  const hasSelection = selectedLogs.length > 0 || selectedActivities.length > 0
 
   async function handleSubmit() {
-    if (selectedLogs.length === 0) return
+    if (!hasSelection) return
 
-    const allLogIds = [...selectedLogIds, ...activities.map(a => a.id)]
+    const allLogIds = [...selectedLogIds, ...selectedActivityIds]
     const metaMarkers = allLogIds.map(id => `meta:log:${id}`)
 
     await createMutation.mutateAsync({
@@ -56,11 +59,18 @@ export function CreatePostDialog({ open, onClose, logs, activities = [] }: Props
     setCaption('')
     setPrivacy('all')
     setSelectedLogIds(logs.map(l => l.id))
+    setSelectedActivityIds(activities.map(a => a.id))
     onClose()
   }
 
   function toggleLog(id: string) {
     setSelectedLogIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    )
+  }
+
+  function toggleActivity(id: string) {
+    setSelectedActivityIds(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     )
   }
@@ -99,7 +109,31 @@ export function CreatePostDialog({ open, onClose, logs, activities = [] }: Props
           ))}
         </div>
 
-        {/* Caption */}
+          {activities.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-gray-500">Select custom activities to include:</p>
+              {activities.map((a) => (
+                <label
+                  key={a.id}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                    selectedActivityIds.includes(a.id) ? 'bg-purple-50 border border-purple-200' : 'bg-gray-50 hover:bg-gray-100'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedActivityIds.includes(a.id)}
+                    onChange={() => toggleActivity(a.id)}
+                    className="accent-purple-600"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{a.activity_name}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          )}
+
+          {/* Caption */}
         <textarea
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
@@ -143,7 +177,7 @@ export function CreatePostDialog({ open, onClose, logs, activities = [] }: Props
           <Button
             onClick={handleSubmit}
             loading={createMutation.isPending}
-            disabled={selectedLogs.length === 0}
+            disabled={!hasSelection}
           >
             <Send className="w-4 h-4 mr-1" />
             Share
