@@ -7,7 +7,7 @@ import { useI18n } from '@/lib/i18n/context'
 import { useDeletePost } from '@/hooks/usePosts'
 import { useUser } from '@/hooks/useUser'
 import { EditPostDialog } from './EditPostDialog'
-import { Globe, Users, UserCheck, Lock, Trash2, Clock, Pencil, Loader2 } from 'lucide-react'
+import { Globe, Users, UserCheck, Lock, Trash2, Clock, Pencil, Loader2, Sparkles } from 'lucide-react'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
 import { PhotoLightbox } from '@/components/ui/PhotoLightbox'
 import { createClient } from '@/lib/supabase/client'
@@ -165,20 +165,62 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
             <div className="flex items-center justify-center py-4">
               <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
             </div>
-          ) : logs.map((log) => (
-            <div key={log.id} className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100 last:mb-0">
-              <p className="text-sm font-semibold text-gray-800">{log.workout?.name || 'Workout'}</p>
-              <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
-                {log.sets ? <span>{log.sets} set × {log.reps} rep</span> : null}
-                {log.weight ? <span>{log.weight} kg</span> : null}
-                {log.distance ? <span>{log.distance} m</span> : null}
-                {log.duration ? <span>{log.duration} min</span> : null}
-              </div>
-              {log.notes && (
-                <p className="text-xs text-gray-400 mt-1 italic">{log.notes}</p>
-              )}
-            </div>
-          ))}
+          ) : logs.length > 0 ? (
+            <>
+              {(() => {
+                const workouts = logs.filter(l => l.workout?.is_active !== false)
+                const customs = logs.filter(l => l.workout?.is_active === false)
+                return (
+                  <>
+                    {workouts.length > 0 && (
+                      <div className="space-y-1.5 mb-3">
+                        {workouts.map((log, i) => (
+                          <div key={log.id} className="flex items-start gap-2 text-sm">
+                            <span className="text-xs font-bold text-gray-400 mt-0.5 min-w-[1.2rem]">{i + 1}.</span>
+                            <div className="flex-1 min-w-0">
+                              <span className="font-medium text-gray-800">{log.workout?.name}</span>
+                              <span className="text-gray-500 ml-1">
+                                {log.sets ? `${log.sets}×${log.reps}` : ''}
+                                {log.weight ? ` ${log.weight}kg` : ''}
+                                {log.distance ? `${log.distance}m` : ''}
+                                {log.duration ? ` ${log.duration}min` : ''}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {customs.length > 0 && (
+                      <div className="mb-3">
+                        {customs.length === 1 ? (
+                          <div className="flex items-start gap-2 text-sm">
+                            <Sparkles className="w-3.5 h-3.5 text-purple-500 mt-0.5 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <span className="font-medium text-gray-800">{customs[0].workout?.name}</span>
+                              {customs[0].notes && <span className="text-gray-400 ml-1 italic">— {customs[0].notes}</span>}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Custom Activity</p>
+                            {customs.map((log, i) => (
+                              <div key={log.id} className="flex items-start gap-2 text-sm">
+                                <span className="text-xs font-bold text-purple-400 mt-0.5 min-w-[1.2rem]">{String.fromCharCode(97 + i)}.</span>
+                                <div className="flex-1 min-w-0">
+                                  <span className="font-medium text-gray-800">{log.workout?.name}</span>
+                                  {log.notes && <span className="text-gray-400 ml-1 italic">— {log.notes}</span>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
+            </>
+          ) : null}
 
           {postPhotos.length > 0 && (
             <div className={`grid gap-1 ${postPhotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
