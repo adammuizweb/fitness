@@ -203,6 +203,7 @@ export function DashboardClient() {
           open={showCreatePost}
           onClose={() => setShowCreatePost(false)}
           logs={logs}
+          activities={activities}
         />
       )}
     </div>
