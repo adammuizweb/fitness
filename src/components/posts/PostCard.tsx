@@ -134,7 +134,22 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
           </div>
 
           {post.caption && (
-            <p className="text-sm text-gray-700 mb-3 whitespace-pre-wrap">{post.caption}</p>
+            <p className="text-sm text-gray-700 mb-2 whitespace-pre-wrap">{post.caption}</p>
+          )}
+
+          {post.log && (
+            <div className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100">
+              <p className="text-sm font-semibold text-gray-800">{post.log.workout?.name || 'Workout'}</p>
+              <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
+                {post.log.sets ? <span>{post.log.sets} set × {post.log.reps} rep</span> : null}
+                {post.log.weight ? <span>{post.log.weight} kg</span> : null}
+                {post.log.distance ? <span>{post.log.distance} m</span> : null}
+                {post.log.duration ? <span>{post.log.duration} min</span> : null}
+              </div>
+              {post.log.notes && (
+                <p className="text-xs text-gray-400 mt-1 italic">{post.log.notes}</p>
+              )}
+            </div>
           )}
 
           {(post.photos?.length ?? 0) > 0 && (

@@ -12,7 +12,7 @@ async function fetchMyPosts(): Promise<Post[]> {
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*')
+    .select('*, log:workout_logs(*, workout:workouts(*))')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(20)
@@ -78,7 +78,7 @@ async function fetchAllMyPosts(): Promise<Post[]> {
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*')
+    .select('*, log:workout_logs(*, workout:workouts(*))')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -92,7 +92,7 @@ async function searchMyPosts(query: string): Promise<Post[]> {
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*')
+    .select('*, log:workout_logs(*, workout:workouts(*))')
     .eq('user_id', user.id)
     .ilike('caption', `%${query}%`)
     .order('created_at', { ascending: false })

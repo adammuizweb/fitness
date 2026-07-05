@@ -46,6 +46,7 @@ export function CreatePostDialog({ open, onClose, logs }: Props) {
       caption: caption || undefined,
       photos: allPhotos,
       privacy,
+      workout_log_id: selectedLogIds[0] || undefined,
     })
     setCaption('')
     setPrivacy('all')

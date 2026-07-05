@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Dialog } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
 import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useLogs'
@@ -68,6 +69,7 @@ export function LogPageClient() {
   const deleteActivity = useDeleteActivity()
   const updateActivityPhotos = useUpdateActivityPhotos()
   const [activityName, setActivityName] = useState('')
+  const [confirmDeleteActivity, setConfirmDeleteActivity] = useState<{ id: string; name: string; shared: boolean } | null>(null)
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -632,7 +634,17 @@ export function LogPageClient() {
                       <Camera className="w-4 h-4" />
                     </label>
                     <button
-                      onClick={() => deleteActivity.mutate(a.id)}
+                      onClick={async () => {
+                        const { count } = await supabase
+                          .from('posts')
+                          .select('*', { count: 'exact', head: true })
+                          .eq('workout_log_id', a.id)
+                        setConfirmDeleteActivity({
+                          id: a.id,
+                          name: a.activity_name,
+                          shared: count !== null && count > 0,
+                        })
+                      }}
                       className="text-gray-400 hover:text-red-500 transition-colors p-1"
                       title="Delete"
                     >
@@ -665,6 +677,42 @@ export function LogPageClient() {
           })}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={confirmDeleteActivity !== null}
+        onClose={() => setConfirmDeleteActivity(null)}
+        title={t('log.deleteActivityTitle')}
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            {confirmDeleteActivity?.shared
+              ? t('log.deleteActivitySharedWarning')
+              : t('log.deleteActivityConfirm')}
+          </p>
+          {confirmDeleteActivity?.shared && (
+            <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+              {t('log.deleteActivitySharedHint')}
+            </p>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setConfirmDeleteActivity(null)}>
+              {t('log.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              loading={deleteActivity.isPending}
+              onClick={() => {
+                if (!confirmDeleteActivity) return
+                deleteActivity.mutate(confirmDeleteActivity.id)
+                setConfirmDeleteActivity(null)
+              }}
+            >
+              {t('log.delete')}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   )
 }

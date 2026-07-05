@@ -18,7 +18,7 @@ async function fetchPublicPosts({ pageParam = 0 }): Promise<PostWithProfile[]> {
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*, profile:profiles!user_id(id, username, full_name, avatar_url)')
+    .select('*, profile:profiles!user_id(id, username, full_name, avatar_url), log:workout_logs(*, workout:workouts(*))')
     .eq('privacy', 'all')
     .order('created_at', { ascending: false })
     .range(from, to)
@@ -63,7 +63,7 @@ async function getUserByUsername(username: string): Promise<Profile | null> {
 async function getUserPosts(userId: string): Promise<PostWithProfile[]> {
   const { data, error } = await supabase
     .from('posts')
-    .select('*, profile:profiles!user_id(id, username, full_name, avatar_url)')
+    .select('*, profile:profiles!user_id(id, username, full_name, avatar_url), log:workout_logs(*, workout:workouts(*))')
     .eq('user_id', userId)
     .eq('privacy', 'all')
     .order('created_at', { ascending: false })
