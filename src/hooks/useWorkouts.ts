@@ -6,13 +6,11 @@ import type { Workout, WorkoutInput } from '@/types'
 
 const supabase = createClient()
 
-const SYSTEM_WORKOUT_NAME = '\u{1F3F7}\uFE0F Custom Activity'
-
 async function fetchWorkouts(): Promise<Workout[]> {
   const { data, error } = await supabase
     .from('workouts')
     .select('*')
-    .neq('name', SYSTEM_WORKOUT_NAME)
+    .eq('is_active', true)
     .order('name')
 
   if (error) throw error

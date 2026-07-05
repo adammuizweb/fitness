@@ -14,21 +14,23 @@ export interface ActivityLog {
   photos?: string[]
 }
 
-async function getSystemWorkout(userId: string): Promise<string> {
+async function getOrCreateWorkout(userId: string, activityName: string): Promise<string> {
+  // Check if a workout with this name already exists
   const { data: existing } = await supabase
     .from('workouts')
     .select('id')
     .eq('user_id', userId)
-    .eq('name', SYSTEM_WORKOUT_NAME)
+    .eq('name', activityName)
     .maybeSingle()
 
   if (existing) return existing.id
 
+  // Create a new hidden workout for this activity
   const { data, error } = await supabase
     .from('workouts')
     .insert({
       user_id: userId,
-      name: SYSTEM_WORKOUT_NAME,
+      name: activityName,
       type: 'lift',
       default_sets: 1,
       default_reps: 1,
@@ -49,10 +51,10 @@ async function fetchTodayActivities(): Promise<ActivityLog[]> {
 
   const { data, error } = await supabase
     .from('workout_logs')
-    .select('id, notes, logged_date, photos, workouts!inner(name)')
+    .select('id, notes, logged_date, photos, workouts!inner(is_active)')
     .eq('user_id', user.id)
     .eq('logged_date', today)
-    .eq('workouts.name', SYSTEM_WORKOUT_NAME)
+    .eq('workouts.is_active', false)
     .order('created_at')
 
   if (error) throw error
@@ -69,11 +71,11 @@ async function createActivity(activityName: string): Promise<ActivityLog> {
   if (!user) throw new Error('Not authenticated')
 
   const today = new Date().toISOString().split('T')[0]
-  const workoutId = await getSystemWorkout(user.id)
+  const workoutId = await getOrCreateWorkout(user.id, activityName)
 
   const { data, error } = await supabase
     .from('workout_logs')
-    .upsert({
+    .insert({
       user_id: user.id,
       workout_id: workoutId,
       sets: 1,
@@ -81,7 +83,7 @@ async function createActivity(activityName: string): Promise<ActivityLog> {
       notes: activityName,
       logged_date: today,
       is_done: true,
-    }, { onConflict: 'user_id,workout_id,logged_date' })
+    })
     .select('id, notes, logged_date')
     .single()
 

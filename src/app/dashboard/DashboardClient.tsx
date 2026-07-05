@@ -5,9 +5,9 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n/context'
-import { Dumbbell, ClipboardList, Flame, TrendingUp, Share2, Camera, X } from 'lucide-react'
+import { Dumbbell, ClipboardList, Flame, TrendingUp, Share2, Camera } from 'lucide-react'
 import { useTodayLogs } from '@/hooks/useLogs'
-import { useTodayActivities, useDeleteActivity } from '@/hooks/useActivityLogs'
+import { useTodayActivities } from '@/hooks/useActivityLogs'
 import { useStreak } from '@/hooks/useStreak'
 import { useWorkouts } from '@/hooks/useWorkouts'
 import { useMyPosts, useMyPostsFull } from '@/hooks/usePosts'
@@ -23,13 +23,11 @@ export function DashboardClient() {
   const { data: workouts, isLoading: workoutsLoading } = useWorkouts()
   const { data: posts = [], isLoading: postsLoading } = useMyPosts(3)
   const { data: activities = [] } = useTodayActivities()
-  const deleteActivity = useDeleteActivity()
 
   if (logsLoading || streakLoading || workoutsLoading) {
     return <DashboardSkeleton />
   }
 
-  const SYSTEM_WORKOUT_NAME = '\u{1F3F7}\uFE0F Custom Activity'
   const doneLogs = logs.filter(l => l.is_done)
   const totalWorkouts = workouts?.length || 0
   const totalSets = doneLogs.reduce((sum, log) => sum + (log.sets || 0), 0)
@@ -139,7 +137,7 @@ export function DashboardClient() {
             ) : (
               <div className="space-y-2">
                 {doneLogs.map((log) => {
-                  const isCustom = log.workout?.name === SYSTEM_WORKOUT_NAME
+                  const isCustom = log.workout?.is_active === false
                   return (
                     <div key={log.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div>
@@ -158,20 +156,11 @@ export function DashboardClient() {
                   )
                 })}
                 {activities.length > 0 && (
-                  <div className="text-sm text-gray-500 px-1 space-y-1">
+                  <div className="text-sm text-gray-500 px-1">
                     {activities.map(a => (
-                      <div key={a.id} className="flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-purple-700 font-medium">{a.activity_name}</span>
-                        </div>
-                        <button
-                          onClick={() => deleteActivity.mutate(a.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors"
-                          title="Delete"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      <span key={a.id} className="inline-flex items-center gap-1 mr-3 text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">
+                        <span>{a.activity_name}</span>
+                      </span>
                     ))}
                   </div>
                 )}

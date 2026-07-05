@@ -190,10 +190,7 @@ export function LogPageClient() {
     }
   }
 
-  async function handleActivityPhotoUpload(activityId: string, base64: string, fileType: string) {
-    const activity = activities.find(a => a.id === activityId)
-    if (!activity) return
-
+  async function handleActivityPhotoUpload(activityId: string, base64: string, fileType: string, existingPhotos?: string[]) {
     setUploadError(null)
     setUploading((prev) => ({ ...prev, [activityId]: true }))
 
@@ -227,7 +224,7 @@ export function LogPageClient() {
 
       await updateActivityPhotos.mutateAsync({
         activityId,
-        photos: [...(activity.photos || []), ...result.urls],
+        photos: [...(existingPhotos || []), ...result.urls],
       })
 
       setModalStage('done')
@@ -247,13 +244,14 @@ export function LogPageClient() {
     if (!files || files.length === 0) return
 
     const file = files[0]
+    const activity = activities.find(a => a.id === activityId)
     const reader = new FileReader()
     reader.onload = () => {
       const b64 = (reader.result as string).split(',')[1]
       if (!b64) return
       setModalOpen(true)
       setModalStage('compress')
-      handleActivityPhotoUpload(activityId, b64, file.type || 'image/jpeg')
+      handleActivityPhotoUpload(activityId, b64, file.type || 'image/jpeg', activity?.photos)
     }
     reader.readAsDataURL(file)
     e.target.value = ''
@@ -262,9 +260,10 @@ export function LogPageClient() {
   function removeActivityPhoto(activityId: string, photoUrl: string) {
     const activity = activities.find(a => a.id === activityId)
     if (!activity) return
+    const remaining = (activity.photos || []).filter(u => u !== photoUrl)
     updateActivityPhotos.mutate({
       activityId,
-      photos: (activity.photos || []).filter(u => u !== photoUrl),
+      photos: remaining,
     })
   }
 
@@ -587,12 +586,12 @@ export function LogPageClient() {
                 const file = files[0]
                 setActivityName('')
                 e.target.value = ''
-                const result = await createActivity.mutateAsync(name)
-                const reader = new FileReader()
-                reader.onload = () => {
-                  const b64 = (reader.result as string).split(',')[1]
-                  if (b64) handleActivityPhotoUpload(result.id, b64, file.type || 'image/jpeg')
-                }
+                  const result = await createActivity.mutateAsync(name)
+                  const reader = new FileReader()
+                  reader.onload = () => {
+                    const b64 = (reader.result as string).split(',')[1]
+                    if (b64) handleActivityPhotoUpload(result.id, b64, file.type || 'image/jpeg', result.photos)
+                  }
                 reader.readAsDataURL(file)
               }}
             />
