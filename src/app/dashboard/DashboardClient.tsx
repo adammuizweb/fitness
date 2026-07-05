@@ -202,7 +202,7 @@ export function DashboardClient() {
         <CreatePostDialog
           open={showCreatePost}
           onClose={() => setShowCreatePost(false)}
-          logs={logs}
+          logs={logs.filter(l => l.workout?.is_active !== false)}
           activities={activities}
         />
       )}
