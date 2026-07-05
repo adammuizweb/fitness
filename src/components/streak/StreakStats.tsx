@@ -11,9 +11,12 @@ interface Props {
 
 export function StreakStats({ streak }: Props) {
   const { t } = useI18n()
-  const currentStreak = streak?.current_streak || 0
-  const longestStreak = streak?.longest_streak || 0
+  const today = new Date().toISOString().split('T')[0]
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
   const lastDate = streak?.last_activity_date
+  const isActive = lastDate === today || lastDate === yesterday
+  const currentStreak = isActive ? (streak?.current_streak || 0) : 0
+  const longestStreak = streak?.longest_streak || 0
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
