@@ -8,7 +8,7 @@ import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
 import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useLogs'
 import { useRestDays } from '@/hooks/useRestDays'
-import { useTodayActivities, useCreateActivity, useDeleteActivity } from '@/hooks/useActivityLogs'
+import { useTodayActivities, useCreateActivity, useDeleteActivity, useUpdateActivityPhotos } from '@/hooks/useActivityLogs'
 import { createClient } from '@/lib/supabase/client'
 import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
@@ -66,6 +66,7 @@ export function LogPageClient() {
   const { data: activities = [] } = useTodayActivities()
   const createActivity = useCreateActivity()
   const deleteActivity = useDeleteActivity()
+  const updateActivityPhotos = useUpdateActivityPhotos()
   const [activityName, setActivityName] = useState('')
   const [uploading, setUploading] = useState<Record<string, boolean>>({})
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -182,6 +183,84 @@ export function LogPageClient() {
     } finally {
       setUploading((prev) => ({ ...prev, [workoutId]: false }))
     }
+  }
+
+  async function handleActivityPhotoUpload(activityId: string, base64: string, fileType: string) {
+    const activity = activities.find(a => a.id === activityId)
+    if (!activity) return
+
+    setUploadError(null)
+    setUploading((prev) => ({ ...prev, [activityId]: true }))
+
+    let data = base64
+    let type = fileType
+    let ext = fileType === 'image/webp' ? 'webp' : 'jpg'
+
+    setModalStage('compress')
+    try {
+      const { compressBase64 } = await import('@/lib/compressBase64')
+      const result = await compressBase64(base64, fileType)
+      data = result.data
+      type = result.type
+      ext = 'jpg'
+    } catch {}
+
+    setModalStage('upload')
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files: [{ name: `photo.${ext}`, type, data }] }),
+      })
+      const result = await res.json()
+
+      if (!res.ok) {
+        setUploadError(result.error || `Upload failed (${res.status})`)
+        setModalStage('error')
+        return
+      }
+
+      await updateActivityPhotos.mutateAsync({
+        activityId,
+        photos: [...(activity.photos || []), ...result.urls],
+      })
+
+      setModalStage('done')
+      setTimeout(() => setModalOpen(false), 800)
+      setUploadError(null)
+    } catch {
+      setUploadError('Upload failed')
+      setModalStage('error')
+      setTimeout(() => setModalOpen(false), 2000)
+    } finally {
+      setUploading((prev) => ({ ...prev, [activityId]: false }))
+    }
+  }
+
+  function handleActivityFileSelect(e: React.ChangeEvent<HTMLInputElement>, activityId: string) {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    const file = files[0]
+    const reader = new FileReader()
+    reader.onload = () => {
+      const b64 = (reader.result as string).split(',')[1]
+      if (!b64) return
+      setModalOpen(true)
+      setModalStage('compress')
+      handleActivityPhotoUpload(activityId, b64, file.type || 'image/jpeg')
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
+  function removeActivityPhoto(activityId: string, photoUrl: string) {
+    const activity = activities.find(a => a.id === activityId)
+    if (!activity) return
+    updateActivityPhotos.mutate({
+      activityId,
+      photos: (activity.photos || []).filter(u => u !== photoUrl),
+    })
   }
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>, workoutId: string) {
@@ -472,42 +551,85 @@ export function LogPageClient() {
           <p className="text-sm text-gray-500">{t('log.customActivityDesc')}</p>
         </CardHeader>
         <CardContent>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (!activityName.trim()) return
-              createActivity.mutate(activityName.trim())
-              setActivityName('')
-            }}
-            className="flex gap-2"
-          >
-            <Input
-              placeholder={t('log.customActivityPlaceholder')}
-              value={activityName}
-              onChange={(e) => setActivityName(e.target.value)}
-              className="flex-1"
-            />
-            <Button type="submit" loading={createActivity.isPending}>
-              {t('log.customActivityLog')}
-            </Button>
-          </form>
-          {activities.length > 0 && (
-            <div className="mt-4 space-y-2">
-              {activities.map((a) => (
-                <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-500" />
-                    <span className="text-sm font-medium">{a.activity_name}</span>
+          {activities.length === 0 ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (!activityName.trim()) return
+                createActivity.mutate(activityName.trim())
+                setActivityName('')
+              }}
+              className="flex gap-2"
+            >
+              <Input
+                placeholder={t('log.customActivityPlaceholder')}
+                value={activityName}
+                onChange={(e) => setActivityName(e.target.value)}
+                className="flex-1"
+              />
+              <Button type="submit" loading={createActivity.isPending}>
+                {t('log.customActivityLog')}
+              </Button>
+            </form>
+          ) : (
+            activities.map((a) => {
+              const photos = a.photos || []
+              return (
+                <div key={a.id} className="space-y-3">
+                  <div className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-purple-500" />
+                      <span className="text-sm font-medium">{a.activity_name}</span>
+                    </div>
+                    <button
+                      onClick={() => deleteActivity.mutate(a.id)}
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => deleteActivity.mutate(a.id)}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      id={`activity-photo-input-${a.id}`}
+                      onChange={(e) => handleActivityFileSelect(e, a.id)}
+                    />
+                    <label
+                      htmlFor={`activity-photo-input-${a.id}`}
+                      className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-green-600 cursor-pointer transition-colors"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                      {photos.length > 0
+                        ? `${photos.length} ${t('log.photos')}`
+                        : t('log.addPhoto')}
+                    </label>
+                  </div>
+
+                  {photos.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {photos.map((url) => (
+                        <div key={url} className="relative">
+                          <PhotoWithFallback
+                            src={url}
+                            alt=""
+                            className="w-20 h-20 object-cover rounded-lg"
+                          />
+                          <button
+                            onClick={() => removeActivityPhoto(a.id, url)}
+                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
+              )
+            })
           )}
         </CardContent>
       </Card>

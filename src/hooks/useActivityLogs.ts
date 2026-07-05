@@ -11,6 +11,7 @@ export interface ActivityLog {
   id: string
   activity_name: string
   logged_date: string
+  photos?: string[]
 }
 
 async function getSystemWorkout(userId: string): Promise<string> {
@@ -48,7 +49,7 @@ async function fetchTodayActivities(): Promise<ActivityLog[]> {
 
   const { data, error } = await supabase
     .from('workout_logs')
-    .select('id, notes, logged_date, workout:workouts!inner(name)')
+    .select('id, notes, logged_date, photos')
     .eq('user_id', user.id)
     .eq('logged_date', today)
     .eq('workout.name', SYSTEM_WORKOUT_NAME)
@@ -59,6 +60,7 @@ async function fetchTodayActivities(): Promise<ActivityLog[]> {
     id: l.id as string,
     activity_name: (l.notes as string) || 'Custom Activity',
     logged_date: l.logged_date as string,
+    photos: (l.photos as string[]) || [],
   }))
 }
 
@@ -100,6 +102,15 @@ async function deleteActivity(id: string): Promise<void> {
   if (error) throw error
 }
 
+async function updateActivityPhotos(activityId: string, photos: string[]): Promise<void> {
+  const { error } = await supabase
+    .from('workout_logs')
+    .update({ photos })
+    .eq('id', activityId)
+
+  if (error) throw error
+}
+
 export function useTodayActivities() {
   return useQuery({
     queryKey: ['activity_logs', 'today'],
@@ -125,6 +136,17 @@ export function useDeleteActivity() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activity_logs'] })
       queryClient.invalidateQueries({ queryKey: ['streak'] })
+    },
+  })
+}
+
+export function useUpdateActivityPhotos() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ activityId, photos }: { activityId: string; photos: string[] }) =>
+      updateActivityPhotos(activityId, photos),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['activity_logs'] })
     },
   })
 }
