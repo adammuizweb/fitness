@@ -176,20 +176,24 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
                         {workouts.map((log, i) => {
                           const colors = [
-                            'bg-rose-50 border-rose-200',
-                            'bg-sky-50 border-sky-200',
-                            'bg-amber-50 border-amber-200',
-                            'bg-emerald-50 border-emerald-200',
-                            'bg-violet-50 border-violet-200',
-                            'bg-cyan-50 border-cyan-200',
+                            'bg-rose-100 border-rose-300',
+                            'bg-sky-100 border-sky-300',
+                            'bg-amber-100 border-amber-300',
+                            'bg-emerald-100 border-emerald-300',
+                            'bg-violet-100 border-violet-300',
+                            'bg-cyan-100 border-cyan-300',
                           ]
                           const c = colors[i % colors.length]
                           return (
-                            <div key={log.id} className={`rounded-xl border p-3 ${c} flex gap-3`}>
-                              <span className="text-3xl font-black text-gray-300 leading-none shrink-0">{i + 1}</span>
+                            <div
+                              key={log.id}
+                              className={`rounded-xl border p-3 ${c} flex gap-3 items-center hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
+                              style={{ animation: `cardIn 0.35s ease-out ${i * 0.06}s both` }}
+                            >
+                              <span className="text-4xl font-black text-gray-400/60 leading-none shrink-0">{i + 1}</span>
                               <div className="min-w-0">
                                 <p className="text-sm font-semibold text-gray-800 leading-tight">{log.workout?.name}</p>
-                                <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                                <div className="text-xs text-gray-600 mt-1 space-y-0.5">
                                   {log.sets ? <p>{log.sets} set × {log.reps} rep</p> : null}
                                   {log.weight ? <p>{log.weight} kg</p> : null}
                                   {log.distance ? <p>{log.distance} m</p> : null}
@@ -214,15 +218,19 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
                             <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1.5">Custom Activity</p>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                               {customs.map((log, i) => {
-                                const colors = ['bg-fuchsia-50 border-fuchsia-200', 'bg-indigo-50 border-indigo-200']
+                                const colors = ['bg-fuchsia-100 border-fuchsia-300', 'bg-indigo-100 border-indigo-300']
                                 const c = colors[i % colors.length]
                                 const letter = String.fromCharCode(97 + i)
                                 return (
-                                  <div key={log.id} className={`rounded-xl border p-3 ${c} flex gap-3`}>
-                                    <span className="text-3xl font-black text-gray-300 leading-none shrink-0">{letter}</span>
+                                  <div
+                                    key={log.id}
+                                    className={`rounded-xl border p-3 ${c} flex gap-3 items-center hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
+                                    style={{ animation: `cardIn 0.35s ease-out ${0.12 + i * 0.06}s both` }}
+                                  >
+                                    <span className="text-4xl font-black text-gray-400/60 leading-none shrink-0">{letter}</span>
                                     <div className="min-w-0">
                                       <p className="text-sm font-semibold text-gray-800 leading-tight">{log.workout?.name}</p>
-                                      {log.notes && <p className="text-xs text-gray-400 italic mt-1">— {log.notes}</p>}
+                                      {log.notes && <p className="text-xs text-gray-500 italic mt-1">— {log.notes}</p>}
                                     </div>
                                   </div>
                                 )
@@ -274,6 +282,13 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
           onClose={() => setEditing(false)}
         />
       )}
+
+      <style>{`
+        @keyframes cardIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </>
   )
 }
