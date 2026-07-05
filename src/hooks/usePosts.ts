@@ -12,7 +12,7 @@ async function fetchMyPosts(): Promise<Post[]> {
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*, log:workout_logs(*, workout:workouts(*))')
+    .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(20)
@@ -22,8 +22,7 @@ async function fetchMyPosts(): Promise<Post[]> {
 }
 
 async function createPost(input: {
-  workout_log_id?: string
-  caption?: string
+  caption?: string | null
   photos?: string[]
   privacy: PostPrivacy
 }): Promise<Post> {
@@ -34,7 +33,6 @@ async function createPost(input: {
     .from('posts')
     .insert({
       user_id: user.id,
-      workout_log_id: input.workout_log_id || null,
       caption: input.caption || null,
       photos: input.photos || [],
       privacy: input.privacy,
@@ -78,7 +76,7 @@ async function fetchAllMyPosts(): Promise<Post[]> {
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*, log:workout_logs(*, workout:workouts(*))')
+    .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -92,7 +90,7 @@ async function searchMyPosts(query: string): Promise<Post[]> {
 
   const { data, error } = await supabase
     .from('posts')
-    .select('*, log:workout_logs(*, workout:workouts(*))')
+    .select('*')
     .eq('user_id', user.id)
     .ilike('caption', `%${query}%`)
     .order('created_at', { ascending: false })

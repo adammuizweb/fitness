@@ -7,10 +7,15 @@ import { useI18n } from '@/lib/i18n/context'
 import { useDeletePost } from '@/hooks/usePosts'
 import { useUser } from '@/hooks/useUser'
 import { EditPostDialog } from './EditPostDialog'
-import { Globe, Users, UserCheck, Lock, Trash2, Clock, Pencil } from 'lucide-react'
+import { Globe, Users, UserCheck, Lock, Trash2, Clock, Pencil, Loader2 } from 'lucide-react'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
 import { PhotoLightbox } from '@/components/ui/PhotoLightbox'
-import type { Post, Profile } from '@/types'
+import { createClient } from '@/lib/supabase/client'
+import { useQuery } from '@tanstack/react-query'
+import { getPostPhotos, getPostLogIds } from '@/lib/utils'
+import type { Post, Profile, WorkoutLog } from '@/types'
+
+const supabase = createClient()
 
 const privacyKey: Record<string, string> = {
   all: 'All',
@@ -40,12 +45,31 @@ interface Props {
   author?: Pick<Profile, 'id' | 'username' | 'full_name' | 'avatar_url'> | null
 }
 
+async function fetchPostLogs(logIds: string[]): Promise<WorkoutLog[]> {
+  if (logIds.length === 0) return []
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('*, workout:workouts(*)')
+    .in('id', logIds)
+  if (error) throw error
+  return data || []
+}
+
 export function PostCard({ post, showActions = true, showPrivacy = true, author }: Props) {
   const { t } = useI18n()
   const deleteMutation = useDeletePost()
   const { profile } = useUser()
   const [editing, setEditing] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+
+  const postPhotos = getPostPhotos(post.photos || [])
+  const logIds = getPostLogIds(post.photos || [])
+
+  const { data: logs = [], isLoading: logsLoading } = useQuery({
+    queryKey: ['post', post.id, 'logs'],
+    queryFn: () => fetchPostLogs(logIds),
+    enabled: logIds.length > 0,
+  })
 
   const date = new Date(post.created_at).toLocaleDateString('id-ID', {
     weekday: 'short',
@@ -134,27 +158,31 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
           </div>
 
           {post.caption && (
-            <p className="text-sm text-gray-700 mb-2 whitespace-pre-wrap">{post.caption}</p>
+            <p className="text-sm text-gray-700 mb-3 whitespace-pre-wrap">{post.caption}</p>
           )}
 
-          {post.log && (
-            <div className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100">
-              <p className="text-sm font-semibold text-gray-800">{post.log.workout?.name || 'Workout'}</p>
+          {logsLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+            </div>
+          ) : logs.map((log) => (
+            <div key={log.id} className="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100 last:mb-0">
+              <p className="text-sm font-semibold text-gray-800">{log.workout?.name || 'Workout'}</p>
               <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
-                {post.log.sets ? <span>{post.log.sets} set × {post.log.reps} rep</span> : null}
-                {post.log.weight ? <span>{post.log.weight} kg</span> : null}
-                {post.log.distance ? <span>{post.log.distance} m</span> : null}
-                {post.log.duration ? <span>{post.log.duration} min</span> : null}
+                {log.sets ? <span>{log.sets} set × {log.reps} rep</span> : null}
+                {log.weight ? <span>{log.weight} kg</span> : null}
+                {log.distance ? <span>{log.distance} m</span> : null}
+                {log.duration ? <span>{log.duration} min</span> : null}
               </div>
-              {post.log.notes && (
-                <p className="text-xs text-gray-400 mt-1 italic">{post.log.notes}</p>
+              {log.notes && (
+                <p className="text-xs text-gray-400 mt-1 italic">{log.notes}</p>
               )}
             </div>
-          )}
+          ))}
 
-          {(post.photos?.length ?? 0) > 0 && (
-            <div className={`grid gap-1 ${post.photos.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-              {post.photos.map((url, i) => (
+          {postPhotos.length > 0 && (
+            <div className={`grid gap-1 ${postPhotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+              {postPhotos.map((url, i) => (
                 <button
                   key={url}
                   type="button"
@@ -173,9 +201,9 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
         </CardContent>
       </Card>
 
-      {lightboxIndex !== null && post.photos && (
+      {lightboxIndex !== null && postPhotos && (
         <PhotoLightbox
-          photos={post.photos}
+          photos={postPhotos}
           initialIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
         />

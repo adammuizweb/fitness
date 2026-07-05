@@ -7,6 +7,7 @@ import { useI18n } from '@/lib/i18n/context'
 import { useUpdatePost } from '@/hooks/usePosts'
 import { Globe, Users, UserCheck, Lock, Save } from 'lucide-react'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
+import { getPostPhotos } from '@/lib/utils'
 import type { Post, PostPrivacy } from '@/types'
 
 const privacyKey: Record<string, string> = {
@@ -55,9 +56,9 @@ export function EditPostDialog({ post, open, onClose }: Props) {
           className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-500"
         />
 
-        {post.photos.length > 0 && (
+        {getPostPhotos(post.photos || []).length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {post.photos.map((url) => (
+            {getPostPhotos(post.photos || []).map((url) => (
               <PhotoWithFallback
                 key={url}
                 src={url}

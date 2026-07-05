@@ -9,6 +9,7 @@ import { Globe, Users, UserCheck, Lock, Send } from 'lucide-react'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
 import type { WorkoutLog, PostPrivacy } from '@/types'
 import type { ActivityLog } from '@/hooks/useActivityLogs'
+import { LOG_META_PREFIX } from '@/lib/utils'
 
 const privacyKey: Record<string, string> = {
   all: 'All',
@@ -31,15 +32,6 @@ interface Props {
   activities?: ActivityLog[]
 }
 
-function formatLogDetail(log: WorkoutLog): string {
-  const parts: string[] = []
-  if (log.sets) parts.push(`${log.sets} set × ${log.reps} rep`)
-  if (log.weight) parts.push(`${log.weight} kg`)
-  if (log.distance) parts.push(`${log.distance} m`)
-  if (log.duration) parts.push(`${log.duration} min`)
-  return parts.join(', ')
-}
-
 export function CreatePostDialog({ open, onClose, logs, activities = [] }: Props) {
   const { t } = useI18n()
   const createMutation = useCreatePost()
@@ -50,30 +42,16 @@ export function CreatePostDialog({ open, onClose, logs, activities = [] }: Props
   const selectedLogs = logs.filter(l => selectedLogIds.includes(l.id))
   const allPhotos = selectedLogs.flatMap(l => l.photos || [])
 
-  function generateSummary(logs: WorkoutLog[], custom: ActivityLog[]): string {
-    const lines: string[] = ['📋 Workout Summary']
-    for (const log of logs) {
-      const name = log.workout?.name || 'Workout'
-      const detail = formatLogDetail(log)
-      lines.push(detail ? `• ${name}: ${detail}` : `• ${name}`)
-    }
-    for (const a of custom) {
-      lines.push(`• ${a.activity_name}`)
-    }
-    return lines.join('\n')
-  }
-
   async function handleSubmit() {
     if (selectedLogs.length === 0) return
 
-    const summary = generateSummary(selectedLogs, activities)
-    const fullCaption = caption ? `${summary}\n\n${caption}` : summary
+    const allLogIds = [...selectedLogIds, ...activities.map(a => a.id)]
+    const metaMarkers = allLogIds.map(id => `meta:log:${id}`)
 
     await createMutation.mutateAsync({
-      caption: fullCaption,
-      photos: allPhotos,
+      caption: caption || null,
+      photos: [...allPhotos, ...metaMarkers],
       privacy,
-      workout_log_id: selectedLogIds[0] || undefined,
     })
     setCaption('')
     setPrivacy('all')

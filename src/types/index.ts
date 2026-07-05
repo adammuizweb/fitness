@@ -24,7 +24,6 @@ export interface Post {
   created_at: string
   updated_at: string
   profile?: Profile
-  log?: WorkoutLog
 }
 
 export interface Follow {
