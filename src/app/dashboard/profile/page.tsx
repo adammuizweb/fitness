@@ -5,9 +5,16 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { Input } from '@/components/ui/input'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
 import { PostCard } from '@/components/posts/PostCard'
 import { Dumbbell, Flame, Camera, Pencil, X, Check, Loader2, Share2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { useI18n } from '@/lib/i18n/context'
+import { useUser } from '@/hooks/useUser'
+import { useLogHistory } from '@/hooks/useLogs'
+import { useStreak } from '@/hooks/useStreak'
+import { useMyPosts } from '@/hooks/usePosts'
 
 const supabase = createClient()
 
