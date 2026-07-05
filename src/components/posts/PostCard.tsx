@@ -9,6 +9,7 @@ import { useUser } from '@/hooks/useUser'
 import { EditPostDialog } from './EditPostDialog'
 import { Globe, Users, UserCheck, Lock, Trash2, Clock, Pencil } from 'lucide-react'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
+import { PhotoLightbox } from '@/components/ui/PhotoLightbox'
 import type { Post, Profile } from '@/types'
 
 const privacyKey: Record<string, string> = {
@@ -44,6 +45,7 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
   const deleteMutation = useDeletePost()
   const { profile } = useUser()
   const [editing, setEditing] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   const date = new Date(post.created_at).toLocaleDateString('id-ID', {
     weekday: 'short',
@@ -137,18 +139,32 @@ export function PostCard({ post, showActions = true, showPrivacy = true, author 
 
           {(post.photos?.length ?? 0) > 0 && (
             <div className={`grid gap-1 ${post.photos.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-              {post.photos.map((url) => (
-                <PhotoWithFallback
+              {post.photos.map((url, i) => (
+                <button
                   key={url}
-                  src={url}
-                  alt=""
-                  className="w-full aspect-square object-cover rounded-lg"
-                />
+                  type="button"
+                  onClick={() => setLightboxIndex(i)}
+                  className="block w-full text-left rounded-lg overflow-hidden"
+                >
+                  <PhotoWithFallback
+                    src={url}
+                    alt=""
+                    className="w-full aspect-square object-cover rounded-lg"
+                  />
+                </button>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {lightboxIndex !== null && post.photos && (
+        <PhotoLightbox
+          photos={post.photos}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
 
       {editing && (
         <EditPostDialog

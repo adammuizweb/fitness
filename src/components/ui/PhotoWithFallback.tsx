@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Camera, ImageOff } from 'lucide-react'
+import { ImageOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Props {

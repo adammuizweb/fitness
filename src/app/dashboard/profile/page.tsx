@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { Input } from '@/components/ui/input'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
+import { PhotoLightbox } from '@/components/ui/PhotoLightbox'
 import { PostCard } from '@/components/posts/PostCard'
 import { Dumbbell, Flame, Camera, Pencil, X, Check, Loader2, Share2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -30,6 +31,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [email, setEmail] = useState('')
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -224,25 +226,32 @@ export default function ProfilePage() {
             </div>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-              {allPhotos.map((url) => (
-                <a
+              {allPhotos.map((url, i) => (
+                <button
                   key={url}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block aspect-square rounded-lg overflow-hidden"
+                  type="button"
+                  onClick={() => setLightboxIndex(i)}
+                  className="block aspect-square rounded-lg overflow-hidden w-full"
                 >
                   <PhotoWithFallback
                     src={url}
                     alt=""
                     className="w-full h-full object-cover hover:scale-105 transition-transform"
                   />
-                </a>
+                </button>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {lightboxIndex !== null && (
+        <PhotoLightbox
+          photos={allPhotos}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
 
       {/* Posts */}
       {posts.length > 0 && (
