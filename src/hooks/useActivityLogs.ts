@@ -49,7 +49,7 @@ async function fetchTodayActivities(): Promise<ActivityLog[]> {
 
   const { data, error } = await supabase
     .from('workout_logs')
-    .select('id, notes, logged_date, photos')
+    .select('id, notes, logged_date, photos, workout!inner(name)')
     .eq('user_id', user.id)
     .eq('logged_date', today)
     .eq('workout.name', SYSTEM_WORKOUT_NAME)
@@ -73,7 +73,7 @@ async function createActivity(activityName: string): Promise<ActivityLog> {
 
   const { data, error } = await supabase
     .from('workout_logs')
-    .insert({
+    .upsert({
       user_id: user.id,
       workout_id: workoutId,
       sets: 1,
@@ -81,7 +81,7 @@ async function createActivity(activityName: string): Promise<ActivityLog> {
       notes: activityName,
       logged_date: today,
       is_done: true,
-    })
+    }, { onConflict: 'user_id,workout_id,logged_date' })
     .select('id, notes, logged_date')
     .single()
 
