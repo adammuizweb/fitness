@@ -1,7 +1,7 @@
 # Fitness Tracker — AGENTS.md
 
 > Aplikasi web fitness tracker dengan sistem streak harian, multi-user, admin panel, dan PWA.
-> Domain: `fitness.adammuiz.com` — deployed via Vercel.
+> Domain: `fitness.jyavani.com` — deployed via Vercel (`https://vercel.com/jyavani/fitnes.lan`).
 > CDN: `cdn.jyavani.com` — home server via Cloudflare Tunnel.
 
 ## Recent Changes (v1.1.0+)
@@ -60,7 +60,7 @@
 ## Struktur Project
 
 ```
-/var/www/fitnes.lan/
+/var/www/fitness.lan/
 ├── AGENTS.md                  ← blueprint ini
 ├── .env.example               ← contoh env untuk Supabase
 ├── .env.local                 ← env lokal (gitignore)
@@ -492,17 +492,17 @@ NEXT_PUBLIC_APP_NAME=Fitnes Tracker
 
 ## GitHub
 
-- Repo: `https://github.com/adammuizweb/fitnes`
+- Repo: `https://github.com/adammuizweb/fitness`
 - Branch: `main`
-- Deploy: Vercel auto-deploy dari GitHub
-- Domain: `fitnes.adammuiz.com` (pointing ke Vercel)
+- Deploy: Vercel auto-deploy dari GitHub (`https://vercel.com/jyavani/fitnes.lan`)
+- Domain: `fitness.jyavani.com` (pointing ke Vercel)
 
 ## Deployment
 
 1. Push ke GitHub
 2. Import repo ke Vercel
 3. Set environment variables di Vercel dashboard
-4. Add custom domain `fitnes.adammuiz.com`
+4. Add custom domain `fitness.jyavani.com`
 5. Update DNS: CNAME `fitnes` → `cname.vercel-dns.com`
 
 ---

@@ -1,12 +1,16 @@
-'use client'
-
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { LoginForm } from '@/components/auth/LoginForm'
-import { useI18n } from '@/lib/i18n/context'
+import { I18nServer } from '@/lib/i18n/server'
+import { getCurrentUser } from '@/lib/auth'
 import { Flame } from 'lucide-react'
 
-export default function LoginPage() {
-  const { t } = useI18n()
+export default async function LoginPage() {
+  const user = await getCurrentUser()
+  if (user) redirect('/dashboard')
+
+  const { t } = await I18nServer()
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">

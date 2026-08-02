@@ -4,10 +4,13 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { AuthModal } from './AuthModal'
 import { useI18n } from '@/lib/i18n/context'
-import { Dumbbell, Menu, X } from 'lucide-react'
+import { useUser } from '@/hooks/useUser'
+import { Dumbbell, LayoutDashboard, Menu, X } from 'lucide-react'
 
 export function MarketingHeader() {
   const { t, lang, setLang } = useI18n()
+  const { profile, loading: userLoading } = useUser()
+  const isLoggedIn = !!profile
   const [showAuth, setShowAuth] = useState<'login' | 'register' | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -56,18 +59,35 @@ export function MarketingHeader() {
                   EN
                 </button>
               </div>
-              <button
-                onClick={() => setShowAuth('login')}
-                className="text-stone-600 hover:text-stone-900 font-medium transition-colors ml-4"
-              >
-                {t('landing.hero.ctaLogin')}
-              </button>
-              <button
-                onClick={() => setShowAuth('register')}
-                className="inline-flex items-center justify-center h-9 px-5 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors shadow-sm"
-              >
-                {t('landing.hero.ctaStart')}
-              </button>
+
+              {!userLoading && (
+                <>
+                  {isLoggedIn ? (
+                    <Link
+                      href="/dashboard"
+                      className="inline-flex items-center justify-center h-9 px-5 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors shadow-sm ml-4"
+                    >
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setShowAuth('login')}
+                        className="text-stone-600 hover:text-stone-900 font-medium transition-colors ml-4"
+                      >
+                        {t('landing.hero.ctaLogin')}
+                      </button>
+                      <button
+                        onClick={() => setShowAuth('register')}
+                        className="inline-flex items-center justify-center h-9 px-5 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors shadow-sm"
+                      >
+                        {t('landing.hero.ctaStart')}
+                      </button>
+                    </>
+                  )}
+                </>
+              )}
             </nav>
 
             <button
@@ -117,20 +137,36 @@ export function MarketingHeader() {
                   EN
                 </button>
               </div>
-              <div className="flex gap-2 pt-2 border-t border-stone-100">
-                <button
-                  onClick={() => { setShowAuth('login'); setMobileOpen(false) }}
-                  className="flex-1 h-10 rounded-lg border border-stone-300 text-stone-700 text-sm font-medium hover:bg-stone-50"
-                >
-                  {t('landing.hero.ctaLogin')}
-                </button>
-                <button
-                  onClick={() => { setShowAuth('register'); setMobileOpen(false) }}
-                  className="flex-1 h-10 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700"
-                >
-                  {t('landing.hero.ctaStart')}
-                </button>
-              </div>
+
+              {!userLoading && (
+                <div className="flex gap-2 pt-2 border-t border-stone-100">
+                  {isLoggedIn ? (
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex-1 h-10 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 flex items-center justify-center"
+                    >
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => { setShowAuth('login'); setMobileOpen(false) }}
+                        className="flex-1 h-10 rounded-lg border border-stone-300 text-stone-700 text-sm font-medium hover:bg-stone-50"
+                      >
+                        {t('landing.hero.ctaLogin')}
+                      </button>
+                      <button
+                        onClick={() => { setShowAuth('register'); setMobileOpen(false) }}
+                        className="flex-1 h-10 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700"
+                      >
+                        {t('landing.hero.ctaStart')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
