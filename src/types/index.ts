@@ -51,6 +51,7 @@ export interface Workout {
   description: string | null
   type: WorkoutType
   is_active: boolean
+  is_custom_activity: boolean
   default_sets: number | null
   default_reps: number | null
   default_distance: number | null

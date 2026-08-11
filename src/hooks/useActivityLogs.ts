@@ -5,8 +5,6 @@ import { createClient } from '@/lib/supabase/client'
 
 const supabase = createClient()
 
-const SYSTEM_WORKOUT_NAME = '\u{1F3F7}\uFE0F Custom Activity'
-
 export interface ActivityLog {
   id: string
   activity_name: string
@@ -21,6 +19,7 @@ async function getOrCreateWorkout(userId: string, activityName: string): Promise
     .select('id')
     .eq('user_id', userId)
     .eq('name', activityName)
+    .eq('is_custom_activity', true)
     .maybeSingle()
 
   if (existing) return existing.id
@@ -35,6 +34,7 @@ async function getOrCreateWorkout(userId: string, activityName: string): Promise
       default_sets: 1,
       default_reps: 1,
       is_active: false,
+      is_custom_activity: true,
     })
     .select('id')
     .single()

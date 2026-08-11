@@ -80,8 +80,9 @@ export function LogPageClient() {
     async function load() {
       const { data } = await supabase
         .from('workout_schedules')
-        .select('*, workout:workouts(*)')
+        .select('*, workout:workouts!inner(*)')
         .eq('day_of_week', todayDayOfWeek)
+        .eq('workouts.is_active', true)
       setSchedules(data || [])
       setLoading(false)
     }

@@ -4,11 +4,10 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogFooter } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
-import { Plus, Pencil, Trash2, EyeOff, Eye, ChevronLeft, ChevronRight, Moon, Share2, Info } from 'lucide-react'
-import { useWorkouts, useDeleteWorkout, useToggleWorkoutActive } from '@/hooks/useWorkouts'
+import { Plus, Pencil, EyeOff, Eye, ChevronLeft, ChevronRight, Moon, Share2, Info } from 'lucide-react'
+import { useWorkouts, useToggleWorkoutActive } from '@/hooks/useWorkouts'
 import { useSchedules } from '@/hooks/useSchedules'
 import { useRestDays, useToggleRestDay } from '@/hooks/useRestDays'
 import { useMySharedWorkouts } from '@/hooks/useSharedWorkouts'
@@ -24,9 +23,8 @@ type ActiveFilter = 'all' | 'active' | 'inactive'
 
 export function WorkoutList() {
   const { t, days } = useI18n()
-  const { data: workouts = [], isLoading } = useWorkouts()
+  const { data: workouts = [], isLoading } = useWorkouts({ includeInactive: true })
   const { data: schedules = [] } = useSchedules()
-  const [deleteId, setDeleteId] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
   const [dayFilter, setDayFilter] = useState<number | null>(null)
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>('active')
@@ -35,7 +33,6 @@ export function WorkoutList() {
   const { data: restDays = [] } = useRestDays()
   const toggleRestMutation = useToggleRestDay()
   const { data: myShared = [] } = useMySharedWorkouts()
-  const deleteMutation = useDeleteWorkout()
   const toggleActiveMutation = useToggleWorkoutActive()
   const [shareWorkout, setShareWorkout] = useState<Workout | null>(null)
   const [showSharePlan, setShowSharePlan] = useState(false)
@@ -75,12 +72,6 @@ export function WorkoutList() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
   const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
-
-  async function handleDelete() {
-    if (!deleteId) return
-    await deleteMutation.mutateAsync(deleteId)
-    setDeleteId(null)
-  }
 
   async function handleToggleActive(workout: { id: string; is_active: boolean }) {
     const newActive = !workout.is_active
@@ -271,9 +262,6 @@ export function WorkoutList() {
                         <Button variant="ghost" size="icon" onClick={() => handleToggleActive(workout)}>
                           {workout.is_active ? <EyeOff className="w-4 h-4 text-amber-500" /> : <Eye className="w-4 h-4 text-green-500" />}
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(workout.id)}>
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -311,22 +299,6 @@ export function WorkoutList() {
           )}
         </>
       )}
-
-      <Dialog
-        open={!!deleteId}
-        onClose={() => setDeleteId(null)}
-        title={t('workoutListDelete.title')}
-        description={t('workoutListDelete.desc')}
-      >
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setDeleteId(null)}>
-            {t('common.cancel')}
-          </Button>
-          <Button variant="destructive" onClick={handleDelete} loading={deleteMutation.isPending}>
-            {t('common.delete')}
-          </Button>
-        </DialogFooter>
-      </Dialog>
 
       {shareWorkout && (
         <ShareWorkoutDialog

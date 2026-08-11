@@ -6,12 +6,18 @@ import type { Workout, WorkoutInput } from '@/types'
 
 const supabase = createClient()
 
-async function fetchWorkouts(): Promise<Workout[]> {
-  const { data, error } = await supabase
+async function fetchWorkouts(includeInactive: boolean): Promise<Workout[]> {
+  let query = supabase
     .from('workouts')
     .select('*')
-    .eq('is_active', true)
+    .eq('is_custom_activity', false)
     .order('name')
+
+  if (!includeInactive) {
+    query = query.eq('is_active', true)
+  }
+
+  const { data, error } = await query
 
   if (error) throw error
   return data
@@ -111,15 +117,6 @@ async function updateWorkoutWithSchedule(id: string, input: WorkoutInput & { sch
   return workout
 }
 
-async function deleteWorkout(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('workouts')
-    .delete()
-    .eq('id', id)
-
-  if (error) throw error
-}
-
 async function toggleWorkoutActive(id: string, is_active: boolean): Promise<void> {
   const { error } = await supabase
     .from('workouts')
@@ -129,10 +126,10 @@ async function toggleWorkoutActive(id: string, is_active: boolean): Promise<void
   if (error) throw error
 }
 
-export function useWorkouts() {
+export function useWorkouts({ includeInactive = false }: { includeInactive?: boolean } = {}) {
   return useQuery({
-    queryKey: ['workouts'],
-    queryFn: fetchWorkouts,
+    queryKey: ['workouts', { includeInactive }],
+    queryFn: () => fetchWorkouts(includeInactive),
   })
 }
 
@@ -174,16 +171,6 @@ export function useUpdateWorkoutWithSchedule(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] })
       queryClient.invalidateQueries({ queryKey: ['schedules'] })
-    },
-  })
-}
-
-export function useDeleteWorkout() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: deleteWorkout,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workouts'] })
     },
   })
 }
