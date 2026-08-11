@@ -8,12 +8,13 @@ import { Dialog } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
 import { useTodayLogs, useUpsertLog, useToggleChecklistItem } from '@/hooks/useLogs'
+import { useWorkouts } from '@/hooks/useWorkouts'
 import { useRestDays } from '@/hooks/useRestDays'
 import { useTodayActivities, useCreateActivity, useDeleteActivity, useUpdateActivityPhotos } from '@/hooks/useActivityLogs'
 import { createClient } from '@/lib/supabase/client'
 import type { WorkoutLog, WorkoutSchedule, Workout } from '@/types'
 import { PhotoWithFallback } from '@/components/ui/PhotoWithFallback'
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2, Camera, X, Moon, Sparkles } from 'lucide-react'
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Loader2, Camera, X, Moon, Sparkles, Search, Plus } from 'lucide-react'
 import { UploadModal } from '@/components/logs/UploadModal'
 
 interface ChecklistItem {
@@ -64,6 +65,9 @@ export function LogPageClient() {
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({})
   const [schedules, setSchedules] = useState<WorkoutSchedule[]>([])
   const [loading, setLoading] = useState(true)
+  const { data: workouts = [], isLoading: workoutsLoading } = useWorkouts()
+  const [otherWorkoutSearch, setOtherWorkoutSearch] = useState('')
+  const [addingOtherWorkoutId, setAddingOtherWorkoutId] = useState<string | null>(null)
   const { data: activities = [] } = useTodayActivities()
   const createActivity = useCreateActivity()
   const deleteActivity = useDeleteActivity()
@@ -96,10 +100,31 @@ export function LogPageClient() {
 
   const displayLogs = logs || []
 
-  const checklist: ChecklistItem[] = scheduledWorkouts.map((workout) => ({
+  const scheduledWorkoutIds = new Set(scheduledWorkouts.map((workout) => workout.id))
+  const scheduledChecklist: ChecklistItem[] = scheduledWorkouts.map((workout) => ({
     workout,
     log: displayLogs.find((l) => l.workout_id === workout.id),
   }))
+  const additionalChecklist: ChecklistItem[] = displayLogs.flatMap((log) => {
+    if (scheduledWorkoutIds.has(log.workout_id)) return []
+    const workout = workouts.find((candidate) => candidate.id === log.workout_id)
+    return workout ? [{ workout, log }] : []
+  })
+  const checklist = [...scheduledChecklist, ...additionalChecklist]
+
+  const availableOtherWorkouts = workouts.filter((workout) =>
+    !scheduledWorkoutIds.has(workout.id) &&
+    !displayLogs.some((log) => log.workout_id === workout.id)
+  )
+  const normalizedOtherWorkoutSearch = otherWorkoutSearch.trim().toLowerCase()
+  const otherWorkoutResults = normalizedOtherWorkoutSearch
+    ? availableOtherWorkouts
+      .filter((workout) =>
+        workout.name.toLowerCase().includes(normalizedOtherWorkoutSearch) ||
+        workout.description?.toLowerCase().includes(normalizedOtherWorkoutSearch)
+      )
+      .slice(0, 8)
+    : []
 
   const handleToggle = useCallback(async (item: ChecklistItem) => {
     await toggleMutation.mutateAsync({
@@ -108,6 +133,23 @@ export function LogPageClient() {
       workout: item.workout,
     })
   }, [toggleMutation])
+
+  async function handleAddOtherWorkout(workout: Workout) {
+    setAddingOtherWorkoutId(workout.id)
+    try {
+      await upsertMutation.mutateAsync({
+        workout_id: workout.id,
+        sets: workout.default_sets ?? undefined,
+        reps: workout.default_reps ?? undefined,
+        distance: workout.default_distance ?? undefined,
+        duration: workout.default_duration ?? undefined,
+        is_done: false,
+      })
+      setOtherWorkoutSearch('')
+    } finally {
+      setAddingOtherWorkoutId(null)
+    }
+  }
 
   function openEdit(item: ChecklistItem) {
     const log = item.log
@@ -317,7 +359,7 @@ export function LogPageClient() {
   const total = checklist.length
   const done = checklist.filter((item) => item.log?.is_done).length
 
-  if (loading || logsLoading) {
+  if (loading || logsLoading || workoutsLoading) {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="w-6 h-6 animate-spin text-green-600" />
@@ -547,6 +589,57 @@ export function LogPageClient() {
         </CardContent>
       </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('log.otherWorkout')}</CardTitle>
+          <p className="text-sm text-gray-500">{t('log.otherWorkoutDesc')}</p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="search"
+              value={otherWorkoutSearch}
+              onChange={(event) => setOtherWorkoutSearch(event.target.value)}
+              placeholder={t('log.otherWorkoutSearch')}
+              className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
+            />
+          </div>
+
+          {!normalizedOtherWorkoutSearch ? (
+            <p className="text-sm text-gray-400 text-center py-3">{t('log.otherWorkoutHint')}</p>
+          ) : otherWorkoutResults.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-3">{t('log.otherWorkoutEmpty')}</p>
+          ) : (
+            <div className="divide-y divide-gray-100 border rounded-lg">
+              {otherWorkoutResults.map((workout) => (
+                <div key={workout.id} className="flex items-center gap-3 p-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium truncate">{workout.name}</p>
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full shrink-0 ${workout.type === 'cardio' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {workout.type === 'cardio' ? t('log.cardio') : t('log.lift')}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-0.5">{formatDetail({ workout })}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleAddOtherWorkout(workout)}
+                    loading={addingOtherWorkoutId === workout.id}
+                    disabled={addingOtherWorkoutId !== null}
+                  >
+                    <Plus className="w-4 h-4" />
+                    {t('log.otherWorkoutAdd')}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <UploadModal
         open={modalOpen}
