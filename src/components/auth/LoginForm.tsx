@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useI18n } from '@/lib/i18n/context'
@@ -12,25 +11,39 @@ export function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const supabase = createClient()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    let response: Response
+    try {
+      response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+    } catch {
+      setLoading(false)
+      setError(t('auth.loginUnavailable'))
+      return
+    }
+
+    const result = await response.json().catch(() => ({ error: 'unknown' }))
 
     setLoading(false)
 
-    if (authError) {
-      setError(authError.message === 'Invalid login credentials'
-        ? t('auth.loginError')
-        : authError.message
-      )
+    if (!response.ok) {
+      if (result.error === 'rate_limited') {
+        setError(t('auth.loginRateLimited', { minutes: Math.max(1, Math.ceil((result.retryAfter || 60) / 60)) }))
+      } else if (result.error === 'account_banned') {
+        setError(t('auth.loginBanned'))
+      } else if (result.error === 'security_unavailable') {
+        setError(t('auth.loginUnavailable'))
+      } else {
+        setError(t('auth.loginError'))
+      }
       return
     }
 

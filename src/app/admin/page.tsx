@@ -47,17 +47,19 @@ export default function AdminDashboard() {
           </Card>
         </Link>
 
-        <Card className="opacity-50">
-          <CardContent className="p-6 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
-              <Shield className="w-6 h-6 text-gray-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold">{t('admin.settings')}</h3>
-              <p className="text-sm text-gray-500">{t('admin.settingsDesc')}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <Link href="/admin/settings">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <Shield className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold">{t('admin.settings')}</h3>
+                <p className="text-sm text-gray-500">{t('admin.settingsDesc')}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   )

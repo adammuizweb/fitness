@@ -17,21 +17,21 @@ async function fetchUsers(): Promise<Profile[]> {
 }
 
 async function updateUser(id: string, updates: Partial<Profile>): Promise<Profile> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-  return data
+  const response = await fetch(`/api/admin/users/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role: updates.role, is_banned: updates.is_banned }),
+  })
+  const result = await response.json()
+  if (!response.ok) throw new Error(result.error || 'Failed to update user')
+  return result.user
 }
 
 async function fetchStats(): Promise<StatsOverview> {
-  const { data, error } = await supabase.rpc('get_admin_stats')
-  if (error) throw error
-  return data
+  const response = await fetch('/api/admin/stats', { cache: 'no-store' })
+  const result = await response.json()
+  if (!response.ok) throw new Error(result.error || 'Failed to load statistics')
+  return result.stats
 }
 
 export function useAdminUsers() {

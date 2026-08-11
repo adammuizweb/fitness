@@ -1,14 +1,16 @@
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
-import { AuthGuard } from '@/components/auth/AuthGuard'
+import { requireUnbanned } from '@/lib/auth'
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  await requireUnbanned()
+
   return (
-    <AuthGuard>
+    <>
       <MobileNav />
       <Sidebar />
       <main className="lg:pl-64 pt-14 lg:pt-0">
@@ -16,6 +18,6 @@ export default function DashboardLayout({
           {children}
         </div>
       </main>
-    </AuthGuard>
+    </>
   )
 }

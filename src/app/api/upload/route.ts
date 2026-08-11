@@ -19,11 +19,15 @@ export async function POST(request: NextRequest) {
   const supabase = createAdminClient()
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, is_banned')
     .eq('id', user.id)
     .single()
 
-  const isAdmin = profile?.role === 'admin'
+  if (!profile || profile.is_banned) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const isAdmin = profile.role === 'admin'
   const MAX_BYTES = isAdmin ? 50 * 1024 * 1024 : 2 * 1024 * 1024
 
   let body: { files?: { name: string; type: string; data: string }[] }
