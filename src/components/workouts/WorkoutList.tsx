@@ -4,9 +4,10 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogFooter } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
-import { Plus, Pencil, EyeOff, Eye, ChevronLeft, ChevronRight, Moon, Share2, Info } from 'lucide-react'
+import { Plus, Pencil, Trash2, Eye, ChevronLeft, ChevronRight, Moon, Share2, Info } from 'lucide-react'
 import { useWorkouts, useToggleWorkoutActive } from '@/hooks/useWorkouts'
 import { useSchedules } from '@/hooks/useSchedules'
 import { useRestDays, useToggleRestDay } from '@/hooks/useRestDays'
@@ -25,6 +26,7 @@ export function WorkoutList() {
   const { t, days } = useI18n()
   const { data: workouts = [], isLoading } = useWorkouts({ includeInactive: true })
   const { data: schedules = [] } = useSchedules()
+  const [deleteId, setDeleteId] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
   const [dayFilter, setDayFilter] = useState<number | null>(null)
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>('active')
@@ -72,6 +74,12 @@ export function WorkoutList() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
   const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+
+  async function handleDelete() {
+    if (!deleteId) return
+    await toggleActiveMutation.mutateAsync({ id: deleteId, is_active: false })
+    setDeleteId(null)
+  }
 
   async function handleToggleActive(workout: { id: string; is_active: boolean }) {
     const newActive = !workout.is_active
@@ -259,9 +267,15 @@ export function WorkoutList() {
                         <Button variant="ghost" size="icon" onClick={() => setShareWorkout(workout)}>
                           <Share2 className={`w-4 h-4 ${myShared.some(s => s.source_workout_id === workout.id) ? 'text-green-500' : 'text-gray-300 hover:text-green-500'}`} />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleToggleActive(workout)}>
-                          {workout.is_active ? <EyeOff className="w-4 h-4 text-amber-500" /> : <Eye className="w-4 h-4 text-green-500" />}
-                        </Button>
+                        {workout.is_active ? (
+                          <Button variant="ghost" size="icon" onClick={() => setDeleteId(workout.id)}>
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        ) : (
+                          <Button variant="ghost" size="icon" onClick={() => handleToggleActive(workout)}>
+                            <Eye className="w-4 h-4 text-green-500" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -299,6 +313,22 @@ export function WorkoutList() {
           )}
         </>
       )}
+
+      <Dialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title={t('workoutListDelete.title')}
+        description={t('workoutListDelete.desc')}
+      >
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setDeleteId(null)}>
+            {t('common.cancel')}
+          </Button>
+          <Button variant="destructive" onClick={handleDelete} loading={toggleActiveMutation.isPending}>
+            {t('common.delete')}
+          </Button>
+        </DialogFooter>
+      </Dialog>
 
       {shareWorkout && (
         <ShareWorkoutDialog

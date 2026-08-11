@@ -1,14 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogFooter } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
 import { WorkoutForm } from '@/components/workouts/WorkoutForm'
 import { useWorkouts, useUpdateWorkoutWithSchedule, useToggleWorkoutActive } from '@/hooks/useWorkouts'
 import { useSchedules } from '@/hooks/useSchedules'
-import { EyeOff, Eye, AlertTriangle } from 'lucide-react'
+import { Eye, Trash2, AlertTriangle } from 'lucide-react'
 
 export default function EditWorkoutPage() {
   const { t } = useI18n()
@@ -18,6 +20,7 @@ export default function EditWorkoutPage() {
   const { data: schedules, isLoading: schedulesLoading } = useSchedules()
   const updateMutation = useUpdateWorkoutWithSchedule(id)
   const toggleActiveMutation = useToggleWorkoutActive()
+  const [showDelete, setShowDelete] = useState(false)
 
   const workout = workouts?.find((w) => w.id === id)
   const scheduleDays = schedules
@@ -33,6 +36,13 @@ export default function EditWorkoutPage() {
   async function handleToggleActive() {
     if (!workout) return
     await toggleActiveMutation.mutateAsync({ id: workout.id, is_active: !workout.is_active })
+    router.refresh()
+  }
+
+  async function handleDelete() {
+    if (!workout) return
+    await toggleActiveMutation.mutateAsync({ id: workout.id, is_active: false })
+    router.push('/dashboard/workouts')
     router.refresh()
   }
 
@@ -86,18 +96,41 @@ export default function EditWorkoutPage() {
             {t('dangerZone.desc')}
           </p>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleToggleActive}
-              loading={toggleActiveMutation.isPending}
-              className="border-amber-300 text-amber-700 hover:bg-amber-50"
-            >
-              {workout.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              {workout.is_active ? t('dangerZone.deactivate') : t('dangerZone.activate')}
-            </Button>
+            {workout.is_active ? (
+              <Button variant="destructive" onClick={() => setShowDelete(true)}>
+                <Trash2 className="w-4 h-4" />
+                {t('dangerZone.delete')}
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={handleToggleActive}
+                loading={toggleActiveMutation.isPending}
+                className="border-green-300 text-green-700 hover:bg-green-50"
+              >
+                <Eye className="w-4 h-4" />
+                {t('dangerZone.activate')}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
+
+      <Dialog
+        open={showDelete}
+        onClose={() => setShowDelete(false)}
+        title={t('dangerZone.deleteDialogTitle')}
+        description={t('dangerZone.deleteDialogDesc', { name: workout.name })}
+      >
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowDelete(false)}>
+            {t('common.cancel')}
+          </Button>
+          <Button variant="destructive" onClick={handleDelete} loading={toggleActiveMutation.isPending}>
+            {t('common.delete')}
+          </Button>
+        </DialogFooter>
+      </Dialog>
 
     </div>
   )
