@@ -83,6 +83,7 @@ export function LogPageClient() {
         .select('*, workout:workouts!inner(*)')
         .eq('day_of_week', todayDayOfWeek)
         .eq('workouts.is_active', true)
+        .is('workouts.deleted_at', null)
       setSchedules(data || [])
       setLoading(false)
     }

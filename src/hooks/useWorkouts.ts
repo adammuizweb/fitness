@@ -6,12 +6,16 @@ import type { Workout, WorkoutInput } from '@/types'
 
 const supabase = createClient()
 
-async function fetchWorkouts(includeInactive: boolean): Promise<Workout[]> {
+async function fetchWorkouts(includeInactive: boolean, includeDeleted: boolean): Promise<Workout[]> {
   let query = supabase
     .from('workouts')
     .select('*')
     .eq('is_custom_activity', false)
     .order('name')
+
+  if (!includeDeleted) {
+    query = query.is('deleted_at', null)
+  }
 
   if (!includeInactive) {
     query = query.eq('is_active', true)
@@ -126,10 +130,28 @@ async function toggleWorkoutActive(id: string, is_active: boolean): Promise<void
   if (error) throw error
 }
 
-export function useWorkouts({ includeInactive = false }: { includeInactive?: boolean } = {}) {
+async function softDeleteWorkout(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('workouts')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+async function restoreWorkout(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('workouts')
+    .update({ deleted_at: null })
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+export function useWorkouts({ includeInactive = false, includeDeleted = false }: { includeInactive?: boolean; includeDeleted?: boolean } = {}) {
   return useQuery({
-    queryKey: ['workouts', { includeInactive }],
-    queryFn: () => fetchWorkouts(includeInactive),
+    queryKey: ['workouts', { includeInactive, includeDeleted }],
+    queryFn: () => fetchWorkouts(includeInactive, includeDeleted),
   })
 }
 
@@ -179,6 +201,26 @@ export function useToggleWorkoutActive() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, is_active }: { id: string; is_active: boolean }) => toggleWorkoutActive(id, is_active),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workouts'] })
+    },
+  })
+}
+
+export function useSoftDeleteWorkout() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: softDeleteWorkout,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workouts'] })
+    },
+  })
+}
+
+export function useRestoreWorkout() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: restoreWorkout,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] })
     },

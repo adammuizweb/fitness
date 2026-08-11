@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogFooter } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
-import { Plus, Pencil, Trash2, Eye, ChevronLeft, ChevronRight, Moon, Share2, Info } from 'lucide-react'
-import { useWorkouts, useToggleWorkoutActive } from '@/hooks/useWorkouts'
+import { Plus, Pencil, Trash2, EyeOff, Eye, RotateCcw, ChevronLeft, ChevronRight, Moon, Share2, Info } from 'lucide-react'
+import { useWorkouts, useToggleWorkoutActive, useSoftDeleteWorkout, useRestoreWorkout } from '@/hooks/useWorkouts'
 import { useSchedules } from '@/hooks/useSchedules'
 import { useRestDays, useToggleRestDay } from '@/hooks/useRestDays'
 import { useMySharedWorkouts } from '@/hooks/useSharedWorkouts'
@@ -20,11 +20,11 @@ import { SharePlanDialog } from './SharePlanDialog'
 const PER_PAGE = 12
 
 type TypeFilter = 'all' | 'lift' | 'cardio'
-type ActiveFilter = 'all' | 'active' | 'inactive'
+type ActiveFilter = 'all' | 'active' | 'inactive' | 'deleted'
 
 export function WorkoutList() {
   const { t, days } = useI18n()
-  const { data: workouts = [], isLoading } = useWorkouts({ includeInactive: true })
+  const { data: workouts = [], isLoading } = useWorkouts({ includeInactive: true, includeDeleted: true })
   const { data: schedules = [] } = useSchedules()
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
@@ -36,6 +36,8 @@ export function WorkoutList() {
   const toggleRestMutation = useToggleRestDay()
   const { data: myShared = [] } = useMySharedWorkouts()
   const toggleActiveMutation = useToggleWorkoutActive()
+  const softDeleteMutation = useSoftDeleteWorkout()
+  const restoreMutation = useRestoreWorkout()
   const [shareWorkout, setShareWorkout] = useState<Workout | null>(null)
   const [showSharePlan, setShowSharePlan] = useState(false)
 
@@ -57,9 +59,13 @@ export function WorkoutList() {
     }
 
     if (activeFilter === 'active') {
-      result = result.filter((w) => w.is_active)
+      result = result.filter((w) => w.is_active && !w.deleted_at)
     } else if (activeFilter === 'inactive') {
-      result = result.filter((w) => !w.is_active)
+      result = result.filter((w) => !w.is_active && !w.deleted_at)
+    } else if (activeFilter === 'deleted') {
+      result = result.filter((w) => !!w.deleted_at)
+    } else {
+      result = result.filter((w) => !w.deleted_at)
     }
 
     if (dayFilter !== null) {
@@ -77,7 +83,7 @@ export function WorkoutList() {
 
   async function handleDelete() {
     if (!deleteId) return
-    await toggleActiveMutation.mutateAsync({ id: deleteId, is_active: false })
+    await softDeleteMutation.mutateAsync(deleteId)
     setDeleteId(null)
   }
 
@@ -139,6 +145,7 @@ export function WorkoutList() {
             <option value="active">{t('workoutList.filterActive')}</option>
             <option value="inactive">{t('workoutList.filterInactive')}</option>
             <option value="all">{t('workoutList.filterAll')}</option>
+            <option value="deleted">{t('workoutList.filterDeleted')}</option>
           </select>
 
           <select
@@ -216,7 +223,7 @@ export function WorkoutList() {
             {paginated.map((workout) => {
               const wdays = scheduleDays.get(workout.id)
               return (
-                <Card key={workout.id} className={workout.is_active ? '' : 'opacity-60'}>
+                <Card key={workout.id} className={!workout.is_active || workout.deleted_at ? 'opacity-60' : ''}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="min-w-0 flex-1">
@@ -225,7 +232,11 @@ export function WorkoutList() {
                           <span className={`shrink-0 text-xs px-1.5 py-0.5 rounded-full ${workout.type === 'lift' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
                             {workout.type === 'lift' ? t('workoutList.typeLift') : t('workoutList.typeCardio')}
                           </span>
-                          {!workout.is_active && (
+                          {workout.deleted_at ? (
+                            <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full bg-red-100 text-red-600">
+                              {t('workoutList.deleted')}
+                            </span>
+                          ) : !workout.is_active && (
                             <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500">
                               {t('workoutList.inactive')}
                             </span>
@@ -259,22 +270,34 @@ export function WorkoutList() {
                         )}
                       </div>
                       <div className="flex flex-col gap-1 ml-2 shrink-0">
-                        <Link href={`/dashboard/workouts/${workout.id}/edit`}>
-                          <Button variant="ghost" size="icon">
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                        </Link>
-                        <Button variant="ghost" size="icon" onClick={() => setShareWorkout(workout)}>
-                          <Share2 className={`w-4 h-4 ${myShared.some(s => s.source_workout_id === workout.id) ? 'text-green-500' : 'text-gray-300 hover:text-green-500'}`} />
-                        </Button>
-                        {workout.is_active ? (
-                          <Button variant="ghost" size="icon" onClick={() => setDeleteId(workout.id)}>
-                            <Trash2 className="w-4 h-4 text-red-500" />
+                        {workout.deleted_at ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title={t('workoutList.restore')}
+                            onClick={() => restoreMutation.mutate(workout.id)}
+                          >
+                            <RotateCcw className="w-4 h-4 text-green-600" />
                           </Button>
                         ) : (
-                          <Button variant="ghost" size="icon" onClick={() => handleToggleActive(workout)}>
-                            <Eye className="w-4 h-4 text-green-500" />
-                          </Button>
+                          <>
+                            <Link href={`/dashboard/workouts/${workout.id}/edit`}>
+                              <Button variant="ghost" size="icon">
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                            </Link>
+                            <Button variant="ghost" size="icon" onClick={() => setShareWorkout(workout)}>
+                              <Share2 className={`w-4 h-4 ${myShared.some(s => s.source_workout_id === workout.id) ? 'text-green-500' : 'text-gray-300 hover:text-green-500'}`} />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleToggleActive(workout)}>
+                              {workout.is_active
+                                ? <EyeOff className="w-4 h-4 text-amber-500" />
+                                : <Eye className="w-4 h-4 text-green-500" />}
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => setDeleteId(workout.id)}>
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -324,7 +347,7 @@ export function WorkoutList() {
           <Button variant="outline" onClick={() => setDeleteId(null)}>
             {t('common.cancel')}
           </Button>
-          <Button variant="destructive" onClick={handleDelete} loading={toggleActiveMutation.isPending}>
+          <Button variant="destructive" onClick={handleDelete} loading={softDeleteMutation.isPending}>
             {t('common.delete')}
           </Button>
         </DialogFooter>
@@ -340,7 +363,7 @@ export function WorkoutList() {
 
       {showSharePlan && (
         <SharePlanDialog
-          schedules={schedules}
+          schedules={schedules.filter((schedule) => !schedule.workout?.deleted_at)}
           open={showSharePlan}
           onClose={() => setShowSharePlan(false)}
         />

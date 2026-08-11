@@ -8,9 +8,9 @@ import { Dialog, DialogFooter } from '@/components/ui/dialog'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useI18n } from '@/lib/i18n/context'
 import { WorkoutForm } from '@/components/workouts/WorkoutForm'
-import { useWorkouts, useUpdateWorkoutWithSchedule, useToggleWorkoutActive } from '@/hooks/useWorkouts'
+import { useWorkouts, useUpdateWorkoutWithSchedule, useToggleWorkoutActive, useSoftDeleteWorkout } from '@/hooks/useWorkouts'
 import { useSchedules } from '@/hooks/useSchedules'
-import { Eye, Trash2, AlertTriangle } from 'lucide-react'
+import { EyeOff, Eye, Trash2, AlertTriangle } from 'lucide-react'
 
 export default function EditWorkoutPage() {
   const { t } = useI18n()
@@ -20,6 +20,7 @@ export default function EditWorkoutPage() {
   const { data: schedules, isLoading: schedulesLoading } = useSchedules()
   const updateMutation = useUpdateWorkoutWithSchedule(id)
   const toggleActiveMutation = useToggleWorkoutActive()
+  const softDeleteMutation = useSoftDeleteWorkout()
   const [showDelete, setShowDelete] = useState(false)
 
   const workout = workouts?.find((w) => w.id === id)
@@ -41,7 +42,7 @@ export default function EditWorkoutPage() {
 
   async function handleDelete() {
     if (!workout) return
-    await toggleActiveMutation.mutateAsync({ id: workout.id, is_active: false })
+    await softDeleteMutation.mutateAsync(workout.id)
     router.push('/dashboard/workouts')
     router.refresh()
   }
@@ -96,22 +97,19 @@ export default function EditWorkoutPage() {
             {t('dangerZone.desc')}
           </p>
           <div className="flex gap-2">
-            {workout.is_active ? (
-              <Button variant="destructive" onClick={() => setShowDelete(true)}>
-                <Trash2 className="w-4 h-4" />
-                {t('dangerZone.delete')}
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                onClick={handleToggleActive}
-                loading={toggleActiveMutation.isPending}
-                className="border-green-300 text-green-700 hover:bg-green-50"
-              >
-                <Eye className="w-4 h-4" />
-                {t('dangerZone.activate')}
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              onClick={handleToggleActive}
+              loading={toggleActiveMutation.isPending}
+              className="border-amber-300 text-amber-700 hover:bg-amber-50"
+            >
+              {workout.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {workout.is_active ? t('dangerZone.deactivate') : t('dangerZone.activate')}
+            </Button>
+            <Button variant="destructive" onClick={() => setShowDelete(true)}>
+              <Trash2 className="w-4 h-4" />
+              {t('dangerZone.delete')}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -126,7 +124,7 @@ export default function EditWorkoutPage() {
           <Button variant="outline" onClick={() => setShowDelete(false)}>
             {t('common.cancel')}
           </Button>
-          <Button variant="destructive" onClick={handleDelete} loading={toggleActiveMutation.isPending}>
+          <Button variant="destructive" onClick={handleDelete} loading={softDeleteMutation.isPending}>
             {t('common.delete')}
           </Button>
         </DialogFooter>
